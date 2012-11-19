@@ -1,0 +1,111 @@
+body {
+  font: 14px 'Droid Sans', Arial, Verdana, Sans-Serif;
+  background-color: #ccc;
+  margin:0px;
+}
+#controls, #shadow, #indicator {
+	display: none !important;
+	width: 0px;
+	
+}
+#print {
+	background: url(img/sprite_black2.png) no-repeat -84px -63px;
+	height: 21px;
+	opacity: .55;
+	width: 21px;
+}
+#output {
+	float:left;
+	clear:none;
+}
+.offset {
+	position:relative;
+	left:0px;
+}
+.page{
+	background-color: #fff;
+	margin:0px;
+	/*padding: .5in .5in .5in .5in;*/
+	page-break-before: always;
+}
+
+#note {
+	width: 3in;
+	height: 3in;
+	padding: 0px;
+	margin: 0px;
+	margin-bottom: 30px;
+	overflow: hidden;
+}
+#template #note {
+	width:284px; /*96px*3in-2pxborder=284px*/
+	height:284px;
+	border: 2px #000 solid;
+	background-color: #fff;
+	margin-bottom: 30px;
+}
+
+.divider {
+	margin:40px 0 20px 0;
+	border-top:1px #000 solid;
+	clear: both;
+	position: relative;
+	
+}
+#form{
+	margin:20px;
+}
+textarea,input{
+	width: 100%;
+	background-color: transparent !important;
+	border: none;
+}
+/*#shadow{
+	height: 40px;
+}*/
+#instructions {
+	clear: both;
+	text-align: center;
+}
+.portrait #instructions {
+	clear: none;
+	padding: 10px;
+}
+.portrait #instructions img {
+	margin-bottom: 10px;
+}
+.landscape #instructions {
+	position: relative;
+	bottom: -30px;
+}
+.landscape #instructions img {
+	position: absolute;
+	left: 100px;
+	bottom: -30px;
+	width: 100px;
+	height: 100px;
+}
+
+.landscape{
+	width: 10in;
+	height: 7.5in;
+}
+.portrait{
+	width: 7.5in;
+	height: 10in;
+}
+.note_wrapper{
+}
+
+.left{
+	float: left;
+	padding:0px;
+}
+.middle{
+	float:left;
+	padding-left:.45in;
+}
+.right{
+	float: right;
+	padding:0px;
+}

@@ -1,0 +1,322 @@
+body {
+	font-size: 14px;
+	font-family:'Droid Sans', Arial, Verdana, Sans-Serif;
+	background-color: #ccc;
+	margin:0px;
+	color: #444;
+}
+a {
+	color: #4E7DC2;
+	text-decoration: none;
+}
+a:hover {
+	color: #880000;
+	text-decoration: underline;
+}
+#page-title {
+	font-size: 24px;
+	font-weight: thin;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+#total {
+	font-size: 14px;
+	font-weight: thin;
+	margin-bottom: 10px;
+}
+.divider {
+	margin:20px 0 20px 0;
+	border-top:1px #808080 solid;
+	clear: both;
+	position: relative;
+	width: 288px;
+}
+#controls {
+	float:left;
+	width: 288px;
+	height: 100%;
+	position:fixed;
+	margin:0px;
+	padding-left:20px;
+	padding-right: 20px;
+	background-color: #fff;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+#control-shadow{
+	float:left;
+	width:10px;
+	height:100%;
+	position:fixed;
+	left:328px;
+	background: url(img/right-shadow.png) repeat-y;
+	background-size: 10px;
+	opacity: .75;
+}
+#controls-wrapper{
+	width:315px;
+}
+#elements{
+	padding:20px;
+}
+#elements input[type=checkbox], input[type=radio]{
+	margin-right: 10px;
+	margin-left: 20px;
+	/*margin-bottom: 40px;*/
+}
+div.checkbox {
+	width:100%;
+	margin-bottom:18px;
+	padding:15px 0 0 0;
+	background-color: rgb(255,255,160);
+	/*border:1px solid #e49f16;*/ /*use this for draggable elements*/
+}
+#radioControls{
+	position: relative;
+}
+#fonts, #orientation{
+	float:left;
+	width:268px;
+	margin: 0px;
+	padding: 0px;
+	margin-bottom: 10px;
+	margin-left:20px;
+	display: block;
+	position: relative;
+}
+#radioland, #radioport{
+	font-weight:regular;
+}
+/*#radioland img, #radioport img{
+	margin-right: 10px;
+	vertical-align: -30%;
+}*/
+.pageIcon {
+	float: left;
+	position: absolute;
+	top: -10px;
+	left: 190px;
+	width: 100px;
+	height: 100px;
+}
+.fontIcon {
+	float: left;
+	position: absolute;
+	top: 20px;
+	left: 228px;
+	font-size: 36px;
+}
+.fontIcon.handwritten {
+	top: 13px;
+	left: 225px;
+}
+#button-wrapper{
+	width:288px;
+	position: relative;
+}
+#print {
+	background: url(img/sprite_black2.png) no-repeat -84px -63px;
+	height: 21px;
+	width: 21px;
+	opacity: .55;
+	clear: none;
+}
+#print-button{
+	font-family: 'Droid Sans', Arial, Sans-Serif;
+	font-weight: bold;
+	float: right;
+}
+#cancel-button{
+	font-family: 'Droid Sans', Arial, Sans-Serif;
+	font-weight: 400;
+	float: right;
+}
+#template-button{
+	font-family: 'Droid Sans', Arial, Sans-Serif;
+	font-weight: 400;
+	float: left;
+	margin-left: 0px;
+}
+.button{
+	font-family: 'Droid Sans', Arial, Sans-Serif;
+	font-size: 12px;
+	color:#444444;
+	/*width: 58px;
+	height: 24px;*/
+	margin:0px;
+	padding: 5px 12px 5px 12px;
+	margin-left: 6px;
+	-webkit-border-radius: 4px;
+	border:1px solid #808080;
+	background-image:-webkit-gradient(linear,left bottom,left top,color-stop(0,#fafafa),color-stop(1,#e5e5e5));
+}
+.button:HOVER{
+	background-image:-webkit-gradient(linear,left bottom,left top,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
+	border:1px solid #909090;
+	color:#222222;
+}
+.button:ACTIVE{
+	background-image:-webkit-gradient(linear,left top,left bottom,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
+	border:1px solid #4080fa;
+	color:#222222;
+}
+#output {
+	float:left;
+	clear:none;
+}
+.offset {
+	position:relative;
+	left:328px;
+}
+.page{
+	background-color: #fff;
+	margin:20px 0px 20px 20px;
+	padding: .5in .5in .5in 0in;
+}
+.export{
+	/*-webkit-border-radius: 8px;*/
+	width: 8.5in;
+	padding: .5in;
+	margin:20px 0px 20px 20px;
+	background-color: #fff;
+}
+.doc_title{
+	margin-left: 20px;
+	padding-left: .5in;
+	position: relative;
+	top: 25px;
+	float: left;
+	font-size: 18px;
+}
+ui-state-highlight {
+	width: 3in;
+	height: 3in;
+	line-height: 3in;
+	padding: 0 0 0 .5in;
+	margin: 0px;
+	border:2px dashed rgb(255,255,160);
+	display: block;
+	float: left;
+}
+#note {
+	width: 3in;
+	height: 3in;
+	padding: 0px;
+	margin: 0px;
+	background-color: rgb(255,255,160);
+	overflow: hidden;
+}
+#template {
+	display: none;
+}
+#template #note {
+	border: 2px #000 solid;
+	background-color: #fff;
+	margin-bottom: 40px;
+}
+#form{
+	margin:20px;
+}
+/*textarea,input{
+	width: 100%;
+	background-color: transparent !important;
+	border: none;
+}*/
+
+/*#shadow{
+	height: 40px;
+}*/
+#instructions {
+	padding-top: 10px;
+	margin-left: 35px;
+	padding-bottom: 20px;
+	font-size: 13px;
+}
+#instructions._export {
+	margin-left: 0px;
+}
+
+#controls::-webkit-scrollbar {
+	width: 11px;
+}
+
+#controls::-webkit-scrollbar-track {
+	border-right:5px solid transparent;
+	background-clip: padding-box;
+}
+
+#controls::-webkit-scrollbar-thumb {
+    -webkit-box-shadow: inset 0 0 1px rgba(0,0,0,0.3);
+    background: #ccc;
+    border-right:5px solid transparent;
+    background-clip: padding-box;
+}
+#controls::-webkit-scrollbar-track:hover {
+	background-color:rgba(0,0,0,0.035);
+	-webkit-box-shadow:inset 1px 1px 0 rgba(0,0,0,0.14),inset -1px -1px 0 rgba(0,0,0,0.07)
+}
+#controls::-webkit-scrollbar-thumb:hover {
+	background-color:rgba(0,0,0,0.3);
+}
+#controls::-webkit-scrollbar-track:active {
+	background-color:rgba(0,0,0,0.035);
+	-webkit-box-shadow:inset 1px 1px 0 rgba(0,0,0,0.14),inset -1px -1px 0 rgba(0,0,0,0.07)
+}
+#controls::-webkit-scrollbar-thumb:active {
+	background-color:rgba(0,0,0,0.4);
+}
+
+#indicator{
+	width: 50px;
+	height: 30px;
+	position: fixed;
+	right: 2px;
+	top: 0px;
+	background: #FFF;
+	color: #000;
+	border-radius: 5px;
+	-webkit-box-shadow:0px 0px 4px rgba(0,0,0,0.25);
+	text-align: center;
+	padding-top:15px;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.ui-sortable-helper #note{
+	-webkit-box-shadow:0px 0px 4px rgba(0,0,0,0.25);
+}
+
+.landscape{
+	width: 10.5in;
+	height: 7.5in;
+}
+.portrait{
+	width: 8in;
+	height: 10in;
+}
+.landscape #content{
+	height: 7.5in;
+}
+.portrait #content{
+	height: 10in;
+}
+.note_wrapper{
+	padding-left:.5in;
+	list-style: none;
+	cursor: default;
+}
+#note, .Droid, .handwritten{
+	cursor: pointer;
+}
+.left{
+	float: left;
+}
+.middle{
+	float:left;
+}
+.right{
+	float: left;
+}
+.portrait .right{
+	/*padding-left:1.5in;*/
+}
