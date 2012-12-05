@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Citable",
-  "version": "1.9",
+  "version": "1.10",
   "description": "Save citable quotes and notes from the web in Google spreadsheets.",
   "background": {
   	"page": "background.html",
@@ -33,5 +33,16 @@
   "web_accessible_resources": [
   	"chrome_ex_oauth.html",
   	"chrome_ex_oauth_init.js"
-  ]
+  ],
+  "commands": {
+  	"_execute_browser_action": {
+      "suggested_key": {
+        "windows": "Ctrl+Shift+A",
+        "mac": "Command+Shift+A",
+        "chromeos": "Ctrl+Shift+A",
+        "linux": "Ctrl+Shift+A"
+      }
+    }
+  }
+  
 }
