@@ -1,5 +1,6 @@
 Bug List:
-Due to Google Drive API updates, the doc list is no longer loading in the extension.
+04-03-2014 Due to Google Drive API updates, the doc list is no longer loading in the extension.
+
 
 This extension uses code from the following two JavaScript libraries:
 
