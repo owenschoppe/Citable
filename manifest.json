@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Citable",
-  "version": "1.9",
+  "version": "1.10",
   "description": "Save citable quotes and notes from the web in Google spreadsheets.",
   "background": {
   	"page": "background.html",
@@ -28,7 +28,8 @@
     "https://www.google.com/accounts/OAuthGetRequestToken",
     "https://www.google.com/accounts/OAuthAuthorizeToken",
     "https://www.google.com/accounts/OAuthGetAccessToken",
-    "cookies"
+    "cookies",
+    "storage"
   ],
   "web_accessible_resources": [
   	"chrome_ex_oauth.html",

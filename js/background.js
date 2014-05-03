@@ -17,7 +17,7 @@
       // Array to hold callback functions
       var callbacks = []; 
       
-      var firstRun = true; //Variable that is only true in the first start after an update. //Set to false if there is no need to update the headers.
+      var firstRun = false; //Variable that is only true in the first start after an update. //Set to false if there is no need to update the headers.
     
       //Initializes the oauth object. Parameters are defined in chrome_ex_oauth.js. Important for the getToken stream.
       var oauth = ChromeExOAuth.initBackgroundPage({
@@ -152,8 +152,14 @@ function logout() {
 
 //Updates the document headers in all of the user's spreadsheets found in Citable_Documents.
 //Runs completely in the background.
-updateDocument = function(callback) {
-	var privateDocs = docs; //Copy the doclist into a private variable so that we can run in the background while the user can send notes to the doc of choice.
+updateDocument = function(callback, docToUpdate) {
+	var privateDocs;
+	if (docToUpdate != null) {
+		privateDocs = docToUpdate;
+	}
+	else { 
+		privateDocs = docs; //Copy the doclist into a private variable so that we can run in the background while the user can send notes to the doc of choice.
+	}
 	console.log('updateDocument ');
 	var parts = [];
 	var worksheetId = 'od6';
@@ -352,6 +358,7 @@ updateDocument = function(callback) {
 	  return atom;
 	};
 		
+	//Decriment through the privateDocs array and update each one.
 	var nextDocument = function(){
 		if(privateDocs.length != 0 && k>-1){
 			parts = privateDocs[k].resourceId.split(':');

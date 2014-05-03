@@ -40,7 +40,8 @@ function addNoteHandler(e) {
 }
 
 function viewDocHandler(e){
-	gdocs.viewDoc($('#destination').val());
+	console.log($('#destination').find(':selected').data('link'));
+	gdocs.viewDoc($('#destination').val(),$('#destination').find(':selected').data('link'));
 	return false;
 }
 
@@ -301,6 +302,7 @@ gdocs.GoogleDoc = function(entry) {
   this.entry = entry;
   this.title = entry.title.$t;
   this.resourceId = entry.gd$resourceId.$t;
+  //Category, starred, and link are not used, though link would be more reliable than constructing a link using the resourceId since files may move.
   this.type = gdocs.getCategory(
     entry.category, 'http://schemas.google.com/g/2005#kind');
   this.starred = gdocs.getCategory(
@@ -309,7 +311,7 @@ gdocs.GoogleDoc = function(entry) {
   this.link = {
     'alternate': gdocs.getLink(entry.link, 'alternate').href
   };
-  this.contentSrc = entry.content.src;
+  if(entry.content) {this.contentSrc = entry.content.src;}; //Some of the newer spreadsheets don't have a content entry, so they throw an error.
 };
 
 //Row prototype object. 
@@ -752,6 +754,13 @@ console.log('gdocs.amendDoc..');
   }
 }
 
+util.updateHeaderSuccess = function(){
+	util.hideMsg();
+	util.displayMsg('Headers Updated!');
+	util.hideMsg();
+	addNoteHandler(); //Resubmit the add note request.
+}
+
 gdocs.amendDocHandler = function(docId, callback) {
   
   var summary = $('#summary').val();
@@ -766,8 +775,16 @@ gdocs.amendDocHandler = function(docId, callback) {
   	console.log('gdocs.amendDoc handleSuccess');
   	util.displayMsg($('#butter').text() + '.');
     if (xhr.status != 201) {
-			console.log('ERROR', xhr);
+			console.log('AMEND ERROR', xhr);
 			gdocs.handleError(xhr, resp);
+			util.hideMsg();
+			if(xhr.status == 400 || xhr.status == 500) { 
+				console.log('Try updating headers: ',[bgPage.docs[$('#destination').find(':selected').index() - 1]]);
+				//Try updating the column headers to fix faulty docs.
+				//The second param is an optional doc so we don't update the whole list. We take the index of :selected and use just that doc from the docs array.
+				bgPage.updateDocument(util.updateHeaderSuccess, [bgPage.docs[$('#destination').find(':selected').index() - 1]]); 				
+				util.displayError('Updating Headers...');
+			}; 
 			return;
 	} else {
 		util.displayMsg('Citable added!');
@@ -875,9 +892,9 @@ console.log('gdocs.renderDocSelect');
 		for (var i = 0, doc; doc = bgPage.docs[i]; ++i) {
 			docKey = doc.resourceId.slice(12);
 			//selected = i==0?'selected':'';
-			selected = docKey==localStorage['defaultDoc']?'selected':'';
+			if(localStorage['defaultDoc']){ selected = docKey==localStorage['defaultDoc']?'selected':''; }; //defaultDoc isn't defined on the first run so this sometimes throws crazy errors.
 			found = selected=='selected'?true:found;
-			html.push('<option ',selected,' value="',doc.resourceId,'">',doc.title.truncate(),'</option>');
+			html.push('<option ',selected,' value="',doc.resourceId,'" data-link="',doc.link.alternate,'">',doc.title.truncate(),'</option>');
 		}
 				
 		//On the first run after update, update all documents in the background.
@@ -930,7 +947,7 @@ console.log('gdocs.renderDocSelect');
  *     the main doclist feed uri is used.
  */
 gdocs.getDocumentList = function(opt_url, callback) {
-	console.log('gdocs.getDocumentList');
+	console.log('gdocs.getDocumentList', 'callback: ', callback);
 	//util.displayMsg('Fetching your docs..');
   
 	var handleSuccess = function(response, xhr) {
@@ -952,6 +969,7 @@ gdocs.getDocumentList = function(opt_url, callback) {
 			console.log('process feed');
 			for (var i = 0, entry; entry = data.feed.entry[i]; ++i) {
 				bgPage.docs.push(new gdocs.GoogleDoc(entry));
+				console.log(i);
 			}
 			
 			var nextLink = gdocs.getLink(data.feed.link, 'next');
@@ -1124,7 +1142,7 @@ gdocs.exportDocument = function(destination){
     var params = {
     'headers': {
       'GData-Version': '3.0'
-    },
+},
    'parameters': {
       'alt': 'json',
     }
@@ -1134,12 +1152,18 @@ gdocs.exportDocument = function(destination){
 	bgPage.oauth.sendSignedRequest(url, function(response, xhr){gdocs.processDocContent(response,xhr,function(){bgPage.exportDocument(onPrintPage)} )}, params);
 }
 
-gdocs.viewDoc = function(destination) {
-	if(destination == 'new'){ return; }
-	var parts = destination.split(':');
-	var tabUrl = 'https://docs.google.com/spreadsheet/ccc?key='+parts[1];
+gdocs.viewDoc = function(destination, url) {
+	
+	//First looks for the url passed in from the DocList API since that address should be correct. 
+	var tabUrl = url != null ? url : constructURL(destination);
 	chrome.tabs.create({url: tabUrl});
 	window.close();
+
+	function constructURL(destination) {
+		if(destination == 'new'){ return null; }
+		var parts = destination.split(':');
+		return 'https://docs.google.com/spreadsheet/ccc?key='+parts[1];
+	}
 }
 
 
