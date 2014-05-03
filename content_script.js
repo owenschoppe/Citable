@@ -119,9 +119,20 @@ var getAuthor = function(){
 }
 
 // Object to hold information about the current page
-var author = getAuthor();
-var summary = getSelectedText();
+var author;
+var summary;
 
+try {
+	author = getAuthor();
+} catch(e) {
+	console.log(e);
+}
+
+try {
+	summary = getSelectedText();
+} catch(e){
+	console.log(e);
+}
 var pageInfo = {
 	"title": document.title,
 	"url": 'test',

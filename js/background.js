@@ -17,7 +17,7 @@
       // Array to hold callback functions
       var callbacks = []; 
       
-      var firstRun = false; //Variable that is only true in the first start after an update. //Set to false if there is no need to update the headers.
+      var firstRun = true; //Variable that is only true in the first start after an update. //Set to false if there is no need to update the headers.
     
       //Initializes the oauth object. Parameters are defined in chrome_ex_oauth.js. Important for the getToken stream.
       var oauth = ChromeExOAuth.initBackgroundPage({
@@ -60,6 +60,8 @@
 		//var max_length = 1024;
 		//if (info.selection.length > max_length)
 		  //info.selection = info.selection.substring(0, max_length);
+
+		//Updates the dummy url to the actual url of the tab.
 		  var pageInfo = {
 		  	'title' : info.title,
 		  	'url' : tab.url,

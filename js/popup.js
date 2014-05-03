@@ -7,23 +7,25 @@
 
 var pageURL;
     	
-		function onPrintPage(o)
-		{
-			//Code executed on callback.
-			gdocs.closeWindow();
-		}
-	    // This callback function is called when the content script has been 
-	    // injected and returned its results
-	    function onPageInfo(o) 
-	    { 
-	        if(o){
-				console.log('onPageInfo callback', o);
-				document.getElementById("title").value = o.title ? o.title : ''; 
-				document.getElementById("author").value = o.authorName ? o.authorName: '';
-				document.getElementById("url").value = o.url ? o.url: '';
-				document.getElementById("summary").innerText = o.summary ? o.summary : ''; 
-	        }
-	    } 
+function onPrintPage(o)
+{
+	//Code executed on callback.
+	gdocs.closeWindow();
+}
+
+// This callback function is called when the content script has been 
+// injected and returned its results
+function onPageInfo(o) 
+{ 
+    if(o){
+		console.log('onPageInfo callback', o);
+		document.getElementById("title").value = o.title ? o.title : ''; 
+		document.getElementById("author").value = o.authorName ? o.authorName: '';
+		document.getElementById("url").value = o.url ? o.url: '';
+		document.getElementById("summary").innerText = o.summary ? o.summary : ''; 
+    }
+} 
+
 /////////////////////////////////////////////////////////////////////////
 //Replaces onClick="" in popup.html 	    
 document.addEventListener('DOMContentLoaded', function () {
@@ -969,7 +971,7 @@ gdocs.getDocumentList = function(opt_url, callback) {
 			console.log('process feed');
 			for (var i = 0, entry; entry = data.feed.entry[i]; ++i) {
 				bgPage.docs.push(new gdocs.GoogleDoc(entry));
-				console.log(i);
+				//console.log(i);
 			}
 			
 			var nextLink = gdocs.getLink(data.feed.link, 'next');

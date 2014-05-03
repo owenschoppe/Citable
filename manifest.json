@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Citable",
-  "version": "1.10",
+  "version": "1.10.1",
   "description": "Save citable quotes and notes from the web in Google spreadsheets.",
   "background": {
   	"page": "background.html",
