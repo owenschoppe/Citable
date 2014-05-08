@@ -1,6 +1,8 @@
 
       var DOCLIST_SCOPE = 'https://docs.google.com/feeds';
       var DOCLIST_FEED = DOCLIST_SCOPE + '/default/private/full/';
+      var DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive';
+      var SPREAD_SCOPE = 'https://spreadsheets.google.com/feeds';
       var docs = []; //In memory cache for the user's entire doclist.
       var row = []; //In memory cache for each row of the sheet returned.
       var cat = []; //In memory cache for entire folder list
@@ -10,9 +12,8 @@
       var docName; //For passing the document name to the export page.
       var docKey;
             
-      var SPREAD_SCOPE = 'https://spreadsheets.google.com/feeds';
       
-      var FULL_SCOPE = DOCLIST_SCOPE + ' ' + SPREAD_SCOPE;
+      var FULL_SCOPE = DOCLIST_SCOPE + ' ' + SPREAD_SCOPE + ' ' + DRIVE_SCOPE;
       
       // Array to hold callback functions
       var callbacks = []; 
@@ -145,11 +146,11 @@ function clearPendingRequests() {
 	requests = [];
 };
 
-function logout() {
+function logout(access_token, callback) {
+	//oauth.clearTokens(); //Old Auth Flow
+	clearPendingRequests();
 	docs = [];
 	setIcon({'text': ''});
-	oauth.clearTokens();
-	clearPendingRequests();
 };
 
 //Updates the document headers in all of the user's spreadsheets found in Citable_Documents.

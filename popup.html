@@ -4,7 +4,7 @@
  * Citable by Owen Schoppe is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License
  *
 -->
-<html>
+<html data-ng-app="gDriveApp" ng-csp="">
 
 <head>
 <title>Citable</title>
@@ -12,7 +12,11 @@
 <link rel="stylesheet" type="text/css" href="/css/pop.css">
 <link rel="stylesheet" type="text/css" href="/css/notes.css">
 <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+<!--<script type="text/javascript" src="https://apis.google.com/js/client.js"></script>-->
 <script type="text/javascript" src="js/analytics.js"></script>
+<script type="text/javascript" src="js/angular-1.1.0.min.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/gdocs.js"></script>
 <script type="text/javascript" src="js/popup.js"></script>
 </head>
 
@@ -29,7 +33,7 @@
 </div>
 <div id="shadow"></div>
 </div> <!--note-->
-<div id="controls">
+<div id="controls" data-ng-controller="DocsController">
 	
     <label id="selectionLabel" for="selection" class="indent note">Save note in:</label>
 	<div id="new_doc_container">
@@ -40,7 +44,12 @@
 	
 	<div id="selection_box" class="clear">
 		<div id="menu" name="menu" class="button Droid left controls"><!--<img id="menu" src="/css/img/menu.png" />--></div>
-		<div id="selection" name="selection" class="space"><img id="loading" src="css/img/loading.gif" /></div>
+		<div id="selection" name="selection" class="space"><img id="loading" src="css/img/loading.gif" />
+			<select id="destination" class="Droid" name="destination">
+				<option value="new">Create New Document</option>
+				<option data-ng-repeat="doc in docs" value="{{doc.alternateLink}}">{{doc.title}}</option>
+			</select>
+		</div>
 		<div id="addNote" class="button Droid note">Save</div>
 	</div>
 	</form>
