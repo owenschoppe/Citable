@@ -21,6 +21,7 @@ function onError(e) {
 }
 
 // FILESYSTEM SUPPORT ----------------------------------------------------------
+/*
 var fs = null;
 var FOLDERNAME = 'test';
 
@@ -42,6 +43,7 @@ function writeFile(blob) {
     }, onError);
   }, onError);
 }
+*/
 // -----------------------------------------------------------------------------
 
 var gDriveApp = angular.module('gDriveApp', []);
@@ -59,7 +61,7 @@ gDriveApp.factory('gdocs', function() {
       }, true);
     });
   });*/
-  console.log(gdocs);
+  //console.log(gdocs);
   return gdocs;
 });
 //gDriveApp.service('gdocs', GDocs);
@@ -68,9 +70,12 @@ gDriveApp.factory('gdocs', function() {
 // Main Angular controller for app.
 function DocsController($scope, $http, gdocs) {
   $scope.docs = [];
+  $scope.cats = [];
 
   // Response handler that caches file icons in the filesystem API.
   function successCallbackWithFsCaching(resp, status, headers, config) {
+    console.log(resp);
+
     var docs = [];
 
     var totalEntries = resp.items.length;
@@ -78,6 +83,7 @@ function DocsController($scope, $http, gdocs) {
     resp.items.forEach(function(entry, i) {
       var doc = {
         title: entry.title,
+        id: entry.id,
         updatedDate: Util.formatDate(entry.modifiedDate),
         updatedDateFull: entry.modifiedDate,
         icon: entry.iconLink,
@@ -130,18 +136,19 @@ function DocsController($scope, $http, gdocs) {
           $scope.$apply(function($scope) {}); // Inform angular we made changes.
         }
     });
+    console.log('Documents List',$scope.docs);
   }
 
   $scope.clearDocs = function() {
     $scope.docs = []; // Clear out old results.
   };
 
-  $scope.fetchDocs = function(retry) {
+  $scope.fetchDocs = function(retry, folderId) {
     this.clearDocs();
 
     if (gdocs.accessToken) {
       var config = {
-        params: {'alt': 'json'},
+        params: {'alt': 'json', 'q': "mimeType contains 'spreadsheet' and '"+folderId+"' in parents"},
         headers: {
           'Authorization': 'Bearer ' + gdocs.accessToken
         }
@@ -159,11 +166,58 @@ function DocsController($scope, $http, gdocs) {
     }
   };
 
+  $scope.fetchFolder = function(retry) {
+    this.clearDocs();
+
+    function successCallbackFolderId(resp, status, headers, config){
+      var cats = [];
+
+      var totalEntries = resp.items.length;
+
+      resp.items.forEach(function(entry, i) {
+        var cat = {
+          title: entry.title,
+          id: entry.id,
+          updatedDate: Util.formatDate(entry.modifiedDate),
+          alternateLink: entry.alternateLink,
+        };
+        $scope.cats.push(cat);
+        // Only want to sort and call $apply() when we have all entries.
+        if (totalEntries - 1 == i) {
+          //$scope.cats.sort(Util.sortByDate);
+          $scope.$apply(function($scope) {}); // Inform angular we made changes.
+        }
+      });
+      console.log('Folders',$scope.cats);
+      $scope.fetchDocs(false, $scope.cats[0].id);
+    }
+
+    if (gdocs.accessToken) {
+      var config = {
+        params: {'alt': 'json', 'q': "mimeType contains 'folder' and title='Citable_Documents' and trashed!=true"},
+        headers: {
+          'Authorization': 'Bearer ' + gdocs.accessToken
+        }
+      };
+
+      $http.get(gdocs.DOCLIST_FEED, config).
+        success(successCallbackFolderId).
+        error(function(data, status, headers, config) {
+          if (status == 401 && retry) {
+            gdocs.removeCachedAuthToken(
+                gdocs.auth.bind(gdocs, true, 
+                    $scope.fetchDocs.bind($scope, false)));
+          }
+        });
+    }
+  };
+
   // Toggles the authorization state.
   $scope.toggleAuth = function(interactive) {
     if (!gdocs.accessToken) {
       gdocs.auth(interactive, function() {
-        $scope.fetchDocs(false);
+        $scope.fetchFolder(false);
+        //$scope.fetchDocs(false);
       });
     } else {
       gdocs.revokeAuthToken(function() {});
@@ -179,7 +233,9 @@ function DocsController($scope, $http, gdocs) {
       return 'Authorize';
   };
 
+  //Run toggleAuth when the constructor is called.
   $scope.toggleAuth(false);
+
 }
 
 DocsController.$inject = ['$scope', '$http', 'gdocs']; // For code minifiers.
@@ -190,8 +246,11 @@ document.addEventListener('DOMContentLoaded', function(e) {
   //closeButton.addEventListener('click', function(e) {
     //window.close();
   //});
-  angular.element(document.getElementById('controls')).scope().toggleAuth(true);
-  angular.element(document.getElementById('controls')).scope().$apply();
+  
+  //Use these to start the doc request on dom load.
+  //angular.element(document.getElementById('controls')).scope().toggleAuth(true);
+  //angular.element(document.getElementById('controls')).scope().$apply();
+  
   // FILESYSTEM SUPPORT --------------------------------------------------------
   //window.webkitRequestFileSystem(TEMPORARY, 1024 * 1024, function(localFs) {
     //fs = localFs;
