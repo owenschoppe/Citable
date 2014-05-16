@@ -44,8 +44,8 @@
 	
 	<div id="selection_box" class="clear">
 		<div id="menu" name="menu" class="button Droid left controls"><!--<img id="menu" src="/css/img/menu.png" />--></div>
-		<div id="selection" name="selection" class="space"><img id="loading" src="css/img/loading.gif" />
-			<select id="destination" class="Droid" name="destination">
+		<div id="selection" name="selection" class="space"><img id="loading" src="css/img/loading.gif" ng-hide="gotDocs()"/>
+			<select id="destination" class="Droid" name="destination" ng-show="gotDocs()">
 				<option value="new">Create New Document</option>
 				<option data-ng-repeat="doc in docs" value="{{doc.alternateLink}}">{{doc.title}}</option>
 			</select>

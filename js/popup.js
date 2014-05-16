@@ -16,6 +16,9 @@ limitations under the License.
 Author: Eric Bidelman (ericbidelman@chromium.org)
 */
 
+//Begin closure
+(function(){
+
 function onError(e) {
   console.log(e);
 }
@@ -68,7 +71,8 @@ gDriveApp.factory('gdocs', function() {
 //gDriveApp.controller('DocsController', ['$scope', '$http', DocsController]);
 
 // Main Angular controller for app.
-function DocsController($scope, $http, gdocs) {
+//function DocsController($scope, $http, gdocs) { //Use this if not using closure.
+gDriveApp.controller('DocsController', ['$scope', '$http', 'gdocs', function($scope, $http, gdocs){
   $scope.docs = [];
   $scope.cats = [];
 
@@ -233,15 +237,28 @@ function DocsController($scope, $http, gdocs) {
       return 'Authorize';
   };
 
+//Actually want to show the selector either way? No, on return of no docs (ie, startup) show the new doc name field and hide the loading wheel.
+//gotDocs is just part of this logic, it should also consider the state of the doc list query. 
+//On error, display error. On 200 OK evaluate doc list length.
+//Global variable with the state set. On callback success evaluate state and set global variable.
+  $scope.gotDocs = function(index) {
+    console.log('Docs length:',this.docs.length);
+    if(this.docs.length > 0){
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   //Run toggleAuth when the constructor is called.
   $scope.toggleAuth(false);
 
-}
+} ]);
 
-DocsController.$inject = ['$scope', '$http', 'gdocs']; // For code minifiers.
+//DocsController.$inject = ['$scope', '$http', 'gdocs']; // For code minifiers. Use this when not using closure syntax.
 
 // Init setup and attach event listeners.
-document.addEventListener('DOMContentLoaded', function(e) {
+//document.addEventListener('DOMContentLoaded', function(e) {
   //var closeButton = document.querySelector('#close-button');
   //closeButton.addEventListener('click', function(e) {
     //window.close();
@@ -256,4 +273,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
     //fs = localFs;
   //}, onError);
   // ---------------------------------------------------------------------------
-});
+//});
+
+//End Closure
+})();
