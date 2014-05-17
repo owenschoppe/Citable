@@ -93,7 +93,7 @@ fetchFolder = function(retry) {
         }
       };
 
-      gdocs.makeRequest('GET',gdocs.DOCLIST_FEED,successCallbackFolderId,config.params);
+      gdocs.makeRequest('GET',gdocs.DOCLIST_FEED,successCallbackFolderId,{'alt': 'json', 'q': "mimeType contains 'folder' and title='Citable_Documents' and trashed!=true"});
 
       /*$http.get(gdocs.DOCLIST_FEED, config).
         success(successCallbackFolderId).

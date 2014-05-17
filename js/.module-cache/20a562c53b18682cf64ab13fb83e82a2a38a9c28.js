@@ -93,7 +93,7 @@ fetchFolder = function(retry) {
         }
       };
 
-      gdocs.makeRequest('GET',gdocs.DOCLIST_FEED,successCallbackFolderId,config.params);
+      gdocs.makeRequest('POST',gdocs.DOCLIST_FEED,successCallbackFolderId,config.params);
 
       /*$http.get(gdocs.DOCLIST_FEED, config).
         success(successCallbackFolderId).

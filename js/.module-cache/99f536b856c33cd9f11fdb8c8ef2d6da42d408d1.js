@@ -60,9 +60,6 @@ fetchFolder = function(retry) {
     this.clearDocs();
 
     function successCallbackFolderId(resp, status, headers, config){
-      //resp = JSON.parse(respo);
-      console.log(resp, status);
-
       var cats = [];
 
       var totalEntries = resp.items.length;
@@ -93,7 +90,7 @@ fetchFolder = function(retry) {
         }
       };
 
-      gdocs.makeRequest('GET',gdocs.DOCLIST_FEED,successCallbackFolderId,config.params);
+      gdocs.makeRequest('GET',gdocs.DOCLIST_FEED,successCallbackFolderId,config.params,config.headers);
 
       /*$http.get(gdocs.DOCLIST_FEED, config).
         success(successCallbackFolderId).

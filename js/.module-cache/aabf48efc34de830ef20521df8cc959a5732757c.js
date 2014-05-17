@@ -60,8 +60,7 @@ fetchFolder = function(retry) {
     this.clearDocs();
 
     function successCallbackFolderId(resp, status, headers, config){
-      //resp = JSON.parse(respo);
-      console.log(resp, status);
+      console.log(resp,status);
 
       var cats = [];
 

@@ -56,57 +56,6 @@ fetchDocs = function(retry, folderId) {
     }
 };
 
-fetchFolder = function(retry) {
-    this.clearDocs();
-
-    function successCallbackFolderId(resp, status, headers, config){
-      //resp = JSON.parse(respo);
-      console.log(resp, status);
-
-      var cats = [];
-
-      var totalEntries = resp.items.length;
-
-      resp.items.forEach(function(entry, i) {
-        var cat = {
-          title: entry.title,
-          id: entry.id,
-          updatedDate: Util.formatDate(entry.modifiedDate),
-          alternateLink: entry.alternateLink,
-        };
-        cats.push(cat);
-        // Only want to sort and call $apply() when we have all entries.
-        if (totalEntries - 1 == i) {
-          //$scope.cats.sort(Util.sortByDate);
-          //$scope.$apply(function($scope) {}); // Inform angular we made changes.
-        }
-      });
-      console.log('Folders',cats);
-      fetchDocs(false, cats[0].id);
-    }
-
-    if (gdocs.accessToken) {
-      var config = {
-        params: {'alt': 'json', 'q': "mimeType contains 'folder' and title='Citable_Documents' and trashed!=true"},
-        headers: {
-          'Authorization': 'Bearer ' + gdocs.accessToken
-        }
-      };
-
-      gdocs.makeRequest('GET',gdocs.DOCLIST_FEED,successCallbackFolderId,config.params);
-
-      /*$http.get(gdocs.DOCLIST_FEED, config).
-        success(successCallbackFolderId).
-        error(function(data, status, headers, config) {
-          if (status == 401 && retry) {
-            gdocs.removeCachedAuthToken(
-                gdocs.auth.bind(gdocs, true, 
-                    $scope.fetchDocs.bind($scope, false)));
-          }
-        });*/
-    }
-  };
-
 clearDocs = function() {
 	docs = []; // Clear out old results.
 };
@@ -114,8 +63,8 @@ clearDocs = function() {
 toggleAuth = function(interactive) {
     if (!gdocs.accessToken) {
       gdocs.auth(interactive, function() {
-        fetchFolder(false);
-        //fetchDocs(false);
+        //$scope.fetchFolder(false);
+        fetchDocs(false);
       });
     } else {
       gdocs.revokeAuthToken(function() {});

@@ -88,6 +88,7 @@ GDocs.prototype.revokeAuthToken = function(opt_callback) {
  */
 GDocs.prototype.makeRequest = function(method, url, callback, opt_params, opt_headers) {
   var params = opt_params || null;
+  console.log('params',Util.stringify(params));
   var headers = opt_headers || {};
 
   var xhr = new XMLHttpRequest();
@@ -100,14 +101,15 @@ GDocs.prototype.makeRequest = function(method, url, callback, opt_params, opt_he
   }
 
   xhr.onload = function(e) {
+    console.log('response',(e));
     this.lastResponse = this.response;
-    callback(this.lastResponse, this);
+    callback(JSON.parse(e.target.response));
   }.bind(this);
   xhr.onerror = function(e) {
     console.log(this, this.status, this.response,
                 this.getAllResponseHeaders());
   };
-  xhr.send(params);
+  xhr.send(Util.stringify(params));
 };
 
 
@@ -146,4 +148,15 @@ GDocs.prototype.upload = function(blob, callback, retry) {
 
 };
 
-
+//Converts recursive objects (using php "array" notation for the query string)
+//http://stackoverflow.com/questions/1714786/querystring-encoding-of-a-javascript-object
+GDocs.prototype.serialize = function(obj, prefix) {
+  var str = [];
+  for(var p in obj) {
+    var k = prefix ? prefix + "[" + p + "]" : p, v = obj[p];
+    str.push(typeof v == "object" ?
+      serialize(v, k) :
+      encodeURIComponent(k) + "=" + encodeURIComponent(v));
+  }
+  return str.join("&");
+}

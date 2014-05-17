@@ -60,8 +60,7 @@ fetchFolder = function(retry) {
     this.clearDocs();
 
     function successCallbackFolderId(resp, status, headers, config){
-      //resp = JSON.parse(respo);
-      console.log(resp, status);
+      console.log(resp,status);
 
       var cats = [];
 
@@ -93,7 +92,7 @@ fetchFolder = function(retry) {
         }
       };
 
-      gdocs.makeRequest('GET',gdocs.DOCLIST_FEED,successCallbackFolderId,config.params);
+      gdocs.makeRequest('GET',gdocs.DOCLIST_FEED,successCallbackFolderId,{'alt': 'json', 'q': "mimeType contains 'folder' and title='Citable_Documents' and trashed!=true"});
 
       /*$http.get(gdocs.DOCLIST_FEED, config).
         success(successCallbackFolderId).
