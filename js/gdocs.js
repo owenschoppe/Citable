@@ -43,6 +43,7 @@ function GDocs(selector) {
 };
 
 GDocs.prototype.auth = function(interactive, opt_callback) {
+  console.log('gdocs.auth');
   try {
     chrome.identity.getAuthToken({interactive: interactive}, function(token) {
       if (token) {
@@ -85,8 +86,8 @@ GDocs.prototype.revokeAuthToken = function(opt_callback) {
 /*
  * Generic HTTP AJAX request handler.
  */
-GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_headers) {
-  var data = opt_data || null;
+GDocs.prototype.makeRequest = function(method, url, callback, opt_params, opt_headers) {
+  var params = opt_params || null;
   var headers = opt_headers || {};
 
   var xhr = new XMLHttpRequest();
@@ -106,7 +107,7 @@ GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_head
     console.log(this, this.status, this.response,
                 this.getAllResponseHeaders());
   };
-  xhr.send(data);
+  xhr.send(params);
 };
 
 

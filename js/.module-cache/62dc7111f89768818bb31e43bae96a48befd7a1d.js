@@ -4,7 +4,7 @@
 var gdocs = new GDocs();
 
 function successCallbackWithFsCaching(resp, status, headers, config) {
-    console.log('fetchDocs Success',resp);
+    console.log(resp);
 
     var docs = [];
 
@@ -74,26 +74,26 @@ toggleAuth = function(interactive) {
 
 var docs= [{title:"test1",alternateLink:"url1"},{title:"test2",alternateLink:"url2"}];
 
-var ActionMenu = React.createClass({
+var ActionMenu = React.createClass({displayName: 'ActionMenu',
 	getInitialState: function(){
 		return {printableLink: "printableURL", exportLink: "exportLink"};
 	},
 	render: function(){
 		return (
-			<div>
-				<a className="viewDoc action">view document</a>
-				<div className="menu_items menu">
-				<div className="divider"></div>
-				<div className="item"><a className="printDoc action" href={this.state.printableLink}>print on post-its</a></div>
-				<div className="divider"></div>
-				<div className="item"><a className="exportDoc action" href={this.state.exportLink}>export citations</a></div>
-				</div>
-			</div>
+			React.DOM.div(null, 
+				React.DOM.a( {className:"viewDoc action"}, "view document"),
+				React.DOM.div( {className:"menu_items menu"}, 
+				React.DOM.div( {className:"divider"}),
+				React.DOM.div( {className:"item"}, React.DOM.a( {className:"printDoc action", href:this.state.printableLink}, "print on post-its")),
+				React.DOM.div( {className:"divider"}),
+				React.DOM.div( {className:"item"}, React.DOM.a( {className:"exportDoc action", href:this.state.exportLink}, "export citations"))
+				)
+			)
 		);
 	}	
 });
 
-var DocSelectControl = React.createClass({
+var DocSelectControl = React.createClass({displayName: 'DocSelectControl',
 	getInitialState: function() {
 	    var initSelect = this.props.docs.length?this.props.docs[0].alternateLink:'new';
 	    console.log(this.props.docs[0]);
@@ -109,37 +109,36 @@ var DocSelectControl = React.createClass({
 	    for(var i in this.props.docs) {
 	    	var doc = this.props.docs[i];
 	    	console.log('Build Doc Select Options:',doc,this.props.docs,this.props.docs.length&&i==0);
-	    	children.push(<option key={i} value={doc.alternateLink}>{doc.title}</option>);
+	    	children.push(React.DOM.option( {key:i, value:doc.alternateLink}, doc.title));
 	    }
 	    //console.log(this.props.handleChanges(this));
 	    return (
-	    	<select className="Droid destination" name="destination" onChange={this.handleChange} value={this.state.selected}>
-				<option value="new">Create New Document</option>
-	    		{children}
-	    	</select>	
+	    	React.DOM.select( {className:"Droid destination", name:"destination", onChange:this.handleChange, value:this.state.selected}, 
+				React.DOM.option( {value:"new"}, "Create New Document"),
+	    		children
+	    	)	
 	    );
 	}
 });
 
-var SelectionControls = React.createClass({
+var SelectionControls = React.createClass({displayName: 'SelectionControls',
   render: function(){
   	console.log(this.props.docs.length);
     return (
-        <div>
-		    <div className="button Droid left controls menu"></div>
-			<div className="space selection" name="selection">
-				<img className="loading" src="css/img/loading.gif" hidden={this.props.docs.length?true:false} />
-				<DocSelectControl docs={this.props.docs} changeDestination={this.props.changeDestination}/>
-			</div>
-			<div className="button Droid note addNote">Save</div>
-		</div>
+        React.DOM.div(null, 
+		    React.DOM.div( {className:"button Droid left controls menu"}),
+			React.DOM.div( {className:"space selection", name:"selection"}, 
+				React.DOM.img( {className:"loading", src:"css/img/loading.gif", hidden:this.props.docs.length?true:false} ),
+				DocSelectControl( {docs:this.props.docs, changeDestination:this.props.changeDestination})
+			),
+			React.DOM.div( {className:"button Droid note addNote"}, "Save")
+		)
     );
   }
 });
 //<div>{DocSelectControl.state.destination}</div>
-var Controls = React.createClass({
-  getInitialState: function() {
-    toggleAuth();
+var Controls = React.createClass({displayName: 'Controls',
+	getInitialState: function() {
     var dest = this.props.docs.length ? this.props.docs[0].alternativeLink : 'new';
     return {docs: [], destination:dest};
   },
@@ -150,29 +149,29 @@ var Controls = React.createClass({
 	render: function(){
 
 		return (
-			<div>
+			React.DOM.div(null, 
 				
-				<label className="selectionLabel indent note" for="selection">Save note in:</label>
-				<div className="new_doc_container" hidden={this.state.destination == 'new'?false:true}>
-				  <div className="indent">
-					  <input type="text" className='doc_title' placeholder="Enter a document title" />
-				  </div>
-				</div>
-				<div className="clear selection_box">
-					<SelectionControls docs={this.props.docs} changeDestination={this.changeDestination}/>
-				</div>
-				<div id="action_box" className="clear indent">
-					<span id="" className="addNoteLabel note">alt+return</span>
-					<div className="controls controlBar">
-						<ActionMenu />
-					</div>
-				</div>
-			</div>
+				React.DOM.label( {className:"selectionLabel indent note", for:"selection"}, "Save note in:"),
+				React.DOM.div( {className:"new_doc_container", hidden:this.state.destination == 'new'?false:true}, 
+				  React.DOM.div( {className:"indent"}, 
+					  React.DOM.input( {type:"text", className:"doc_title", placeholder:"Enter a document title"} )
+				  )
+				),
+				React.DOM.div( {className:"clear selection_box"}, 
+					SelectionControls( {docs:this.props.docs, changeDestination:this.changeDestination})
+				),
+				React.DOM.div( {id:"action_box", className:"clear indent"}, 
+					React.DOM.span( {id:"", className:"addNoteLabel note"}, "alt+return"),
+					React.DOM.div( {className:"controls controlBar"}, 
+						ActionMenu(null )
+					)
+				)
+			)
 		);
 	}
 });
 
 React.renderComponent(
-  <Controls docs={docs}/>,
+  Controls( {docs:docs}),
   document.getElementById('controls')
 );
