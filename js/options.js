@@ -30,7 +30,7 @@ bgPage.pollIntervalMin =  bgPage.refreshRate * 1000;
 
  function revokeToken() {
     //user_info_div.innerHTML="";
-    chrome.identity.getAuthToken({ 'interactive': false },
+    chrome.identity.getAuthToken({ 'interactive': true },
       function(current_token) {
         if (!chrome.runtime.lastError) {
 
@@ -58,7 +58,7 @@ bgPage.pollIntervalMin =  bgPage.refreshRate * 1000;
   }
 
 function initUI() {
-	chrome.identity.getAuthToken({ 'interactive': false }, function(token) {
+	chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
 	    // Use the token.
 		if (!token){
 			//if (!bgPage.oauth.hasToken()) {

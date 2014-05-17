@@ -251,7 +251,7 @@ gDriveApp.controller('DocsController', ['$scope', '$http', 'gdocs', function($sc
   }
 
   //Run toggleAuth when the constructor is called.
-  $scope.toggleAuth(false);
+  $scope.toggleAuth(true);
 
 } ]);
 
