@@ -69,17 +69,17 @@ a.disabled, a.disabled:hover {
 	margin-top: 5px;
 	/*padding-top: 15px;*/
 }
-#shadow {
+.shadow {
   background-image: url(img/shadow_small.png);
   background-size: 287px;
   width: 287px;
   height: 15px;
   background-repeat: no-repeat;
 }
-#frame #shadow {
+#frame .shadow {
 	height: 20px;
 }
-#controls{
+.controls{
 	font-size: 12px;
 	/*padding: 0px 17px 0px 22px;*/
 	padding: 0px 0px 0px 0px;
@@ -87,7 +87,7 @@ a.disabled, a.disabled:hover {
 	-webkit-user-select: none;
 	cursor: default;
 }
-#controlBar{
+.controlBar{
 	padding-top: 0px;
 }
 .action {
@@ -160,7 +160,7 @@ select:HOVER{
 	color:#444444;
 }
 
-#menu.button{
+.menu.button{
   background-image: url(img/menu-75.png), -webkit-gradient(linear,left top,left bottom,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
   background-position: center center;
   background-repeat: no-repeat;
@@ -168,14 +168,14 @@ select:HOVER{
   height: 14px;
   margin: 0px;
 }
-#menu.button:HOVER, #menu.button:ACTIVE{
+.menu.button:HOVER, .menu.button:ACTIVE{
   background-image: url(img/menu.png), -webkit-gradient(linear,left bottom,left top,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
 }
-#menu.disabled, #menu.disabled:HOVER, #menu.disabled:ACTIVE{
+.menu.disabled, .menu.disabled:HOVER, .menu.disabled:ACTIVE{
 	background-image: url(img/menu-75.png), -webkit-gradient(linear,left top,left bottom,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
 	border:1px solid #ccc;
 }
-#menu_items {
+.menu_items {
 	display:none;
 }
 .divider {
@@ -185,7 +185,7 @@ select:HOVER{
 	position: relative;
 	left:-20px;
 }
-#selection_box, #new_doc_container {
+#selection_box, .new_doc_container {
   padding-top: 4px;
   padding-bottom: 6px;
   height: 20px;
@@ -196,30 +196,30 @@ select:HOVER{
 .indent{
 	margin-left: 38px;
 }
-#new_doc_container {
+.new_doc_container {
 	padding-bottom: 4px;
 }
-#selection{
+.selection{
 	clear:none;
 	/*display: inline-block;*/
 	float:left;
 	
 }
-#docName {
+.docName {
 	clear: none;
 	float:right;
 	margin-left: 5px;
 	margin-top:2px;
 }
-#destination{
+.destination{
   width:170px;
   height: 20px;
   border: #ccc 1px solid;
 }
-#addNote{
+.addNote{
   float:right;
 }
-#addNoteLabel{
+.addNoteLabel{
   float:right;
   margin-right: 0px;
   padding-top: 0px;

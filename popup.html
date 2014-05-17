@@ -4,7 +4,7 @@
  * Citable by Owen Schoppe is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License
  *
 -->
-<html data-ng-app="gDriveApp" ng-csp="">
+<html>
 
 <head>
 <title>Citable</title>
@@ -14,10 +14,10 @@
 <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 <!--<script type="text/javascript" src="https://apis.google.com/js/client.js"></script>-->
 <script type="text/javascript" src="js/analytics.js"></script>
-<script type="text/javascript" src="js/angular-1.1.0.min.js"></script>
+<script type="text/javascript" src="js/react.js"></script>
+<!--<script type="text/javascript" src="js/JSXTransformer.js"></script>-->
 <script type="text/javascript" src="js/util.js"></script>
 <script type="text/javascript" src="js/gdocs.js"></script>
-<script type="text/javascript" src="js/popup.js"></script>
 </head>
 
 <body>
@@ -30,42 +30,14 @@
 			<input type="text" id="author" class="Droid input" name="author" value="" placeholder="Enter an author" />
 			<input type="text" id="url" class="Droid input" name="url" value="" placeholder="URL" />
 			<input type="text" id="tags" class="Droid input" name="tags" value="" placeholder="Enter some tags" />
-</div>
-<div id="shadow"></div>
-</div> <!--note-->
-<div id="controls" data-ng-controller="DocsController">
-	
-    <label id="selectionLabel" for="selection" class="indent note">Save note in:</label>
-	<div id="new_doc_container">
-	  <div class="indent">
-		  <input type="text" id="doc_title" placeholder="Enter a document title" >
-	  </div>
+
+	</div> <!--note-->
+		<div id="shadow"></div>
+
+	<div id="controls"> 
 	</div>
 	
-	<div id="selection_box" class="clear">
-		<div id="menu" name="menu" class="button Droid left controls"><!--<img id="menu" src="/css/img/menu.png" />--></div>
-		<div id="selection" name="selection" class="space"><img id="loading" src="css/img/loading.gif" ng-hide="gotDocs()"/>
-			<select id="destination" class="Droid" name="destination" ng-show="gotDocs()">
-				<option value="new">Create New Document</option>
-				<option data-ng-repeat="doc in docs" value="{{doc.alternateLink}}">{{doc.title}}</option>
-			</select>
-		</div>
-		<div id="addNote" class="button Droid note">Save</div>
-	</div>
 	</form>
-	<div id="action_box" class="clear indent">
-	<span id="addNoteLabel" class="note">alt+return</span>
-	<div id="controlBar" class="controls">
-		<a id="viewDoc" class="action">view document</a>
-		<div id="menu_items" class="menu">
-		<div class="divider"></div>
-		<div class="item"><a id="printDoc" class="action">print on post-its</a></div>
-		<div class="divider"></div>
-		<div class="item"><a id="exportDoc" class="action">export citations</a></div>
-		</div>
-	</div>
-	
-	</div>
 </div>
 
 <div id="butterbox">
@@ -73,6 +45,6 @@
 </div>
 
 </div>
-
+<script type="text/javascript" src="js/popup.js"></script>
 </body>
 </html>
