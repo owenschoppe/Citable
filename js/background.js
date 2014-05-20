@@ -47,7 +47,8 @@
 		//chrome.tabs.executeScript(null, { file: "content_script.js" }); 
 		chrome.tabs.executeScript(null, { file: "jquery-1.7.2.min.js" }, function() {
     		chrome.tabs.executeScript(null, { file: "content_script.js" });
-});
+		});
+		//console.log('callbacks',callbacks);
     }; 
     
     chrome.extension.onConnect.addListener(function(port) {
@@ -58,6 +59,7 @@
 	  port.onMessage.addListener(function(info) {
 		console.log('onMessage Listener ', info);
 		console.log('tab.url ', tab.url);
+		console.log('callbacks',callbacks);
 		//var max_length = 1024;
 		//if (info.selection.length > max_length)
 		  //info.selection = info.selection.substring(0, max_length);
@@ -66,18 +68,18 @@
 		  var pageInfo = {
 		  	'title' : info.title,
 		  	'url' : tab.url,
-		  	'summary' : info.summary,
+		  	'note' : info.summary,
 		  	'authorName' : info.authorName
 		  	};
 
-		  var callback = callbacks.shift();
+		  var callback = callbacks[0];//callbacks.shift();
         // Call the callback function
         callback(pageInfo); 
 		  //executeMailto(tab.id, info.title, tab.url, info.selection);
 	  });
 	});
     
-    
+/*    
 /////////////////////////////////////////////////////////
 function printDocumentPage(callback) 
 {
@@ -266,10 +268,7 @@ updateDocument = function(callback, docToUpdate) {
 			nextDocument();
 		}
 		//gs$colCount': colCount+n 
-		/*'parameters': {
-			  'alt': 'json',
-			}
-			*/
+
 		var params = {
 			'method': 'POST',
 			'headers': {
@@ -399,5 +398,5 @@ var updateDocumentCallback = function() {
 	console.log('Successfully completed spreadsheets header update.');
 	firstRun = false; 
 }
-
+*/
     

@@ -23,31 +23,7 @@ function onError(e) {
   console.log(e);
 }
 
-// FILESYSTEM SUPPORT ----------------------------------------------------------
-/*
-var fs = null;
-var FOLDERNAME = 'test';
 
-function writeFile(blob) {
-  if (!fs) {
-    return;
-  }
-
-  fs.root.getDirectory(FOLDERNAME, {create: true}, function(dirEntry) {
-    dirEntry.getFile(blob.name, {create: true, exclusive: false}, function(fileEntry) {
-      // Create a FileWriter object for our FileEntry, and write out blob.
-      fileEntry.createWriter(function(fileWriter) {
-        fileWriter.onerror = onError;
-        fileWriter.onwriteend = function(e) {
-          console.log('Write completed.');
-        };
-        fileWriter.write(blob);
-      }, onError);
-    }, onError);
-  }, onError);
-}
-*/
-// -----------------------------------------------------------------------------
 
 var gDriveApp = angular.module('gDriveApp', []);
 
@@ -55,26 +31,44 @@ gDriveApp.factory('gdocs', function() {
   console.log('run GDocs constructor');
   var gdocs = new GDocs();
 
-  //Don't need DnD for this.
-  /*var dnd = new DnDFileController('body', function(files) {
-    var $scope = angular.element(this).scope();
-    Util.toArray(files).forEach(function(file, i) {
-      gdocs.upload(file, function() {
-        $scope.fetchDocs(true);
-      }, true);
-    });
-  });*/
-  //console.log(gdocs);
   return gdocs;
 });
 //gDriveApp.service('gdocs', GDocs);
 //gDriveApp.controller('DocsController', ['$scope', '$http', DocsController]);
+
+gDriveApp.controller('CitationController', ['$scope', function($scope){
+  
+  var bgPage = chrome.extension.getBackgroundPage();
+
+  $scope.citation = state.citation;
+  
+  $scope.getPageInfo = function(){
+    bgPage.getPageInfo($scope.setCitation);
+  }
+
+  $scope.setCitation = function(pageInfo){
+    console.log('setCitation',pageInfo);
+    state.citation = pageInfo;
+    $scope.citation = state.citation; //Update $scope.citation
+  }
+
+  $scope.getCitation = function(){
+    console.log('getCitation',state.citation,citation);
+    return state.citation;
+  }
+
+  $scope.getPageInfo();
+
+} ]);
 
 // Main Angular controller for app.
 //function DocsController($scope, $http, gdocs) { //Use this if not using closure.
 gDriveApp.controller('DocsController', ['$scope', '$http', 'gdocs', function($scope, $http, gdocs){
   $scope.docs = [];
   $scope.cats = [];
+
+  //this.state = $scope.state;
+  //console.log('state',this.state);
 
   // Response handler that caches file icons in the filesystem API.
   function successCallbackWithFsCaching(resp, status, headers, config) {
@@ -95,44 +89,6 @@ gDriveApp.controller('DocsController', ['$scope', '$http', 'gdocs', function($sc
         size: entry.fileSize ? '( ' + entry.fileSize + ' bytes)' : null
       };
 
-      // 'http://gstatic.google.com/doc_icon_128.png' -> 'doc_icon_128.png'
-      //Don't need icons for this.
-      /*doc.iconFilename = doc.icon.substring(doc.icon.lastIndexOf('/') + 1);
-
-      // If file exists, it we'll get back a FileEntry for the filesystem URL.
-      // Otherwise, the error callback will fire and we need to XHR it in and
-      // write it to the FS.
-      var fsURL = fs.root.toURL() + FOLDERNAME + '/' + doc.iconFilename;
-      window.webkitResolveLocalFileSystemURL(fsURL, function(entry) {
-        console.log('Fetched icon from the FS cache');
-
-        doc.icon = entry.toURL(); // should be === to fsURL, but whatevs.
-
-        $scope.docs.push(doc);
-
-        // Only want to sort and call $apply() when we have all entries.
-        if (totalEntries - 1 == i) {
-          $scope.docs.sort(Util.sortByDate);
-          $scope.$apply(function($scope) {}); // Inform angular we made changes.
-        }
-      }, function(e) {
-
-        $http.get(doc.icon, {responseType: 'blob'}).success(function(blob) {
-          console.log('Fetched icon via XHR');
-
-          blob.name = doc.iconFilename; // Add icon filename to blob.
-
-          writeFile(blob); // Write is async, but that's ok.
-
-          doc.icon = window.URL.createObjectURL(blob);
-
-          $scope.docs.push(doc);
-          if (totalEntries - 1 == i) {
-            $scope.docs.sort(Util.sortByDate);
-          }
-        });
-
-      });*/
       $scope.docs.push(doc);
         // Only want to sort and call $apply() when we have all entries.
         if (totalEntries - 1 == i) {
@@ -237,10 +193,10 @@ gDriveApp.controller('DocsController', ['$scope', '$http', 'gdocs', function($sc
       return 'Authorize';
   };
 
-//Actually want to show the selector either way? No, on return of no docs (ie, startup) show the new doc name field and hide the loading wheel.
-//gotDocs is just part of this logic, it should also consider the state of the doc list query. 
-//On error, display error. On 200 OK evaluate doc list length.
-//Global variable with the state set. On callback success evaluate state and set global variable.
+  //Actually want to show the selector either way? No, on return of no docs (ie, startup) show the new doc name field and hide the loading wheel.
+  //gotDocs is just part of this logic, it should also consider the state of the doc list query. 
+  //On error, display error. On 200 OK evaluate doc list length.
+  //Global variable with the state set. On callback success evaluate state and set global variable.
   $scope.gotDocs = function(index) {
     console.log('Docs length:',this.docs.length);
     if(this.docs.length > 0){
@@ -250,12 +206,53 @@ gDriveApp.controller('DocsController', ['$scope', '$http', 'gdocs', function($sc
     }
   }
 
+  $scope.toggleMenu = function(){
+    state.menu = !state.menu;
+    
+  }
+
+  $scope.getMenu = function(){
+    console.log(state.menu);
+    return state.menu;
+  }
+
   //Run toggleAuth when the constructor is called.
   $scope.toggleAuth(true);
 
+
+
 } ]);
 
+var state = {
+  docs:[],
+  defaultDoc:'',
+  menu:false,
+  isLoading:true,
+  newDoc:false,
+  citation:{
+    note:'',
+    url:'',
+    author:'',
+    tags:'',
+    title:''
+  }
+
+};
+
+/*
+citation:{
+    note:'Select some text or type a note',
+    url:'URL',
+    author:'Enter an author',
+    tags:'Enter some tags',
+    title:'Enter a title'
+  }
+*/
+
 //DocsController.$inject = ['$scope', '$http', 'gdocs']; // For code minifiers. Use this when not using closure syntax.
+
+
+
 
 // Init setup and attach event listeners.
 //document.addEventListener('DOMContentLoaded', function(e) {
