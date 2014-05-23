@@ -24,23 +24,61 @@ function onError(e) {
 }
 
 
-
+//Original
 var gDriveApp = angular.module('gDriveApp', []);
 
+//Creates a service called gdocs
 gDriveApp.factory('gdocs', function() {
   console.log('run GDocs constructor');
   var gdocs = new GDocs();
 
   return gdocs;
 });
+
+gDriveApp.factory('state', function() {
+  console.log('run state constructor');
+  //var defaultDocument = {};
+  success = function(items) {
+          //defaultDocument = items;
+          // Notify that we saved.
+          console.log('Settings retrieved',items);
+          state.defaultDoc = items.defaultDoc;
+  }
+  chrome.storage.sync.get('defaultDoc', success)
+  var state = {
+            docs:[],
+            defaultDoc:0, //If we have a default doc in storage then use that, otherwise use Create New Doc.
+            menu:false,
+            isLoading:true,
+            newDoc:false,
+            citation:{
+              note:'',
+              url:'',
+              author:'',
+              tags:'',
+              title:''
+            }
+          };
+  console.log('state',state);
+        return {
+            
+            getState: function() {
+              return state;
+            }
+        };
+    
+
+});
+
+
 //gDriveApp.service('gdocs', GDocs);
 //gDriveApp.controller('DocsController', ['$scope', '$http', DocsController]);
 
-gDriveApp.controller('CitationController', ['$scope', function($scope){
+gDriveApp.controller('CitationController', ['$scope', 'state', function($scope, state){
   
   var bgPage = chrome.extension.getBackgroundPage();
 
-  $scope.citation = state.citation;
+  $scope.state = state.getState();
   
   $scope.getPageInfo = function(){
     bgPage.getPageInfo($scope.setCitation);
@@ -49,13 +87,13 @@ gDriveApp.controller('CitationController', ['$scope', function($scope){
   $scope.setCitation = function(pageInfo){
     console.log('setCitation',pageInfo);
     state.citation = pageInfo;
-    $scope.citation = state.citation; //Update $scope.citation
+    $scope.state.citation = state.citation; //Update $scope.citation
   }
 
-  $scope.getCitation = function(){
+  /*$scope.getCitation = function(){
     console.log('getCitation',state.citation,citation);
     return state.citation;
-  }
+  }*/
 
   $scope.getPageInfo();
 
@@ -63,9 +101,12 @@ gDriveApp.controller('CitationController', ['$scope', function($scope){
 
 // Main Angular controller for app.
 //function DocsController($scope, $http, gdocs) { //Use this if not using closure.
-gDriveApp.controller('DocsController', ['$scope', '$http', 'gdocs', function($scope, $http, gdocs){
-  $scope.docs = [];
+gDriveApp.controller('DocsController', ['$scope', '$http', 'gdocs', 'state', function($scope, $http, gdocs, state){
+  $scope.docs = state.docs; //Makes docs available to angular {{}}.
   $scope.cats = [];
+
+  $scope.state = state.getState();
+  console.log('state.defaultDoc on DocsController init',state.getState(),$scope.state);
 
   //this.state = $scope.state;
   //console.log('state',this.state);
@@ -74,7 +115,7 @@ gDriveApp.controller('DocsController', ['$scope', '$http', 'gdocs', function($sc
   function successCallbackWithFsCaching(resp, status, headers, config) {
     console.log(resp);
 
-    var docs = [];
+    //$scope.docs = [];
 
     var totalEntries = resp.items.length;
 
@@ -93,7 +134,9 @@ gDriveApp.controller('DocsController', ['$scope', '$http', 'gdocs', function($sc
         // Only want to sort and call $apply() when we have all entries.
         if (totalEntries - 1 == i) {
           $scope.docs.sort(Util.sortByDate);
-          $scope.$apply(function($scope) {}); // Inform angular we made changes.
+          //state.docs = $scope.docs; //??
+          //$scope.defaultDoc = $scope.docs[0].alternateLink;
+          //$scope.$apply(function($scope) {}); // Inform angular we made changes.
         }
     });
     console.log('Documents List',$scope.docs);
@@ -101,6 +144,7 @@ gDriveApp.controller('DocsController', ['$scope', '$http', 'gdocs', function($sc
 
   $scope.clearDocs = function() {
     $scope.docs = []; // Clear out old results.
+    //Inform angular we made changes?
   };
 
   $scope.fetchDocs = function(retry, folderId) {
@@ -145,7 +189,7 @@ gDriveApp.controller('DocsController', ['$scope', '$http', 'gdocs', function($sc
         // Only want to sort and call $apply() when we have all entries.
         if (totalEntries - 1 == i) {
           //$scope.cats.sort(Util.sortByDate);
-          $scope.$apply(function($scope) {}); // Inform angular we made changes.
+          //$scope.$apply(function($scope) {}); // Inform angular we made changes.
         }
       });
       console.log('Folders',$scope.cats);
@@ -219,25 +263,31 @@ gDriveApp.controller('DocsController', ['$scope', '$http', 'gdocs', function($sc
   //Run toggleAuth when the constructor is called.
   $scope.toggleAuth(true);
 
+  $scope.saveNote = function(){
+    console.log('Save Note: ', state.getState());
+  }
+
+  $scope.updateDefault = function(dD){
+    //$scope.$apply(function($scope) {}); // Inform angular we made changes.
+    console.log('defaultDoc',dD);
+    $scope.state.defaultDoc = dD; //update state service for message passing. is there a way to do this automatically?
+    // Save it using the Chrome extension storage API.
+    chrome.storage.sync.set({'defaultDoc': $scope.state.defaultDoc}, function() {
+      // Notify that we saved.
+      //console.log('Settings saved');
+      chrome.storage.sync.get('defaultDoc',function(items){console.log('storage.sync.get',items)});
+    });
+    console.log('defaultDoc',$scope.state.defaultDoc);
+  }
+
+  /*$scope.selectedOption = function(alternateLink){
+    console.log('selectedOption',alternateLink, alternateLink == state.defaultDoc);
+    return alternateLink == state.defaultDoc;
+  }*/
 
 
 } ]);
 
-var state = {
-  docs:[],
-  defaultDoc:'',
-  menu:false,
-  isLoading:true,
-  newDoc:false,
-  citation:{
-    note:'',
-    url:'',
-    author:'',
-    tags:'',
-    title:''
-  }
-
-};
 
 /*
 citation:{

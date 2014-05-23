@@ -25,11 +25,11 @@
 <div class="note" ng-controller='CitationController'>
 	<div id="citation">
 		<form id="addbookmark" name="addbookmark" >
-				<textarea id="summary" class="Droid input" name="summary" placeholder="Select some text or type a note" >{{getCitation().note}}</textarea>
+				<textarea id="summary" class="Droid input" name="summary" placeholder="Select some text or type a note" ng-model="citation.note"></textarea>
 				<input type="text" id="title" class="Droid input" name="title" value="" placeholder="Enter a title" ng-model="citation.title"/>
 				<input type="text" id="author" class="Droid input" name="author" value="" placeholder="Enter an author" ng-model="citation.author"/>
-				<input type="text" id="url" class="Droid input" name="url" value="" placeholder="URL" ng-model="getCitation().url"/>
-				<input type="text" id="tags" class="Droid input" name="tags" value="" placeholder="Enter some tags" ng-model="getCitation().tags"/>
+				<input type="text" id="url" class="Droid input" name="url" value="" placeholder="URL" ng-model="citation.url"/>
+				<input type="text" id="tags" class="Droid input" name="tags" value="" placeholder="Enter some tags" ng-model="citation.tags"/>
 	</div>
 	<div id="shadow"></div>
 </div> <!--note-->
@@ -45,12 +45,14 @@
 	<div id="selection_box" class="clear">
 		<div id="menu" name="menu" class="button Droid left controls" ng-click="toggleMenu()"><!--<img id="menu" src="/css/img/menu.png" />--></div>
 		<div id="selection" name="selection" class="space"><img id="loading" src="css/img/loading.gif" ng-hide="gotDocs()"/>
-			<select id="destination" class="Droid" name="destination" ng-show="gotDocs()">
-				<option value="new">Create New Document</option>
-				<option data-ng-repeat="doc in docs" value="{{doc.alternateLink}}">{{doc.title}}</option>
+			<div >{{state.defaultDoc.title}}</div> <!--ng-hide="gotDocs()"-->
+			<select id="destination" class="Droid" name="destination" ng-show="gotDocs()" ng-change="updateDefault(state.defaultDoc)" ng-model="state.defaultDoc" ng-options="doc.title for doc in docs track by doc">
+				<option value="">Create New Document</option>
+				<!--<option data-ng-repeat="doc in docs" value="{{doc.alternateLink}}" ng-selected="selectedOption(doc.alternateLink);">{{doc.title}}</option>-->
+				<!--ng-options="doc.title for doc in docs track by doc.alternateLink"-->
 			</select>
 		</div>
-		<div id="addNote" class="button Droid note">Save</div>
+		<div id="addNote" class="button Droid note" ng-click="saveNote()">Save</div>
 	</div>
 	</form>
 	<div id="action_box" class="clear indent">
