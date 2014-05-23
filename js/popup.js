@@ -35,50 +35,60 @@ gDriveApp.factory('gdocs', function() {
   return gdocs;
 });
 
-gDriveApp.factory('state', function() {
-  console.log('run state constructor');
-  //var defaultDocument = {};
-  success = function(items) {
-          //defaultDocument = items;
-          // Notify that we saved.
-          console.log('Settings retrieved',items);
-          state.defaultDoc = items.defaultDoc;
-  }
-  chrome.storage.sync.get('defaultDoc', success)
-  var state = {
-            docs:[],
-            defaultDoc:0, //If we have a default doc in storage then use that, otherwise use Create New Doc.
-            menu:false,
-            isLoading:true,
-            newDoc:false,
-            citation:{
-              note:'',
-              url:'',
-              author:'',
-              tags:'',
-              title:''
-            }
-          };
-  console.log('state',state);
-        return {
-            
-            getState: function() {
-              return state;
-            }
-        };
-    
+//factory
+gDriveApp.factory('sharedProps', sharedProps);
 
-});
+//factory constructor
+function sharedProps() {
+  //private variable
+  var props = {};
+  //set init values
+  props.citation = {
+    'note':'',
+    'title':'',
+    'author':'',
+    'date':'',
+    'url':'',
+    'tags':''
+  };
+  props.menu = false;
+  props.docs = [{
+    'alternateLink': "https://docs.google.com/spreadsheet/ccc?key=0AkX20VUVZL5CdGZJWlVjR0tTRHVnVGZqSUZJOEEtMXc&usp=drivesdk",
+    'icon': "https://ssl.gstatic.com/docs/doclist/images/icon_11_spreadsheet_list.png",
+    'id': "0AkX20VUVZL5CdGZJWlVjR0tTRHVnVGZqSUZJOEEtMXc",
+    'size': null,
+    'title': "LTC Initial Secondary Research Links",
+    'updatedDate': "5/13/14",
+    'updatedDateFull': "2014-05-14T01:13:04.561Z"
+  }, {
+    'alternateLink': "https://docs.google.com/spreadsheets/d/1c0MTew5ivtnWhfSqXHUONyD83BG3xLmN1HAS4q-fVU0/edit?usp=drivesdk",
+    'icon': "https://ssl.gstatic.com/docs/doclist/images/icon_11_spreadsheet_list.png",
+    'id': "1c0MTew5ivtnWhfSqXHUONyD83BG3xLmN1HAS4q-fVU0",
+    'size': null,
+    'title': "Test Spreadsheet",
+    'updatedDate': "5/7/14",
+    'updatedDateFull': "2014-05-08T15:22:37.186Z"
+  }];
+  props.defaultDoc = '';
+  props.defaultMeta = props.docs.filter(function(el){
+      return el.id == props.defaultDoc;
+    });
 
+  return {
+    //public variable to expose private variable
+    data: props
+  };
+
+}
 
 //gDriveApp.service('gdocs', GDocs);
 //gDriveApp.controller('DocsController', ['$scope', '$http', DocsController]);
 
-gDriveApp.controller('CitationController', ['$scope', 'state', function($scope, state){
+gDriveApp.controller('CitationController', function($scope, sharedProps){
   
   var bgPage = chrome.extension.getBackgroundPage();
 
-  $scope.state = state.getState();
+  $scope.data = sharedProps.data; //shared 2-way data binding to factory object
   
   $scope.getPageInfo = function(){
     bgPage.getPageInfo($scope.setCitation);
@@ -86,36 +96,37 @@ gDriveApp.controller('CitationController', ['$scope', 'state', function($scope, 
 
   $scope.setCitation = function(pageInfo){
     console.log('setCitation',pageInfo);
-    state.citation = pageInfo;
-    $scope.state.citation = state.citation; //Update $scope.citation
+    $scope.data.citation = pageInfo;
   }
-
-  /*$scope.getCitation = function(){
-    console.log('getCitation',state.citation,citation);
-    return state.citation;
-  }*/
 
   $scope.getPageInfo();
 
-} ]);
+});
 
 // Main Angular controller for app.
 //function DocsController($scope, $http, gdocs) { //Use this if not using closure.
-gDriveApp.controller('DocsController', ['$scope', '$http', 'gdocs', 'state', function($scope, $http, gdocs, state){
-  $scope.docs = state.docs; //Makes docs available to angular {{}}.
-  $scope.cats = [];
+gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProps){
+  $scope.data = sharedProps.data; //shared 2-way data binding to factory object
+  $scope.docs = $scope.data.docs; //Alias the docs prop for easy access. DOES NOT WORK
+  $scope.cats = []; //Shared cats within controller
 
-  $scope.state = state.getState();
-  console.log('state.defaultDoc on DocsController init',state.getState(),$scope.state);
+  //Retreive and update the defaultDoc based on local storage
+  success = function(items) {
+    console.log('Settings retrieved',items);
+    //update sharedProps values
+    $scope.data.defaultDoc = items.defaultDoc;
+    $scope.updateMeta($scope.data.defaultDoc);
+  }
+  chrome.storage.sync.get('defaultDoc', success);
+  //Update the default meta any time the storage value changes.
+  //We could also update the defaultDoc to guarantee everything stays in sync, but since we only trigger storage when we update it should be fine.
+  chrome.storage.onChanged.addListener(function(resp){$scope.updateMeta(resp.defaultDoc.newValue)});
 
-  //this.state = $scope.state;
-  //console.log('state',this.state);
+  console.log('sharedProps on DocsController init',$scope.data);
 
   // Response handler that caches file icons in the filesystem API.
   function successCallbackWithFsCaching(resp, status, headers, config) {
-    console.log(resp);
-
-    //$scope.docs = [];
+    console.log('successCallbackWithFsCaching',resp);
 
     var totalEntries = resp.items.length;
 
@@ -134,7 +145,7 @@ gDriveApp.controller('DocsController', ['$scope', '$http', 'gdocs', 'state', fun
         // Only want to sort and call $apply() when we have all entries.
         if (totalEntries - 1 == i) {
           $scope.docs.sort(Util.sortByDate);
-          //state.docs = $scope.docs; //??
+          $scope.data.docs = $scope.docs; //?? Aliasing didn't work, so we had to make an explicit redefinition.
           //$scope.defaultDoc = $scope.docs[0].alternateLink;
           //$scope.$apply(function($scope) {}); // Inform angular we made changes.
         }
@@ -144,7 +155,6 @@ gDriveApp.controller('DocsController', ['$scope', '$http', 'gdocs', 'state', fun
 
   $scope.clearDocs = function() {
     $scope.docs = []; // Clear out old results.
-    //Inform angular we made changes?
   };
 
   $scope.fetchDocs = function(retry, folderId) {
@@ -174,7 +184,7 @@ gDriveApp.controller('DocsController', ['$scope', '$http', 'gdocs', 'state', fun
     this.clearDocs();
 
     function successCallbackFolderId(resp, status, headers, config){
-      var cats = [];
+      //var cats = []; //local cats
 
       var totalEntries = resp.items.length;
 
@@ -193,6 +203,7 @@ gDriveApp.controller('DocsController', ['$scope', '$http', 'gdocs', 'state', fun
         }
       });
       console.log('Folders',$scope.cats);
+      //Get the files contained in the folder cats[0];
       $scope.fetchDocs(false, $scope.cats[0].id);
     }
 
@@ -242,8 +253,8 @@ gDriveApp.controller('DocsController', ['$scope', '$http', 'gdocs', 'state', fun
   //On error, display error. On 200 OK evaluate doc list length.
   //Global variable with the state set. On callback success evaluate state and set global variable.
   $scope.gotDocs = function(index) {
-    console.log('Docs length:',this.docs.length);
-    if(this.docs.length > 0){
+    console.log('Docs length:',$scope.docs.length);
+    if($scope.docs.length > 0){
       return true;
     } else {
       return false;
@@ -251,76 +262,41 @@ gDriveApp.controller('DocsController', ['$scope', '$http', 'gdocs', 'state', fun
   }
 
   $scope.toggleMenu = function(){
-    state.menu = !state.menu;
+    $scope.data.menu = !$scope.data.menu;
     
   }
 
   $scope.getMenu = function(){
-    console.log(state.menu);
-    return state.menu;
+    return $scope.data.menu;
   }
-
-  //Run toggleAuth when the constructor is called.
-  $scope.toggleAuth(true);
 
   $scope.saveNote = function(){
-    console.log('Save Note: ', state.getState());
+    console.log('Save Note: ', $scope.data);
+
   }
 
-  $scope.updateDefault = function(dD){
-    //$scope.$apply(function($scope) {}); // Inform angular we made changes.
-    console.log('defaultDoc',dD);
-    $scope.state.defaultDoc = dD; //update state service for message passing. is there a way to do this automatically?
+  $scope.storeDefault = function(){
+    console.log('storeDefault',$scope.data.defaultDoc);
     // Save it using the Chrome extension storage API.
-    chrome.storage.sync.set({'defaultDoc': $scope.state.defaultDoc}, function() {
+    chrome.storage.sync.set({'defaultDoc': $scope.data.defaultDoc}, function() {
       // Notify that we saved.
-      //console.log('Settings saved');
       chrome.storage.sync.get('defaultDoc',function(items){console.log('storage.sync.get',items)});
     });
-    console.log('defaultDoc',$scope.state.defaultDoc);
+    //If there is a change to the stored value, updateMeta gets triggered automatically.
   }
 
-  /*$scope.selectedOption = function(alternateLink){
-    console.log('selectedOption',alternateLink, alternateLink == state.defaultDoc);
-    return alternateLink == state.defaultDoc;
-  }*/
+  $scope.updateMeta = function(docId) {
+    $scope.data.defaultMeta = $scope.data.docs.filter(function(el){
+      //return el.id == $scope.data.defaultDoc;
+      return el.id == docId;
+    });
+    console.log('updateMeta', docId, $scope.data.defaultMeta);
+    //do something with the current doc id.
+  };
 
-
-} ]);
-
-
-/*
-citation:{
-    note:'Select some text or type a note',
-    url:'URL',
-    author:'Enter an author',
-    tags:'Enter some tags',
-    title:'Enter a title'
-  }
-*/
-
-//DocsController.$inject = ['$scope', '$http', 'gdocs']; // For code minifiers. Use this when not using closure syntax.
-
-
-
-
-// Init setup and attach event listeners.
-//document.addEventListener('DOMContentLoaded', function(e) {
-  //var closeButton = document.querySelector('#close-button');
-  //closeButton.addEventListener('click', function(e) {
-    //window.close();
-  //});
-  
-  //Use these to start the doc request on dom load.
-  //angular.element(document.getElementById('controls')).scope().toggleAuth(true);
-  //angular.element(document.getElementById('controls')).scope().$apply();
-  
-  // FILESYSTEM SUPPORT --------------------------------------------------------
-  //window.webkitRequestFileSystem(TEMPORARY, 1024 * 1024, function(localFs) {
-    //fs = localFs;
-  //}, onError);
-  // ---------------------------------------------------------------------------
-//});
+  //Run toggleAuth when the constructor is called to kick everything off.
+  $scope.toggleAuth(true);
+});
 
 //End Closure
 })();
