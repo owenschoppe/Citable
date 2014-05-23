@@ -70,9 +70,9 @@ function sharedProps() {
     'updatedDateFull': "2014-05-08T15:22:37.186Z"
   }];
   props.defaultDoc = '';
-  props.defaultMeta = props.docs.filter(function(el){
+  /*props.defaultMeta = props.docs.filter(function(el){
       return el.id == props.defaultDoc;
-    });
+    });*/
 
   return {
     //public variable to expose private variable
@@ -112,15 +112,16 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
 
   //Retreive and update the defaultDoc based on local storage
   success = function(items) {
-    console.log('Settings retrieved',items);
     //update sharedProps values
     $scope.data.defaultDoc = items.defaultDoc;
-    $scope.updateMeta($scope.data.defaultDoc);
+    //$scope.updateMeta($scope.data.defaultDoc);
+    console.log('Settings retrieved',items.defaultDoc,$scope.data.defaultDoc);
   }
   chrome.storage.sync.get('defaultDoc', success);
+  
   //Update the default meta any time the storage value changes.
   //We could also update the defaultDoc to guarantee everything stays in sync, but since we only trigger storage when we update it should be fine.
-  chrome.storage.onChanged.addListener(function(resp){$scope.updateMeta(resp.defaultDoc.newValue)});
+  //chrome.storage.onChanged.addListener(function(resp){$scope.updateMeta(resp.defaultDoc.newValue)});
 
   console.log('sharedProps on DocsController init',$scope.data);
 
@@ -146,6 +147,7 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
         if (totalEntries - 1 == i) {
           $scope.docs.sort(Util.sortByDate);
           $scope.data.docs = $scope.docs; //?? Aliasing didn't work, so we had to make an explicit redefinition.
+          
           //$scope.defaultDoc = $scope.docs[0].alternateLink;
           //$scope.$apply(function($scope) {}); // Inform angular we made changes.
         }
@@ -253,12 +255,8 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
   //On error, display error. On 200 OK evaluate doc list length.
   //Global variable with the state set. On callback success evaluate state and set global variable.
   $scope.gotDocs = function(index) {
-    console.log('Docs length:',$scope.docs.length);
-    if($scope.docs.length > 0){
-      return true;
-    } else {
-      return false;
-    }
+    console.log('Docs length:',$scope.docs.length>0);
+    return ($scope.docs.length > 0);
   }
 
   $scope.toggleMenu = function(){
@@ -285,14 +283,14 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
     //If there is a change to the stored value, updateMeta gets triggered automatically.
   }
 
-  $scope.updateMeta = function(docId) {
+  /*$scope.updateMeta = function(docId) {
     $scope.data.defaultMeta = $scope.data.docs.filter(function(el){
       //return el.id == $scope.data.defaultDoc;
       return el.id == docId;
     });
     console.log('updateMeta', docId, $scope.data.defaultMeta);
     //do something with the current doc id.
-  };
+  };*/
 
   //Run toggleAuth when the constructor is called to kick everything off.
   $scope.toggleAuth(true);

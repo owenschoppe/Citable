@@ -156,8 +156,8 @@ select:HOVER{
 	}
 .button_disabled, .button_disabled:HOVER, .button_disabled:ACTIVE{
 	border:1px solid #ccc;
-	background-image:-webkit-gradient(linear,left bottom,left top,color-stop(0,#fafafa),color-stop(1,#e5e5e5));
-	color:#444444;
+	background-image:-webkit-gradient(linear,left bottom,left top,color-stop(0,#fafafa),color-stop(1,#eeeeee));
+	color:#ccc;
 }
 
 #menu.button{
@@ -205,7 +205,7 @@ select:HOVER{
 	float:left;
 	
 }
-#docName {
+.docName {
 	clear: none;
 	float:right;
 	margin-left: 5px;
@@ -253,6 +253,11 @@ form {
 .right{
 	float: right;
 }
+
+.fade {
+  opacity: .35;
+}
+
 /*#title{
   font-family: 'Droid-bold', sans-serif;
   font-size: 14px;

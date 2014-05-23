@@ -11,10 +11,11 @@
 <link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" type="text/css" href="/css/pop.css">
 <link rel="stylesheet" type="text/css" href="/css/notes.css">
+<link rel="stylesheet" type="text/css" href="/css/angular-csp.css">
 <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 <!--<script type="text/javascript" src="https://apis.google.com/js/client.js"></script>-->
 <script type="text/javascript" src="js/analytics.js"></script>
-<script type="text/javascript" src="js/angular-1.1.0.min.js"></script>
+<script type="text/javascript" src="js/angular-1.2.16.min.js"></script>
 <script type="text/javascript" src="js/util.js"></script>
 <script type="text/javascript" src="js/gdocs.js"></script>
 <script type="text/javascript" src="js/popup.js"></script>
@@ -22,20 +23,20 @@
 
 <body>
 <div id="frame">
-<div class="note" ng-controller='CitationController'>
+<div class="note" ng-controller='CitationController' ng-class="{fade:data.menu}">
 	<div id="citation">
 		<form id="addbookmark" name="addbookmark" >
-				<textarea id="summary" class="Droid input" name="summary" placeholder="Select some text or type a note" ng-model="data.citation.note"></textarea>
-				<input type="text" id="title" class="Droid input" name="title" value="" placeholder="Enter a title" ng-model="data.citation.title"/>
-				<input type="text" id="author" class="Droid input" name="author" value="" placeholder="Enter an author" ng-model="data.citation.author"/>
-				<input type="text" id="url" class="Droid input" name="url" value="" placeholder="URL" ng-model="data.citation.url"/>
-				<input type="text" id="tags" class="Droid input" name="tags" value="" placeholder="Enter some tags" ng-model="data.citation.tags"/>
+				<textarea id="summary" class="Droid input" name="summary" placeholder="Select some text or type a note" ng-model="data.citation.note" ng-disabled="data.menu"></textarea>
+				<input type="text" id="title" class="Droid input" name="title" value="" placeholder="Enter a title" ng-model="data.citation.title" ng-disabled="data.menu"/>
+				<input type="text" id="author" class="Droid input" name="author" value="" placeholder="Enter an author" ng-model="data.citation.author" ng-disabled="data.menu"/>
+				<input type="text" id="url" class="Droid input" name="url" value="" placeholder="URL" ng-model="data.citation.url" ng-disabled="data.menu"/>
+				<input type="text" id="tags" class="Droid input" name="tags" value="" placeholder="Enter some tags" ng-model="data.citation.tags" ng-disabled="data.menu"/>
 	</div>
 	<div id="shadow"></div>
 </div> <!--note-->
 <div id="controls" data-ng-controller="DocsController">
 	
-    <label id="selectionLabel" for="selection" class="indent note">Save note in:</label>
+    <label id="selectionLabel" for="selection" class="indent note" ng-class="{fade:data.menu}">Save note in:</label>
 	<div id="new_doc_container">
 	  <div class="indent">
 		  <input type="text" id="doc_title" placeholder="Enter a document title" >
@@ -44,22 +45,26 @@
 	
 	<div id="selection_box" class="clear">
 		<div id="menu" name="menu" class="button Droid left controls" ng-click="toggleMenu()"><!--<img id="menu" src="/css/img/menu.png" />--></div>
-		<div id="selection" name="selection" class="space"><img id="loading" src="css/img/loading.gif" ng-hide="gotDocs()"/>
-			<div ng-hide="gotDocs()">{{data.defaultMeta[0].title}}</div> <!--ng-hide="gotDocs()"-->
-			<select id="destination" class="Droid" name="destination" ng-model="data.defaultDoc" ng-change="storeDefault()" ng-show="gotDocs()" ng-options="doc.id as doc.title for doc in data.docs">
-				<option value="">Create New Document</option>
+		<div id="selection" name="selection" class="space">
+			<div ng-hide="gotDocs()">
+				<img id="loading" class="docName" src="css/img/loading.gif" data-ng-hide="gotDocs()"/>
+				<span class="docName">{{data.defaultDoc.title}}</span>
+			</div>
+			
+			<select id="destination" class="Droid" name="destination" ng-model="data.defaultDoc" ng-change="storeDefault()" ng-show="gotDocs()" ng-options="doc.title for doc in data.docs track by doc.id">
+				<option value="" ng-disabled="data.menu">Create New Document...</option>
 				<!--<option data-ng-repeat="doc in docs" value="{{doc.alternateLink}}" ng-selected="selectedOption(doc.alternateLink);">{{doc.title}}</option>-->
 				<!--ng-options="doc.title for doc in docs track by doc.alternateLink"-->
 			</select>
 		</div>
-		<div id="addNote" class="button Droid note" ng-click="saveNote()">Save</div>
+		<div id="addNote" class="button Droid note" ng-click="saveNote()" ng-disabled="data.menu" ng-class="{button_disabled:data.menu, fade:data.menu}">Save</div>
 	</div>
 	</form>
 	<div id="action_box" class="clear indent">
-	<span id="addNoteLabel" class="note">alt+return</span>
+	<span id="addNoteLabel" class="note" ng-class="{fade:data.menu}">alt+return</span>
 	<div id="controlBar" class="controls">
 		<a id="viewDoc" class="action">view document</a>
-		<div class="menu" ng-show="getMenu()">
+		<div class="menu" ng-show="data.menu">
 		<div class="divider"></div>
 		<div class="item"><a id="printDoc" class="action" ng-click="">print on post-its</a></div>
 		<div class="divider"></div>

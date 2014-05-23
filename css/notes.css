@@ -83,7 +83,9 @@
 	padding:0px;
 }
 
-
+.fade {
+  opacity: .25;
+}
 
 /*.left{
 	float: left;
