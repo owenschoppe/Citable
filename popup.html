@@ -63,7 +63,7 @@
 	<div id="action_box" class="clear indent">
 	<span id="addNoteLabel" class="note" ng-class="{fade:data.menu}">alt+return</span>
 	<div id="controlBar" class="controls">
-		<a id="viewDoc" class="action">view document</a>
+		<a id="viewDoc" class="action" ng-click="viewDoc(data.defaultDoc.id,data.defaultDoc.alternateLink)">view document</a>
 		<div class="menu" ng-show="data.menu">
 		<div class="divider"></div>
 		<div class="item"><a id="printDoc" class="action" ng-click="">print on post-its</a></div>
@@ -73,11 +73,14 @@
 	</div>
 	
 	</div>
+
+	<div id="butterbox">
+	  <div id="butter" style="width:150px;margin:auto;padding:auto;align:center;" ng-show="data.butter.message" ng-class="data.butter.status">{{data.butter.message}}</div>
+	</div>
+
 </div>
 
-<div id="butterbox">
-  <div id="butter" style="width:150px;margin:auto;padding:auto;align:center;"></div>
-</div>
+
 
 </div>
 

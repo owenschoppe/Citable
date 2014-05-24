@@ -70,6 +70,7 @@ function sharedProps() {
     'updatedDateFull': "2014-05-08T15:22:37.186Z"
   }];
   props.defaultDoc = '';
+  props.butter = {'status':'', 'message':''};
   /*props.defaultMeta = props.docs.filter(function(el){
       return el.id == props.defaultDoc;
     });*/
@@ -110,14 +111,16 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
   $scope.docs = $scope.data.docs; //Alias the docs prop for easy access. DOES NOT WORK
   $scope.cats = []; //Shared cats within controller
 
+  var bgPage = chrome.extension.getBackgroundPage();
+
   //Retreive and update the defaultDoc based on local storage
-  success = function(items) {
+  storageSuccess = function(items) {
     //update sharedProps values
     $scope.data.defaultDoc = items.defaultDoc;
     //$scope.updateMeta($scope.data.defaultDoc);
     console.log('Settings retrieved',items.defaultDoc,$scope.data.defaultDoc);
   }
-  chrome.storage.sync.get('defaultDoc', success);
+  chrome.storage.sync.get('defaultDoc', storageSuccess);
   
   //Update the default meta any time the storage value changes.
   //We could also update the defaultDoc to guarantee everything stays in sync, but since we only trigger storage when we update it should be fine.
@@ -126,8 +129,8 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
   console.log('sharedProps on DocsController init',$scope.data);
 
   // Response handler that caches file icons in the filesystem API.
-  function successCallbackWithFsCaching(resp, status, headers, config) {
-    console.log('successCallbackWithFsCaching',resp);
+  function successCallbackWithFsCaching(resp, status, headers, config, statusText) {
+    console.log('successCallbackWithFsCaching',resp,status,headers,config, statusText);
 
     var totalEntries = resp.items.length;
 
@@ -153,7 +156,30 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
         }
     });
     console.log('Documents List',$scope.docs);
+    showMsg('Got Docs!');
   }
+
+  //Displays message in butterBox with an optional class via status
+  //Valid status: error.
+  showMsg = function(message,status,delay){
+    //Private function to clear the message after a set interval.
+    clearMsg = function(delay){ 
+      //console.log(delay);
+      delay = delay != null ? delay : 1000;
+      setTimeout(function(){
+        $scope.data.butter = {'status':'','message':''};
+        //console.log('clearMsg',$scope.data.butter);
+        //TODO: Add fadout animation using ngAnimage and $animate?
+        $scope.$apply(function($scope) {}); // Inform angular we made changes.
+      },delay);
+    }
+
+    status = status !=null ? status : '';
+    $scope.data.butter = {'status':status,'message':message};
+    clearMsg(delay);
+  }  
+
+  
 
   $scope.clearDocs = function() {
     $scope.docs = []; // Clear out old results.
@@ -172,11 +198,13 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
 
       $http.get(gdocs.DOCLIST_FEED, config).
         success(successCallbackWithFsCaching).
-        error(function(data, status, headers, config) {
+        error(function(data, status, headers, config, statusText) {
           if (status == 401 && retry) {
             gdocs.removeCachedAuthToken(
                 gdocs.auth.bind(gdocs, true, 
                     $scope.fetchDocs.bind($scope, false)));
+          } else {
+            showMsg(status,'error');
           }
         });
     }
@@ -185,7 +213,7 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
   $scope.fetchFolder = function(retry) {
     this.clearDocs();
 
-    function successCallbackFolderId(resp, status, headers, config){
+    function successCallbackFolderId(resp, status, headers, config, statusText){
       //var cats = []; //local cats
 
       var totalEntries = resp.items.length;
@@ -219,15 +247,197 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
 
       $http.get(gdocs.DOCLIST_FEED, config).
         success(successCallbackFolderId).
-        error(function(data, status, headers, config) {
+        error(function(data, status, headers, config, statusText) {
+          
           if (status == 401 && retry) {
             gdocs.removeCachedAuthToken(
                 gdocs.auth.bind(gdocs, true, 
                     $scope.fetchDocs.bind($scope, false)));
+          } else {
+            console.log('fetchFolder error',status);
+            showMsg(status,'error');
           }
         });
     }
   };
+
+  //Handler for saving a new citation.
+  $scope.amendDoc = function(destination, callback) {
+  console.log('gdocs.amendDoc..');
+    
+    destination = destination!=null ? destination : $scope.data.defaultDoc;
+    //In the new scheme, new doc selected and no default on init are indistinguishable... this might be ok.
+    if(destination.id == ''){
+      //title = $.trim($('#doc_title').val());
+      //createDoc(callback);
+      return;
+    } /*else if(destination == null && localStorage['defaultDoc']){ //If the doc menu isn't loaded yet, then try using the default doc.
+            gdocs.amendDocHandler(localStorage['defaultDoc'], callback);   
+        //TODO: create error in amendDocHandler to catch sending note to a document that doesn't exist.
+    }*/ else{
+      console.log('destination: ',destination.id,destination.title);
+      amendDocHandler(destination.id, callback);
+    }
+  }
+
+  amendDocHandler = function(docId, callback) {
+  
+    constructSpreadBody_ = function(entryTitle, entryUrl, entrySummary, entryTags, entryAuthor) {            
+      
+      constructSpreadAtomXml_ = function(entryTitle, entryUrl, entrySummary, entryTags, entryAuthor) {
+  
+        var d = new Date();
+        var curr_date = d.getDate();
+        var curr_month = d.getMonth() + 1; //months are zero based
+        var curr_year = d.getFullYear();
+        var dd = curr_year + '/' + curr_month + '/' + curr_date;
+        
+        var atom = ["<?xml version='1.0' encoding='UTF-8'?>",
+                  '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gsx="http://schemas.google.com/spreadsheets/2006/extended">',//'--END_OF_PART\r\n',
+                    '<gsx:title>',entryTitle,'</gsx:title>',//'--END_OF_PART\r\n',
+                    '<gsx:url>',entryUrl,'</gsx:url>',//'--END_OF_PART\r\n',
+                    '<gsx:summary>',entrySummary,'</gsx:summary>',//'--END_OF_PART\r\n',
+                    '<gsx:tags>',entryTags,'</gsx:tags>',
+                    '<gsx:date>',dd,'</gsx:date>',
+                    '<gsx:author>',entryAuthor,'</gsx:author>',
+                    '</entry>'].join('');
+        return atom;
+      };
+
+      parseForHTML = function(content) {
+        //regular expression to find characters not accepted in XML.
+          var rx= /(<)|(>)|(&)|(")|(')/g; 
+        if(content == null){return null;}
+        var content = content.replace(rx, function(m){
+          switch(m)
+          {
+          case '<':
+            return '&lt;';
+            break;
+          case '>':
+            return '&gt;';
+            break;
+          case '&':
+            return '&amp;';
+            break;
+          case '"':
+            return '&quot;';
+            break;
+          case '\'':
+            return '&apos;';
+            break;
+          default:
+            return m;
+            break;
+          }
+        });
+        return content;
+      }
+
+      entryTitle = parseForHTML(entryTitle);
+      entrySummary = parseForHTML(entrySummary);
+      entryUrl = parseForHTML(entryUrl);
+      entryTags = parseForHTML(entryTags);
+      entryAuthor = parseForHTML(entryAuthor);
+              
+      var body = [
+      constructSpreadAtomXml_(entryTitle, entryUrl, entrySummary, entryTags, entryAuthor), '\r\n',
+      ].join('');
+      
+      return body;
+    };
+
+    var summary = $scope.data.citation.note;
+    var title = $scope.data.citation.title;
+    var url = $scope.data.citation.url;
+    var tags = $scope.data.citation.tags;
+    var author = $scope.data.citation.author;
+      
+    showMsg('Adding citable..');
+
+    var handleSuccess = function(resp, status, headers, config, statusText) {
+      console.log('gdocs.amendDoc handleSuccess');
+      if (status != 201) {
+        console.log('AMEND ERROR', resp);
+        //gdocs.handleError(xhr, resp);
+        //util.hideMsg();
+        if(status == 400 || status == 500) { 
+          console.log('Try updating headers: ',$scope.data.defaultDoc);
+          //Try updating the column headers to fix faulty docs.
+          //The second param is an optional doc so we don't update the whole list. We take the index of :selected and use just that doc from the docs array.
+          
+          bgPage.updateDocument(util.updateHeaderSuccess, $scope.data.defaultDoc);        
+          showMsg('Updating Headers...');
+        }; 
+        return;
+      } else {
+        showMsg('Citable added!');
+      
+        requestFailureCount = 0;
+        
+        console.log('Ammend: ', resp, status);
+        
+        if(callback){callback();}
+      }
+    };
+        
+    /*var params = {
+      'method': 'POST',
+      'headers': {
+        'GData-Version': '3.0',
+        'Content-Type': 'application/atom+xml'
+      },
+
+      'body': gdocs.constructSpreadBody_(title, url, summary, tags, author)
+      
+    };*/
+
+    /*
+    <?xml version='1.0' encoding='UTF-8'?><entry xmlns="http://www.w3.org/2005/Atom" xmlns:gsx="http://schemas.google.com/spreadsheets/2006/extended"><gsx:title></gsx:title><gsx:url></gsx:url><gsx:summary></gsx:summary><gsx:tags></gsx:tags><gsx:date>2014/5/24</gsx:date><gsx:author></gsx:author></entry>
+    */
+    
+    if (gdocs.accessToken) {
+      var data = constructSpreadBody_(title, url, summary, tags, author);
+      data = data.trim().replace("^([\\W]+)<","<");
+
+      var config = {
+        //params: {},
+        headers: {
+          'Authorization': 'Bearer ' + gdocs.accessToken,
+          'GData-Version': '3.0',
+          'Content-Type': 'application/atom+xml'
+        }//,
+        //body: data
+      };
+      console.log('data to send',config,data)
+      
+
+      var worksheetId = 'od6';
+
+      var url = bgPage.SPREAD_SCOPE +'/list/'+docId+'/'+worksheetId+'/private/full';
+
+      $http.post(url, data, config).
+          success(handleSuccess).
+          error(function(data, status, headers, config, statusText) {
+            
+            if (status == 401 && retry) {
+              gdocs.removeCachedAuthToken(
+                  gdocs.auth.bind(gdocs, true, 
+                      $scope.fetchDocs.bind($scope, false)));
+            } else {
+              console.log('amend note error',status,data);
+              showMsg(statusText,'error');
+            }
+          });
+
+      console.log('Citation: ', url, config);
+    }
+  };
+
+  $scope.updateHeaderSuccess = function(){
+    showMsg('Headers Updated!');
+    amendDoc($scope.data.defaultDoc.id); //Resubmit the add note request.
+  }
 
   // Toggles the authorization state.
   $scope.toggleAuth = function(interactive) {
@@ -270,7 +480,25 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
 
   $scope.saveNote = function(){
     console.log('Save Note: ', $scope.data);
+    saveNoteSuccess = function(){
+      console.log('SaveNote success');
+      //remove citation from log
+      //window.close();
+    }
+    $scope.amendDoc($scope.data.defaultDoc,saveNoteSuccess);
+  }
+  
+  $scope.viewDoc = function(destination, url) {
+    console.log('viewDoc', destination, url);
+    //First looks for the url passed in from the DocList API since that address should be correct. 
+    var tabUrl = url != null ? url : constructURL(destination);
+    chrome.tabs.create({url: tabUrl});
+    window.close();
 
+    function constructURL(destination) {
+      if(destination == ''){ return null; }
+      return 'https://docs.google.com/spreadsheet/ccc?key='+destination;
+    }
   }
 
   $scope.storeDefault = function(){

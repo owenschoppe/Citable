@@ -52,7 +52,7 @@ a.disabled, a.disabled:hover {
   margin:auto;
   margin-top: 10px;
   margin-bottom: 5px;
-  display: none;
+  /*display: none;*/
 }
 #butter.error {
   background-color: red;
