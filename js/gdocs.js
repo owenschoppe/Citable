@@ -99,13 +99,15 @@ GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_head
   }
 
   xhr.onload = function(e) {
+    console.log('onload',this,e.target);
     this.lastResponse = this.response;
-    callback(this.lastResponse, this);
+    callback(e.target.response, e.target);
   }.bind(this);
   xhr.onerror = function(e) {
     console.log(this, this.status, this.response,
                 this.getAllResponseHeaders());
   };
+  console.log('send data',xhr);
   xhr.send(data);
 };
 
@@ -114,7 +116,7 @@ GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_head
 /**
  * Uploads a file to Google Docs.
  */
-GDocs.prototype.upload = function(blob, callback, retry) {
+/*GDocs.prototype.upload = function(blob, callback, retry) {
 
   var onComplete = function(response) {
       document.getElementById('main').classList.remove('uploading');
@@ -143,6 +145,6 @@ GDocs.prototype.upload = function(blob, callback, retry) {
   document.getElementById('main').classList.add('uploading');
   uploader.upload();
 
-};
+};*/
 
 

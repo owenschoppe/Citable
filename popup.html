@@ -15,9 +15,11 @@
 <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 <!--<script type="text/javascript" src="https://apis.google.com/js/client.js"></script>-->
 <script type="text/javascript" src="js/analytics.js"></script>
+
 <script type="text/javascript" src="js/angular-1.2.16.min.js"></script>
 <script type="text/javascript" src="js/util.js"></script>
 <script type="text/javascript" src="js/gdocs.js"></script>
+
 <script type="text/javascript" src="js/popup.js"></script>
 </head>
 
@@ -37,7 +39,7 @@
 <div id="controls" data-ng-controller="DocsController">
 	
     <label id="selectionLabel" for="selection" class="indent note" ng-class="{fade:data.menu}">Save note in:</label>
-	<div id="new_doc_container">
+	<div id="new_doc_container" ng-show="data.defaultDoc.id==null" ng-class="data.butter.status">
 	  <div class="indent">
 		  <input type="text" id="doc_title" placeholder="Enter a document title" >
 	  </div>

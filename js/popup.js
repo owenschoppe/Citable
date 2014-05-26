@@ -164,8 +164,8 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
   showMsg = function(message,status,delay){
     //Private function to clear the message after a set interval.
     clearMsg = function(delay){ 
-      //console.log(delay);
-      delay = delay != null ? delay : 1000;
+      delay = delay==null ? 1000 : delay;
+      console.log('delay',delay);
       setTimeout(function(){
         $scope.data.butter = {'status':'','message':''};
         //console.log('clearMsg',$scope.data.butter);
@@ -190,7 +190,10 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
 
     if (gdocs.accessToken) {
       var config = {
-        params: {'alt': 'json', 'q': "mimeType contains 'spreadsheet' and '"+folderId+"' in parents"},
+        params: {
+            'alt': 'json', 
+            'q': "mimeType contains 'spreadsheet' and '"+folderId+"' in parents"
+        },
         headers: {
           'Authorization': 'Bearer ' + gdocs.accessToken
         }
@@ -353,7 +356,7 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
     var tags = $scope.data.citation.tags;
     var author = $scope.data.citation.author;
       
-    showMsg('Adding citable..');
+    showMsg('Adding citable...');
 
     var handleSuccess = function(resp, status, headers, config, statusText) {
       console.log('gdocs.amendDoc handleSuccess');
@@ -361,44 +364,32 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
         console.log('AMEND ERROR', resp);
         //gdocs.handleError(xhr, resp);
         //util.hideMsg();
-        if(status == 400 || status == 500) { 
+        showMsg('Error'+status,'error');
+        /*if(status == 400 || status == 500) { 
           console.log('Try updating headers: ',$scope.data.defaultDoc);
           //Try updating the column headers to fix faulty docs.
           //The second param is an optional doc so we don't update the whole list. We take the index of :selected and use just that doc from the docs array.
-          
-          bgPage.updateDocument(util.updateHeaderSuccess, $scope.data.defaultDoc);        
+          bgPage.updateDocument(function(){
+            showMsg('Headers Updated!');
+            $scope.saveNote();
+          }, $scope.data.defaultDoc);        
           showMsg('Updating Headers...');
         }; 
-        return;
+        return;*/
       } else {
         showMsg('Citable added!');
       
         requestFailureCount = 0;
         
-        console.log('Ammend: ', resp, status);
+        console.log('Amend: ', status, resp);
         
         if(callback){callback();}
       }
     };
-        
-    /*var params = {
-      'method': 'POST',
-      'headers': {
-        'GData-Version': '3.0',
-        'Content-Type': 'application/atom+xml'
-      },
-
-      'body': gdocs.constructSpreadBody_(title, url, summary, tags, author)
-      
-    };*/
-
-    /*
-    <?xml version='1.0' encoding='UTF-8'?><entry xmlns="http://www.w3.org/2005/Atom" xmlns:gsx="http://schemas.google.com/spreadsheets/2006/extended"><gsx:title></gsx:title><gsx:url></gsx:url><gsx:summary></gsx:summary><gsx:tags></gsx:tags><gsx:date>2014/5/24</gsx:date><gsx:author></gsx:author></entry>
-    */
     
     if (gdocs.accessToken) {
       var data = constructSpreadBody_(title, url, summary, tags, author);
-      data = data.trim().replace("^([\\W]+)<","<");
+      data = data.trim().replace("^([\\W]+)<","<"); //There are evidently bad characters in the XML that this regex removes.
 
       var config = {
         //params: {},
@@ -418,17 +409,27 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
 
       $http.post(url, data, config).
           success(handleSuccess).
-          error(function(data, status, headers, config, statusText) {
+          error(function(data, status, headers, config) {
             
             if (status == 401 && retry) {
               gdocs.removeCachedAuthToken(
                   gdocs.auth.bind(gdocs, true, 
                       $scope.fetchDocs.bind($scope, false)));
+            } else if(status == 400 || status == 500) { 
+              console.log('Try updating headers: ',$scope.data.defaultDoc);
+              //Try updating the column headers to fix faulty docs.
+              //The second param is an optional doc so we don't update the whole list. We take the index of :selected and use just that doc from the docs array.
+              bgPage.updateDocument(function(){
+                showMsg('Headers Updated!');
+                //$scope.saveNote();
+              }, $scope.data.defaultDoc);            
+              showMsg('Updating Headers...');
             } else {
               console.log('amend note error',status,data);
-              showMsg(statusText,'error');
+              showMsg(status,'error',10000);
             }
           });
+          //
 
       console.log('Citation: ', url, config);
     }

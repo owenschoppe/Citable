@@ -21,7 +21,7 @@
       var firstRun = true; //Variable that is only true in the first start after an update. //Set to false if there is no need to update the headers.
     
       //Initializes the oauth object. Parameters are defined in chrome_ex_oauth.js. Important for the getToken stream.
-      var oauth = ChromeExOAuth.initBackgroundPage({
+      /*var oauth = ChromeExOAuth.initBackgroundPage({
         'request_url': 'https://www.google.com/accounts/OAuthGetRequestToken',
         'authorize_url': 'https://www.google.com/accounts/OAuthAuthorizeToken',
         'access_url': 'https://www.google.com/accounts/OAuthGetAccessToken',
@@ -32,7 +32,10 @@
 		//'scope': 'https://docs.google.com/feeds/',
         'scope': FULL_SCOPE,
         'app_name': 'Citable'
-      });
+      });*/
+
+	var gdocs = new GDocs();
+
       
 
 /////////////////////////////////////////////////////////
@@ -40,15 +43,17 @@
     function getPageInfo(callback) 
     { 
         console.log('getPageInfo');
-        // Add the callback to the queue
-        callbacks = [];
-        callbacks.push(callback); 
-        // Inject the content script into the current page        
-		//chrome.tabs.executeScript(null, { file: "content_script.js" }); 
-		chrome.tabs.executeScript(null, { file: "jquery-1.7.2.min.js" }, function() {
-    		chrome.tabs.executeScript(null, { file: "content_script.js" });
-		});
-		//console.log('callbacks',callbacks);
+        try {
+            // Add the callback to the queue
+            callbacks = [];
+            callbacks.push(callback); 
+            // Inject the content script into the current page        
+    		//chrome.tabs.executeScript(null, { file: "content_script.js" }); 
+    		chrome.tabs.executeScript(null, { file: "jquery-1.7.2.min.js" }, function() {
+        		chrome.tabs.executeScript(null, { file: "content_script.js" });
+    		});
+    		//console.log('callbacks',callbacks);
+    	} finally {}
     }; 
     
     chrome.extension.onConnect.addListener(function(port) {
@@ -79,7 +84,7 @@
 	  });
 	});
     
-/*    
+   
 /////////////////////////////////////////////////////////
 function printDocumentPage(callback) 
 {
@@ -128,7 +133,7 @@ function callPrintable(action){
 }
 
 /////////////////////////////////////////////////////////
-function setIcon(opt_badgeObj) {
+/* function setIcon(opt_badgeObj) {
 	if (opt_badgeObj) {
 	  var badgeOpts = {};
 	  if (opt_badgeObj && opt_badgeObj.text != undefined) {
@@ -153,20 +158,20 @@ function logout(access_token, callback) {
 	clearPendingRequests();
 	docs = [];
 	setIcon({'text': ''});
-};
+};*/
 
 //Updates the document headers in all of the user's spreadsheets found in Citable_Documents.
 //Runs completely in the background.
 updateDocument = function(callback, docToUpdate) {
 	var privateDocs;
 	if (docToUpdate != null) {
-		privateDocs = docToUpdate;
+		privateDocs = [docToUpdate];
 	}
 	else { 
 		privateDocs = docs; //Copy the doclist into a private variable so that we can run in the background while the user can send notes to the doc of choice.
 	}
 	console.log('updateDocument ');
-	var parts = [];
+	var docId = '';
 	var worksheetId = 'od6';
 	var order = ['Title','Url','Date','Author','Summary','Tags']; //'Title,Url,Date,Author,Summary,Tags'
 	var Cells = [];
@@ -187,7 +192,7 @@ updateDocument = function(callback, docToUpdate) {
 	var colCount;
 	
 	var handleSuccess = function(response, xhr){
-		console.log('updateDocument handleSuccess: ',xhr);
+		console.log('updateDocument handleSuccess: ', response, xhr);
 		if (xhr.status != 200) {
 			console.log('ERROR: ',xhr, response);
 			//callback(xhr.status); //Return the error to the calling function.
@@ -197,7 +202,8 @@ updateDocument = function(callback, docToUpdate) {
 			requestFailureCount = 0;
 		}
 		
-		var data = JSON.parse(response);
+		var data = JSON.parse(xhr.response);
+		console.log('JSON data', data);
 		Cells = [];
 		colCount = parseInt(data.feed.gs$colCount.$t);
 		
@@ -270,20 +276,21 @@ updateDocument = function(callback, docToUpdate) {
 		//gs$colCount': colCount+n 
 
 		var params = {
-			'method': 'POST',
+			//'method': 'POST',
 			'headers': {
+			  'Authorization': 'Bearer ' + gdocs.accessToken,
 			  'GData-Version': '3.0',
 			  'Content-Type': 'application/atom+xml',
 			  'If-Match': '*'
-			},
-		   'body': constructBatchAtomXml_(r,c,missingTitle)
+			}//,
+		   //'body': constructBatchAtomXml_(r,c,missingTitle)
 		   
 		};
 		//var url = SPREAD_SCOPE +'/cells/'+parts[1]+'/'+worksheetId+'/private/full/R'+r+'C'+c; //Url for single cell updates.
-		var url = SPREAD_SCOPE +'/cells/'+parts[1]+'/'+worksheetId+'/private/full/batch'; 
+		var url = SPREAD_SCOPE +'/cells/'+docId+'/'+worksheetId+'/private/full/batch'; 
 		console.log('AddTitles request',r,c,missingTitle,params,url);
 
-		oauth.sendSignedRequest(url, handleCellsSuccess, params);
+		gdocs.makeRequest('POST',url, handleCellsSuccess, constructBatchAtomXml_(r,c,missingTitle), params);
 	};
 	
 	//For batch cell updates.
@@ -312,7 +319,7 @@ updateDocument = function(callback, docToUpdate) {
   	  contructBatchCellEntries_(r,c,missingTitles),
   	  '</feed>',
   	  ].join('');
-	  return atom;
+	  return atom.trim().replace("^([\\W]+)<","<"); //There are evidently bad characters in the XML that this regex removes.
 	};
 
 	var addCols = function(n, sheetEntry, callback){
@@ -330,18 +337,19 @@ updateDocument = function(callback, docToUpdate) {
 		}
 
 		var params = {
-			'method': 'PUT',
+			//'method': 'PUT',
 			'headers': {
+			  'Authorization': 'Bearer ' + gdocs.accessToken,
 			  'GData-Version': '3.0',
 			  'Content-Type': 'application/atom+xml',
 			  'If-Match': '*'
-			},
-		   'body': constructColAtomXml_(parseInt(colCount)+n,sheetEntry)
+			}//,
+		   //'body': constructColAtomXml_(parseInt(colCount)+n,sheetEntry)
 		   
 		};
-		var url = SPREAD_SCOPE +'/worksheets/'+parts[1]+'/private/full/'+worksheetId;
+		var url = SPREAD_SCOPE +'/worksheets/'+docId+'/private/full/'+worksheetId;
 		console.log('AddCols request',n,params,url);
-		oauth.sendSignedRequest(url, handleColsSuccess, params);
+		gdocs.makeRequest('PUT', url, handleColsSuccess, constructColAtomXml_(parseInt(colCount)+n,sheetEntry), params);
 	};
 	
 	constructColAtomXml_ = function(n,sheetEntry) {
@@ -357,29 +365,37 @@ updateDocument = function(callback, docToUpdate) {
 				  '<gs:rowCount>',sheetEntry.rowCount,'</gs:rowCount>',
 				  '<gs:colCount>',n,'</gs:colCount>',
 				'</entry>'].join('');
-	  return atom;
+	  return atom.trim().replace("^([\\W]+)<","<"); //There are evidently bad characters in the XML that this regex removes.
 	};
 		
 	//Decriment through the privateDocs array and update each one.
 	var nextDocument = function(){
+		console.log(privateDocs.length)
 		if(privateDocs.length != 0 && k>-1){
-			parts = privateDocs[k].resourceId.split(':');
-			//GET https://spreadsheets.google.com/feeds/cells/key/worksheetId/private/full?min-row=2&min-col=4&max-col=4
-			var url = SPREAD_SCOPE +'/cells/'+parts[1]+'/'+worksheetId+'/private/full';
+			docId = privateDocs[k].id;
 			
+			var headers = {
+				//'headers': {
+				    'Authorization': 'Bearer ' + gdocs.accessToken,
+				    'GData-Version': '3.0'
+				//}
+			};	
 			var params = {
-				'method': 'GET',
-				'headers': {
-				  'GData-Version': '3.0'
-				},
-			   'parameters': {
-				  'alt': 'json',
-				  'min-row': '1',
-				  'max-row': '1',
-				  'min-col': '1',
-				}
+				//'params': {
+				    'alt': 'json',
+				    'min-row': '1',
+				    'max-row': '1',
+				    'min-col': '1'
+				 //}
 			};
-			oauth.sendSignedRequest(url, handleSuccess, params);
+			//var parameters = JSON.stringify(params);
+
+			//GET https://spreadsheets.google.com/feeds/cells/key/worksheetId/private/full?min-row=2&min-col=4&max-col=4&alt=json
+			// ?min-row=1&max-row=1&min-col=1&alt=json
+			var url = SPREAD_SCOPE +'/cells/'+docId+'/'+worksheetId+'/private/full?min-row=1&max-row=1&min-col=1';
+
+			//Reference: GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_headers)
+			gdocs.makeRequest('GET', url, handleSuccess, params, headers);
 			
 			k--; //Step backward throug the doclist.
 			
@@ -398,5 +414,5 @@ var updateDocumentCallback = function() {
 	console.log('Successfully completed spreadsheets header update.');
 	firstRun = false; 
 }
-*/
+
     

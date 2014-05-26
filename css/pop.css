@@ -233,7 +233,7 @@ select:HOVER{
   display: block;
 }
 #new_doc_container {
-  display: none;
+  /*display: none;*/
   width: 200px;
 }
 #new_doc_container input[type='text'],textarea,input{ /*,#selection,#selection_box*/
