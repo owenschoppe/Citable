@@ -38,24 +38,34 @@ a.disabled, a.disabled:hover {
 	padding:auto;
 	padding-top: 5px;
 	clear:both;
-	align:center;
+	text-align:center;
 	display:block;
+}
+/*Forces a comlete redraw of element by angular to catch color change.*/
+#butterbox.success, #butterbox.error  {
+	width:200px;
+	margin:auto;
 }
 #butter {
   color: #fff;
-  background-color: #000033;
   padding: 5px 15px;
   border-radius: 15px;
-  width: auto;
   text-align: center;
-  /*float: right;*/
   margin:auto;
   margin-top: 10px;
   margin-bottom: 5px;
-  /*display: none;*/
+  width:150px;
+  margin:auto;
+  padding:auto;
 }
 #butter.error {
   background-color: red;
+}
+#butter.success {
+  background-color: #4C8EF9;
+}
+#butter.normal {
+  background-color: #000033;
 }
 #citation {
   background-color: rgb(255,255,160); /*rgb(248,237,131)*/

@@ -34,8 +34,23 @@
         'app_name': 'Citable'
       });*/
 
+	//defines a common and persistant object for handling the accessToken and other functions. avoids having to invoke angular in the background.
 	var gdocs = new GDocs();
 
+	toggleAuth = function(interactive, callback) {
+	console.log('gdocs accessToken',gdocs.accessToken);
+    if (!gdocs.accessToken) {
+      gdocs.auth(interactive, function() {
+        //$scope.fetchFolder(false);
+        //$scope.fetchDocs(false);
+        callback();
+      });
+    } else {
+      //gdocs.revokeAuthToken(function() {});
+      //this.clearDocs();
+      callback();
+    }
+  }
       
 
 /////////////////////////////////////////////////////////
@@ -185,7 +200,7 @@ updateDocument = function(callback, docToUpdate) {
 		  this.updated = (entry.updated ? entry.updated.$t : '');
 		  this.content = {};
 		  this.content.type = "application/atom+xml;type=feed";
-		  this.content.src = "https://spreadsheets.google.com/feeds/list/",parts[1],"/od6/private/full";
+		  this.content.src = "https://spreadsheets.google.com/feeds/list/",docId,"/od6/private/full";
 		  this.rowCount = (entry.gs$rowCount ? entry.gs$rowCount.$t : '');
 		  this.colCount = (entry.gs$colCount ? entry.gs$colCount.$t : '');
 	}
@@ -275,22 +290,22 @@ updateDocument = function(callback, docToUpdate) {
 		}
 		//gs$colCount': colCount+n 
 
-		var params = {
+		var headers = {
 			//'method': 'POST',
-			'headers': {
+			//'headers': {
 			  'Authorization': 'Bearer ' + gdocs.accessToken,
 			  'GData-Version': '3.0',
 			  'Content-Type': 'application/atom+xml',
 			  'If-Match': '*'
-			}//,
+			//}//,
 		   //'body': constructBatchAtomXml_(r,c,missingTitle)
 		   
 		};
-		//var url = SPREAD_SCOPE +'/cells/'+parts[1]+'/'+worksheetId+'/private/full/R'+r+'C'+c; //Url for single cell updates.
+		//var url = SPREAD_SCOPE +'/cells/'+docId+'/'+worksheetId+'/private/full/R'+r+'C'+c; //Url for single cell updates.
 		var url = SPREAD_SCOPE +'/cells/'+docId+'/'+worksheetId+'/private/full/batch'; 
-		console.log('AddTitles request',r,c,missingTitle,params,url);
+		console.log('AddTitles request',r,c,missingTitle,headers,url);
 
-		gdocs.makeRequest('POST',url, handleCellsSuccess, constructBatchAtomXml_(r,c,missingTitle), params);
+		gdocs.makeRequest('POST',url, handleCellsSuccess, constructBatchAtomXml_(r,c,missingTitle), headers);
 	};
 	
 	//For batch cell updates.
@@ -298,8 +313,8 @@ updateDocument = function(callback, docToUpdate) {
 	  var atom = ['<entry>',
 	  '<batch:id>R',r,'C',c,'</batch:id>',
       '<batch:operation type="update"/>',
-	  '<id>https://spreadsheets.google.com/feeds/cells/',parts[1],'/',worksheetId,'/private/full/R',r,'C',c,'</id>',
-	  '<link rel="edit" type="application/atom+xml" href="https://spreadsheets.google.com/feeds/cells/',parts[1],'/',worksheetId,'/private/full/R',r,'C',c,'"/>',
+	  '<id>https://spreadsheets.google.com/feeds/cells/',docId,'/',worksheetId,'/private/full/R',r,'C',c,'</id>',
+	  '<link rel="edit" type="application/atom+xml" href="https://spreadsheets.google.com/feeds/cells/',docId,'/',worksheetId,'/private/full/R',r,'C',c,'"/>',
 	  '<gs:cell row="',r,'" col="',c,'" inputValue="',content,'"/>',
 	  '</entry>',].join('');
 	  return atom;
@@ -315,7 +330,7 @@ updateDocument = function(callback, docToUpdate) {
 	
 	constructBatchAtomXml_ = function(r,c,missingTitles) {
 	  var atom = ['<feed xmlns="http://www.w3.org/2005/Atom" xmlns:batch="http://schemas.google.com/gdata/batch" xmlns:gs="http://schemas.google.com/spreadsheets/2006" >',
-  	  '<id>https://spreadsheets.google.com/feeds/cells/',parts[1],'/',worksheetId,'/private/full</id>',
+  	  '<id>https://spreadsheets.google.com/feeds/cells/',docId,'/',worksheetId,'/private/full</id>',
   	  contructBatchCellEntries_(r,c,missingTitles),
   	  '</feed>',
   	  ].join('');
@@ -336,32 +351,32 @@ updateDocument = function(callback, docToUpdate) {
 			if(callback){callback()};
 		}
 
-		var params = {
+		var headers = {
 			//'method': 'PUT',
-			'headers': {
+			//'headers': {
 			  'Authorization': 'Bearer ' + gdocs.accessToken,
 			  'GData-Version': '3.0',
 			  'Content-Type': 'application/atom+xml',
 			  'If-Match': '*'
-			}//,
+			//}//,
 		   //'body': constructColAtomXml_(parseInt(colCount)+n,sheetEntry)
 		   
 		};
 		var url = SPREAD_SCOPE +'/worksheets/'+docId+'/private/full/'+worksheetId;
-		console.log('AddCols request',n,params,url);
-		gdocs.makeRequest('PUT', url, handleColsSuccess, constructColAtomXml_(parseInt(colCount)+n,sheetEntry), params);
+		console.log('AddCols request',n,headers,url);
+		gdocs.makeRequest('PUT', url, handleColsSuccess, constructColAtomXml_(parseInt(colCount)+n,sheetEntry), headers);
 	};
 	
 	constructColAtomXml_ = function(n,sheetEntry) {
-	  var atom = ["<?xml version='1.0' encoding='UTF-8'?>",'<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gs="http://schemas.google.com/spreadsheets/2006"><id>https://spreadsheets.google.com/feeds/worksheets/',parts[1],'/private/full/',worksheetId,'</id>',
+	  var atom = ["<?xml version='1.0' encoding='UTF-8'?>",'<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gs="http://schemas.google.com/spreadsheets/2006"><id>https://spreadsheets.google.com/feeds/worksheets/',docId,'/private/full/',worksheetId,'</id>',
 				  ' <updated>',sheetEntry.updated,'</updated>',
 				  '<category scheme="http://schemas.google.com/spreadsheets/2006" term="http://schemas.google.com/spreadsheets/2006#worksheet"/>',
 				  '<title type="text">',sheetEntry.title,'</title>',
 				  '<content type="',sheetEntry.content.type,'" src="',sheetEntry.content.src,'"/>',
-				  '<link rel="http://schemas.google.com/spreadsheets/2006#listfeed" type="application/atom+xml" href="https://spreadsheets.google.com/feeds/list/',parts[1],'/',worksheetId,'/private/full"/>',
-				  '<link rel="http://schemas.google.com/spreadsheets/2006#cellsfeed" type="application/atom+xml" href="https://spreadsheets.google.com/feeds/cells/',parts[1],'/',worksheetId,'/private/full"/>',
-				  '<link rel="self" type="application/atom+xml" href="https://spreadsheets.google.com/feeds/worksheets/',parts[1],'/private/full/',worksheetId,'"/>',
-				  '<link rel="edit" type="application/atom+xml" href="https://spreadsheets.google.com/feeds/worksheets/',parts[1],'/private/full/',worksheetId,'"/>',
+				  '<link rel="http://schemas.google.com/spreadsheets/2006#listfeed" type="application/atom+xml" href="https://spreadsheets.google.com/feeds/list/',docId,'/',worksheetId,'/private/full"/>',
+				  '<link rel="http://schemas.google.com/spreadsheets/2006#cellsfeed" type="application/atom+xml" href="https://spreadsheets.google.com/feeds/cells/',docId,'/',worksheetId,'/private/full"/>',
+				  '<link rel="self" type="application/atom+xml" href="https://spreadsheets.google.com/feeds/worksheets/',docId,'/private/full/',worksheetId,'"/>',
+				  '<link rel="edit" type="application/atom+xml" href="https://spreadsheets.google.com/feeds/worksheets/',docId,'/private/full/',worksheetId,'"/>',
 				  '<gs:rowCount>',sheetEntry.rowCount,'</gs:rowCount>',
 				  '<gs:colCount>',n,'</gs:colCount>',
 				'</entry>'].join('');
@@ -373,11 +388,14 @@ updateDocument = function(callback, docToUpdate) {
 		console.log(privateDocs.length)
 		if(privateDocs.length != 0 && k>-1){
 			docId = privateDocs[k].id;
+
+			console.log('Bearer ' + gdocs.accessToken);
 			
 			var headers = {
 				//'headers': {
 				    'Authorization': 'Bearer ' + gdocs.accessToken,
-				    'GData-Version': '3.0'
+				    'GData-Version': '3.0',
+				    'content-type': 'application/json'
 				//}
 			};	
 			var params = {
@@ -390,12 +408,12 @@ updateDocument = function(callback, docToUpdate) {
 			};
 			//var parameters = JSON.stringify(params);
 
-			//GET https://spreadsheets.google.com/feeds/cells/key/worksheetId/private/full?min-row=2&min-col=4&max-col=4&alt=json
-			// ?min-row=1&max-row=1&min-col=1&alt=json
-			var url = SPREAD_SCOPE +'/cells/'+docId+'/'+worksheetId+'/private/full?min-row=1&max-row=1&min-col=1';
+			//GET https://spreadsheets.google.com/feeds/cells/key/worksheetId/private/full?min-row=1&max-row=1&min-col=1&alt=json
+			var url = SPREAD_SCOPE +'/cells/'+docId+'/'+worksheetId+'/private/full?'+Util.stringify(params);
 
+			//TODO: make this angular and use $http
 			//Reference: GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_headers)
-			gdocs.makeRequest('GET', url, handleSuccess, params, headers);
+			gdocs.makeRequest('GET', url, handleSuccess, null, headers);
 			
 			k--; //Step backward throug the doclist.
 			

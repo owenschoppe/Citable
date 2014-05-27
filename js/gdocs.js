@@ -92,6 +92,8 @@ GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_head
   var xhr = new XMLHttpRequest();
   xhr.open(method, url, true);
 
+  
+
   // Include common headers (auth and version) and add rest. 
   xhr.setRequestHeader('Authorization', 'Bearer ' + this.accessToken);
   for (var key in headers) {

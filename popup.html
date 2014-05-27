@@ -76,8 +76,8 @@
 	
 	</div>
 
-	<div id="butterbox">
-	  <div id="butter" style="width:150px;margin:auto;padding:auto;align:center;" ng-show="data.butter.message" ng-class="data.butter.status">{{data.butter.message}}</div>
+	<div id="butterbox" ng-show="data.butter.message" ng-class="data.butter.status">
+	  <div id="butter" ng-class="data.butter.status">{{data.butter.message}}</div>
 	</div>
 
 </div>

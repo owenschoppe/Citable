@@ -30,7 +30,10 @@ var gDriveApp = angular.module('gDriveApp', []);
 //Creates a service called gdocs
 gDriveApp.factory('gdocs', function() {
   console.log('run GDocs constructor');
-  var gdocs = new GDocs();
+  //var gdocs = new GDocs();
+
+  var bgPage = chrome.extension.getBackgroundPage();
+  var gdocs = bgPage.gdocs;
 
   return gdocs;
 });
@@ -111,6 +114,8 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
   $scope.docs = $scope.data.docs; //Alias the docs prop for easy access. DOES NOT WORK
   $scope.cats = []; //Shared cats within controller
 
+  console.log('gdocs',gdocs);
+
   var bgPage = chrome.extension.getBackgroundPage();
 
   //Retreive and update the defaultDoc based on local storage
@@ -156,7 +161,7 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
         }
     });
     console.log('Documents List',$scope.docs);
-    showMsg('Got Docs!');
+    showMsg('Got Docs!','success',2000);
   }
 
   //Displays message in butterBox with an optional class via status
@@ -164,7 +169,7 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
   showMsg = function(message,status,delay){
     //Private function to clear the message after a set interval.
     clearMsg = function(delay){ 
-      delay = delay==null ? 1000 : delay;
+      //delay = delay==null ? 1000 : delay;
       console.log('delay',delay);
       setTimeout(function(){
         $scope.data.butter = {'status':'','message':''};
@@ -173,10 +178,15 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
         $scope.$apply(function($scope) {}); // Inform angular we made changes.
       },delay);
     }
-
-    status = status !=null ? status : '';
-    $scope.data.butter = {'status':status,'message':message};
-    clearMsg(delay);
+    $scope.data.butter = {'status':'','message':''};
+    status = status!=null ? status : 'normal';
+    //setTimeout(function(){
+      console.log('showMsg',message);
+      $scope.data.butter = {'status':status,'message':message};
+      if(delay > 0){ 
+        clearMsg(delay); 
+      }
+    //},100);
   }  
 
   
@@ -356,7 +366,6 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
     var tags = $scope.data.citation.tags;
     var author = $scope.data.citation.author;
       
-    showMsg('Adding citable...');
 
     var handleSuccess = function(resp, status, headers, config, statusText) {
       console.log('gdocs.amendDoc handleSuccess');
@@ -377,7 +386,13 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
         }; 
         return;*/
       } else {
-        showMsg('Citable added!');
+        showMsg('Citable added!','success');
+
+        /*bgPage.updateDocument(function(){
+            showMsg('Headers Updated!');
+            //$scope.saveNote();
+          }, $scope.data.defaultDoc);
+        showMsg('Updating Headers...');*/
       
         requestFailureCount = 0;
         
@@ -388,6 +403,8 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
     };
     
     if (gdocs.accessToken) {
+      showMsg('Adding citable...');
+
       var data = constructSpreadBody_(title, url, summary, tags, author);
       data = data.trim().replace("^([\\W]+)<","<"); //There are evidently bad characters in the XML that this regex removes.
 
@@ -415,14 +432,11 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
               gdocs.removeCachedAuthToken(
                   gdocs.auth.bind(gdocs, true, 
                       $scope.fetchDocs.bind($scope, false)));
-            } else if(status == 400 || status == 500) { 
+            } else if(status == 400 || status == 500 || status == 404) { 
               console.log('Try updating headers: ',$scope.data.defaultDoc);
               //Try updating the column headers to fix faulty docs.
               //The second param is an optional doc so we don't update the whole list. We take the index of :selected and use just that doc from the docs array.
-              bgPage.updateDocument(function(){
-                showMsg('Headers Updated!');
-                //$scope.saveNote();
-              }, $scope.data.defaultDoc);            
+              bgPage.updateDocument(function(){$scope.updateHeaderSuccess(callback)}, $scope.data.defaultDoc);            
               showMsg('Updating Headers...');
             } else {
               console.log('amend note error',status,data);
@@ -435,13 +449,14 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
     }
   };
 
-  $scope.updateHeaderSuccess = function(){
+  $scope.updateHeaderSuccess = function(callback){
+    console.log('updateHeaderSuccess',callback);
     showMsg('Headers Updated!');
-    amendDoc($scope.data.defaultDoc.id); //Resubmit the add note request.
+    $scope.amendDoc($scope.data.defaultDoc,callback); //Resubmit the add note request.
   }
 
   // Toggles the authorization state.
-  $scope.toggleAuth = function(interactive) {
+  /*$scope.toggleAuth = function(interactive) {
     if (!gdocs.accessToken) {
       gdocs.auth(interactive, function() {
         $scope.fetchFolder(false);
@@ -451,7 +466,7 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
       gdocs.revokeAuthToken(function() {});
       this.clearDocs();
     }
-  }
+  }*/
 
   // Controls the label of the authorize/deauthorize button.
   $scope.authButtonLabel = function() {
@@ -522,7 +537,12 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
   };*/
 
   //Run toggleAuth when the constructor is called to kick everything off.
-  $scope.toggleAuth(true);
+  //stored in backgroundpage for persistance and universal access within the app.
+  bgPage.toggleAuth(true,function(){
+    $scope.fetchFolder(false);
+  });
+
+  
 });
 
 //End Closure
