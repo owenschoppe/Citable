@@ -1,6 +1,6 @@
 html {
-	padding:0 !important;
-	margin:0 !important;
+	padding:0;
+	margin:0;
 }
 body {
 	font-size: 12px;
@@ -9,8 +9,8 @@ body {
 	min-width: 300px;
 	overflow-x:hidden;
 	overflow-y:hidden;
-	margin:0 !important;
-	padding:0 !important;
+	margin:0;
+	padding:0;
 	text-align:center;
 }
 #frame {
@@ -32,41 +32,31 @@ a.disabled, a.disabled:hover {
 	color: #333;
 	text-decoration: none;
 }
-#butterbox {
-	width:100%;
-	margin:auto;
-	padding:auto;
-	padding-top: 5px;
-	clear:both;
+.butterbox {
 	text-align:center;
-	display:block;
+	margin-top: 10px;
+    margin-bottom: 5px;
 }
-/*Forces a comlete redraw of element by angular to catch color change.*/
-#butterbox.success, #butterbox.error  {
-	width:200px;
-	margin:auto;
+.pam { 
+	padding: 5px 15px 5px 15px;
 }
-#butter {
+
+.butter {
   color: #fff;
-  padding: 5px 15px;
+  margin:auto;
   border-radius: 15px;
-  text-align: center;
-  margin:auto;
-  margin-top: 10px;
-  margin-bottom: 5px;
-  width:150px;
-  margin:auto;
-  padding:auto;
+  width:180px;
 }
-#butter.error {
+.error {
   background-color: red;
 }
-#butter.success {
+.success {
   background-color: #4C8EF9;
 }
-#butter.normal {
+.normal {
   background-color: #000033;
 }
+
 #citation {
   background-color: rgb(255,255,160); /*rgb(248,237,131)*/
   padding: 0px;
@@ -91,7 +81,6 @@ a.disabled, a.disabled:hover {
 }
 #controls{
 	font-size: 12px;
-	/*padding: 0px 17px 0px 22px;*/
 	padding: 0px 0px 0px 0px;
 	width: 288px;
 	-webkit-user-select: none;
@@ -186,7 +175,7 @@ select:HOVER{
 	border:1px solid #ccc;
 }
 #menu_items {
-	display:none;
+	/*display:none;*/
 }
 .divider {
 	margin:10px 0 10px 0;

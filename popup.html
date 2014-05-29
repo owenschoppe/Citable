@@ -25,66 +25,58 @@
 
 <body>
 <div id="frame">
-<div class="note" ng-controller='CitationController' ng-class="{fade:data.menu}">
-	<div id="citation">
-		<form id="addbookmark" name="addbookmark" >
-				<textarea id="summary" class="Droid input" name="summary" placeholder="Select some text or type a note" ng-model="data.citation.note" ng-disabled="data.menu"></textarea>
-				<input type="text" id="title" class="Droid input" name="title" value="" placeholder="Enter a title" ng-model="data.citation.title" ng-disabled="data.menu"/>
-				<input type="text" id="author" class="Droid input" name="author" value="" placeholder="Enter an author" ng-model="data.citation.author" ng-disabled="data.menu"/>
-				<input type="text" id="url" class="Droid input" name="url" value="" placeholder="URL" ng-model="data.citation.url" ng-disabled="data.menu"/>
-				<input type="text" id="tags" class="Droid input" name="tags" value="" placeholder="Enter some tags" ng-model="data.citation.tags" ng-disabled="data.menu"/>
-	</div>
-	<div id="shadow"></div>
-</div> <!--note-->
-<div id="controls" data-ng-controller="DocsController">
-	
-    <label id="selectionLabel" for="selection" class="indent note" ng-class="{fade:data.menu}">Save note in:</label>
-	<div id="new_doc_container" ng-show="data.defaultDoc.id==null" ng-class="data.butter.status">
-	  <div class="indent">
-		  <input type="text" id="doc_title" placeholder="Enter a document title" >
-	  </div>
-	</div>
-	
-	<div id="selection_box" class="clear">
-		<div id="menu" name="menu" class="button Droid left controls" ng-click="toggleMenu()"><!--<img id="menu" src="/css/img/menu.png" />--></div>
-		<div id="selection" name="selection" class="space">
-			<div ng-hide="gotDocs()">
-				<img id="loading" class="docName" src="css/img/loading.gif" data-ng-hide="gotDocs()"/>
-				<span class="docName">{{data.defaultDoc.title}}</span>
+	<div class="note" ng-controller='CitationController' ng-class="{fade:data.menu}">
+		<div id="citation">
+			<form id="addbookmark" name="addbookmark" >
+					<textarea id="summary" class="Droid input" name="summary" placeholder="Select some text or type a note" ng-model="data.citation.note" ng-disabled="data.menu"></textarea>
+					<input type="text" id="title" class="Droid input" name="title" value="" placeholder="Enter a title" ng-model="data.citation.title" ng-disabled="data.menu"/>
+					<input type="text" id="author" class="Droid input" name="author" value="" placeholder="Enter an author" ng-model="data.citation.author" ng-disabled="data.menu"/>
+					<input type="text" id="url" class="Droid input" name="url" value="" placeholder="URL" ng-model="data.citation.url" ng-disabled="data.menu"/>
+					<input type="text" id="tags" class="Droid input" name="tags" value="" placeholder="Enter some tags" ng-model="data.citation.tags" ng-disabled="data.menu"/>
+
+		</div>
+		<div id="shadow"></div>
+	</div> <!--note-->
+	<div id="controls" ng-controller="DocsController">
+		
+	    <label id="selectionLabel" for="selection" class="indent note" ng-class="{fade:data.menu}">Save note in:</label>
+		<div id="new_doc_container" ng-show="data.defaultDoc.id==null" ng-class="{'error':ng-dirty&&ng-invalid}">
+		  <div class="indent">
+			  <input type="text" id="doc_title" placeholder="Enter a document title" >
+		  </div>
+		</div>
+		
+		<div id="selection_box" class="clear">
+			<div id="menu" name="menu" class="button Droid left controls" ng-click="toggleMenu()"><!--<img id="menu" src="/css/img/menu.png" />--></div>
+			<div id="selection" name="selection" class="space">
+				<div ng-hide="gotDocs()">
+					<img id="loading" class="docName" src="css/img/loading.gif" data-ng-hide="gotDocs()"/>
+					<span class="docName">{{data.defaultDoc.title}}</span>
+				</div>
+				
+				<select id="destination" class="Droid" name="destination" ng-model="data.defaultDoc" ng-change="storeDefault()" ng-show="gotDocs()" ng-options="doc.title for doc in data.docs track by doc.id">
+					<option value="" ng-disabled="data.menu">Create New Document...</option>
+					<!--<option data-ng-repeat="doc in docs" value="{{doc.alternateLink}}" ng-selected="selectedOption(doc.alternateLink);">{{doc.title}}</option>-->
+					<!--ng-options="doc.title for doc in docs track by doc.alternateLink"-->
+				</select>
 			</div>
-			
-			<select id="destination" class="Droid" name="destination" ng-model="data.defaultDoc" ng-change="storeDefault()" ng-show="gotDocs()" ng-options="doc.title for doc in data.docs track by doc.id">
-				<option value="" ng-disabled="data.menu">Create New Document...</option>
-				<!--<option data-ng-repeat="doc in docs" value="{{doc.alternateLink}}" ng-selected="selectedOption(doc.alternateLink);">{{doc.title}}</option>-->
-				<!--ng-options="doc.title for doc in docs track by doc.alternateLink"-->
-			</select>
+			<div id="addNote" class="button Droid note" ng-click="saveNote()" ng-disabled="data.menu" ng-class="{button_disabled:data.menu, fade:data.menu}">Save</div>
 		</div>
-		<div id="addNote" class="button Droid note" ng-click="saveNote()" ng-disabled="data.menu" ng-class="{button_disabled:data.menu, fade:data.menu}">Save</div>
-	</div>
-	</form>
-	<div id="action_box" class="clear indent">
-	<span id="addNoteLabel" class="note" ng-class="{fade:data.menu}">alt+return</span>
-	<div id="controlBar" class="controls">
-		<a id="viewDoc" class="action" ng-click="viewDoc(data.defaultDoc.id,data.defaultDoc.alternateLink)">view document</a>
-		<div class="menu" ng-show="data.menu">
-		<div class="divider"></div>
-		<div class="item"><a id="printDoc" class="action" ng-click="">print on post-its</a></div>
-		<div class="divider"></div>
-		<div class="item"><a id="exportDoc" class="action" ng-click="">export citations</a></div>
+		</form>
+		<div id="action_box" class="clear indent">
+			<span id="addNoteLabel" class="note" ng-class="{fade:data.menu}">alt+return</span>
+			<div id="controlBar" class="controls">
+				<a id="viewDoc" class="action" ng-click="viewDoc(data.defaultDoc.id,data.defaultDoc.alternateLink)">view document</a>
+				<div class="menu" ng-show="data.menu">
+				<div class="divider"></div>
+				<div class="item"><a id="printDoc" class="action" ng-click="">print on post-its</a></div>
+				<div class="divider"></div>
+				<div class="item"><a id="exportDoc" class="action" ng-click="">export citations</a></div>
+				</div>
+			</div>
 		</div>
 	</div>
-	
-	</div>
-
-	<div id="butterbox" ng-show="data.butter.message" ng-class="data.butter.status">
-	  <div id="butter" ng-class="data.butter.status">{{data.butter.message}}</div>
-	</div>
-
 </div>
-
-
-
-</div>
-
+<div class="butterbox" ng-controller="butterController" box-butter></div>
 </body>
 </html>

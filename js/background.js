@@ -39,17 +39,17 @@
 
 	toggleAuth = function(interactive, callback) {
 	console.log('gdocs accessToken',gdocs.accessToken);
-    if (!gdocs.accessToken) {
-      gdocs.auth(interactive, function() {
+    //if (!gdocs.accessToken) {
+      gdocs.auth(interactive, function() { //was failing to get the refreshed accessToken. Now we just call chrome.auth every time.
         //$scope.fetchFolder(false);
         //$scope.fetchDocs(false);
         callback();
       });
-    } else {
+    /*} else {
       //gdocs.revokeAuthToken(function() {});
       //this.clearDocs();
       callback();
-    }
+    }*/
   }
       
 

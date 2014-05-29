@@ -25,10 +25,10 @@ function onError(e) {
 
 
 //Original
-var gDriveApp = angular.module('gDriveApp', []);
+var citable = angular.module('gDriveApp', []);
 
 //Creates a service called gdocs
-gDriveApp.factory('gdocs', function() {
+citable.factory('gdocs', function() {
   console.log('run GDocs constructor');
   //var gdocs = new GDocs();
 
@@ -39,7 +39,7 @@ gDriveApp.factory('gdocs', function() {
 });
 
 //factory
-gDriveApp.factory('sharedProps', sharedProps);
+citable.factory('sharedProps', sharedProps);
 
 //factory constructor
 function sharedProps() {
@@ -85,10 +85,29 @@ function sharedProps() {
 
 }
 
+//A controller to let us reorganize the html.
+//Technically, not necessary since both the controller scope and directive are possible within DocsController, but it's cleaner.
+//The fix for the rendering was to use ng-bind instead of {{}} to update the message.
+citable.controller('butterController', function($scope, sharedProps){
+  $scope.data = sharedProps.data;
+
+  $scope.butterClass = function(){
+    var status = $scope.data.butter.status;
+    status = status || 'normal';
+    console.log('butter '+status);
+    return 'butter pam '+status;
+  }
+
+}).directive('boxButter', function() {
+  return {
+    template: '<div ng-class="butterClass()" ng-bind="data.butter.message" ng-show="data.butter.message"></div>'
+  };
+});
+
 //gDriveApp.service('gdocs', GDocs);
 //gDriveApp.controller('DocsController', ['$scope', '$http', DocsController]);
 
-gDriveApp.controller('CitationController', function($scope, sharedProps){
+citable.controller('CitationController', function($scope, sharedProps){
   
   var bgPage = chrome.extension.getBackgroundPage();
 
@@ -109,7 +128,7 @@ gDriveApp.controller('CitationController', function($scope, sharedProps){
 
 // Main Angular controller for app.
 //function DocsController($scope, $http, gdocs) { //Use this if not using closure.
-gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProps){
+citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sharedProps){
   $scope.data = sharedProps.data; //shared 2-way data binding to factory object
   $scope.docs = $scope.data.docs; //Alias the docs prop for easy access. DOES NOT WORK
   $scope.cats = []; //Shared cats within controller
@@ -165,30 +184,36 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
   }
 
   //Displays message in butterBox with an optional class via status
-  //Valid status: error.
+  //Valid statuses: error, normal, success
+  //Pushes everything to the $timeout event queue to force redrawing.
   showMsg = function(message,status,delay){
-    //Private function to clear the message after a set interval.
-    clearMsg = function(delay){ 
-      //delay = delay==null ? 1000 : delay;
-      console.log('delay',delay);
-      setTimeout(function(){
-        $scope.data.butter = {'status':'','message':''};
-        //console.log('clearMsg',$scope.data.butter);
-        //TODO: Add fadout animation using ngAnimage and $animate?
-        $scope.$apply(function($scope) {}); // Inform angular we made changes.
-      },delay);
-    }
-    $scope.data.butter = {'status':'','message':''};
     status = status!=null ? status : 'normal';
-    //setTimeout(function(){
-      console.log('showMsg',message);
-      $scope.data.butter = {'status':status,'message':message};
-      if(delay > 0){ 
-        clearMsg(delay); 
-      }
-    //},100);
-  }  
+    console.log('showMsg',message,status, Date.now());
+    
+    //TODO: Not working... consider making this a directive a la http://www.bennadel.com/blog/2548-don-t-forget-to-cancel-timeout-timers-in-your-destroy-events-in-angularjs.htm
+    $timeout.cancel(clearMsg);
 
+    $scope.data.butter.status = status;
+    $scope.data.butter.message = message;
+    
+    //Clears the message after a set interval, but if a new message comes in before the clear completes then the message may be cleared prematurely.
+    var clearMsg = $timeout(function(){
+      $scope.data.butter.status = '';
+      $scope.data.butter.message = '';
+      //TODO: Add fadout animation using ngAnimage and $animate?
+    },delay || 2000);
+
+     //Callbacks using $timeout promises
+    clearMsg.then(
+      function(){
+        console.log( "clearMsg resolved", Date.now() );
+      },
+      function(){
+        console.log( "clearMsg canceled", Date.now() );
+      }
+    );
+
+  }  
   
 
   $scope.clearDocs = function() {
@@ -251,6 +276,7 @@ gDriveApp.controller('DocsController', function($scope, $http, gdocs, sharedProp
     }
 
     if (gdocs.accessToken) {
+      console.log('fetchFolder',gdocs.accessToken);
       var config = {
         params: {'alt': 'json', 'q': "mimeType contains 'folder' and title='Citable_Documents' and trashed!=true"},
         headers: {
