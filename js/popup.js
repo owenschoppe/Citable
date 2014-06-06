@@ -196,22 +196,24 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
     $scope.data.butter.status = status;
     $scope.data.butter.message = message;
     
-    //Clears the message after a set interval, but if a new message comes in before the clear completes then the message may be cleared prematurely.
-    var clearMsg = $timeout(function(){
-      $scope.data.butter.status = '';
-      $scope.data.butter.message = '';
-      //TODO: Add fadout animation using ngAnimage and $animate?
-    },delay || 2000);
+    if(delay > 0) { //By allowing persisent messages we can avoid ever having messages cleared prematurely.
+      //Clears the message after a set interval, but if a new message comes in before the clear completes then the message may be cleared prematurely.
+      var clearMsg = $timeout(function(){
+        $scope.data.butter.status = '';
+        $scope.data.butter.message = '';
+        //TODO: Add fadout animation using ngAnimage and $animate?
+      },delay);
 
-     //Callbacks using $timeout promises
-    clearMsg.then(
-      function(){
-        console.log( "clearMsg resolved", Date.now() );
-      },
-      function(){
-        console.log( "clearMsg canceled", Date.now() );
-      }
-    );
+       //Callbacks using $timeout promises
+      clearMsg.then(
+        function(){
+          console.log( "clearMsg resolved", Date.now() );
+        },
+        function(){
+          console.log( "clearMsg canceled", Date.now() );
+        }
+      );
+    }
 
   }  
   
@@ -412,7 +414,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
         }; 
         return;*/
       } else {
-        showMsg('Citable added!','success');
+        showMsg('Citable added!','success', 2000);
 
         /*bgPage.updateDocument(function(){
             showMsg('Headers Updated!');

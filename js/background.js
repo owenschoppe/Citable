@@ -2,6 +2,7 @@
       var DOCLIST_SCOPE = 'https://docs.google.com/feeds';
       var DOCLIST_FEED = DOCLIST_SCOPE + '/default/private/full/';
       var DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive';
+      var DRIVE_FILES = 'https://www.googleapis.com/drive/v2/files';
       var SPREAD_SCOPE = 'https://spreadsheets.google.com/feeds';
       var docs = []; //In memory cache for the user's entire doclist.
       var row = []; //In memory cache for each row of the sheet returned.
@@ -146,6 +147,77 @@ function callPrintable(action){
 		});
 	}
 }
+/////////////////////////////////////////////////////////
+gdocs.createFolder = function(title, callback) {
+console.log('gdocs.createFolder ', title);
+  
+	constructFolderBody_ = function(title) {
+		var atom = ["<?xml version='1.0' encoding='UTF-8'?>",
+				      "<entry xmlns='http://www.w3.org/2005/Atom'>",
+		          "<category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/docs/2007#folder' />",
+		          "<title type='text'>Citable_Documents</title>",
+		          "</entry>"].join('');
+		return atom;
+	};
+
+	Category = function(entry) {
+	  this.entry = entry;
+	  this.resourceId = entry.gd$resourceId.$t;
+	};
+
+	var handleSuccess = function(response, xhr) {
+		console.log('category returned: ', xhr);
+		
+		if (xhr.status != 201) {
+			console.log('ERROR', xhr);
+			gdocs.handleError(xhr, response);
+			return;
+		} else {
+			requestFailureCount = 0;
+		}
+		
+		/*cat.splice(0, cat.length, new Category(JSON.parse(response).entry)); //Resets the cat list to have only the new folder id.
+		var parts = cat[0].resourceId.split(':');
+		var resourceId = parts[1];
+		console.log('category: ', resourceId, ' : ', cat[0]);*/
+
+		var resourceId = JSON.parse(response).entry.gd$resourceId.$t;
+				
+		callback(resourceId);		
+	}; 
+  	
+  //util.displayMsg('Creating folder...');
+  console.log('Creating folder...');
+  
+  var headers = {
+      'Authorization': 'Bearer ' + gdocs.accessToken,
+      'GData-Version': '3.0',
+      'Content-Type': 'application/json'
+    };
+
+  var params = {
+		'alt': 'json',
+		"title": "Citable_Documents",
+		"parents": [{"id":"root"}]
+		"mimeType": "application/vnd.google-apps.folder"
+  };
+
+  var data = {
+	  "title": "Citable_Documents",
+	  "parents": [{"id":"root"}]
+	  "mimeType": "application/vnd.google-apps.folder"
+	};
+
+  //Sends the params to the background page to get delivered to gDocs.
+  //bgPage.oauth.sendSignedRequest(bgPage.DOCLIST_FEED, handleSuccess, params);
+  var url = gdocs.DOCLIST_FEED+'/?'+Util.stringify(params);
+
+	//TODO: make this angular and use $http
+	//Reference: GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_headers)
+	gdocs.makeRequest('POST', url, handleSuccess, null, headers);
+
+  console.log('FOLDER:', url, headers);
+};
 
 /////////////////////////////////////////////////////////
 /* function setIcon(opt_badgeObj) {
@@ -177,6 +249,7 @@ function logout(access_token, callback) {
 
 //Updates the document headers in all of the user's spreadsheets found in Citable_Documents.
 //Runs completely in the background.
+//TODO: Citable successfully posts the note even if only one column (with incoming data) is present. This is ok, if we assume users don't want data if they delete a column, but it's problematic if we want to be fool-proof. Consider doing a forced header-update for all docs on a recurring basis.
 updateDocument = function(callback, docToUpdate) {
 	var privateDocs;
 	if (docToUpdate != null) {
