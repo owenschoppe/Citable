@@ -141,3 +141,33 @@ Util.sortByTitle = function(a, b) {
   }
   return 0;
 }
+
+Util.parseForHTML = function(content) {
+        //regular expression to find characters not accepted in XML.
+          var rx= /(<)|(>)|(&)|(")|(')/g; 
+        if(content == null){return null;}
+        var content = content.replace(rx, function(m){
+          switch(m)
+          {
+          case '<':
+            return '&lt;';
+            break;
+          case '>':
+            return '&gt;';
+            break;
+          case '&':
+            return '&amp;';
+            break;
+          case '"':
+            return '&quot;';
+            break;
+          case '\'':
+            return '&apos;';
+            break;
+          default:
+            return m;
+            break;
+          }
+        });
+        return content;
+      }

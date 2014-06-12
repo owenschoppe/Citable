@@ -47,12 +47,12 @@ function sharedProps() {
   var props = {};
   //set init values
   props.citation = {
-    'note':'',
-    'title':'',
-    'author':'',
-    'date':'',
-    'url':'',
-    'tags':''
+    'Summary':'',
+    'Title':'',
+    'Author':'',
+    'Date':'',
+    'Url':'',
+    'Tags':''
   };
   props.menu = false;
   props.docs = [{
@@ -118,8 +118,23 @@ citable.controller('CitationController', function($scope, sharedProps){
   }
 
   $scope.setCitation = function(pageInfo){
-    console.log('setCitation',pageInfo);
-    $scope.data.citation = pageInfo;
+    for( var i in pageInfo ){
+      //console.log(i,':',pageInfo[i])
+      $scope.data.citation[i] = pageInfo[i];
+    }
+
+    function currDate()
+    {
+      var d = new Date();
+      var curr_date = d.getDate();
+      var curr_month = d.getMonth() + 1; //months are zero based
+      var curr_year = d.getFullYear();
+      return curr_year + '/' + curr_month + '/' + curr_date;
+    }
+
+    $scope.data.citation.Date = currDate();
+
+    console.log('setCitation',pageInfo,$scope.data.citation);
   }
 
   $scope.getPageInfo();
@@ -264,8 +279,9 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
           id: entry.id,
           updatedDate: Util.formatDate(entry.modifiedDate),
           alternateLink: entry.alternateLink,
+          selfLink: entry.selfLink
         };
-        $scope.cats.push(cat);
+        $scope.cats.push(entry);
         // Only want to sort and call $apply() when we have all entries.
         if (totalEntries - 1 == i) {
           //$scope.cats.sort(Util.sortByDate);
@@ -306,11 +322,12 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
   $scope.amendDoc = function(destination, callback) {
   console.log('gdocs.amendDoc..');
     
-    destination = destination!=null ? destination : $scope.data.defaultDoc;
+    //destination = destination!=null ? destination : $scope.data.newDoc;
     //In the new scheme, new doc selected and no default on init are indistinguishable... this might be ok.
-    if(destination.id == ''){
+    if(destination === null){
       //title = $.trim($('#doc_title').val());
-      //createDoc(callback);
+      console.log('bgPage.createDocument');
+      bgPage.createDocument($scope.data.citation,$scope.data.newDoc.trim(),$scope.cats[0],callback);
       return;
     } /*else if(destination == null && localStorage['defaultDoc']){ //If the doc menu isn't loaded yet, then try using the default doc.
             gdocs.amendDocHandler(localStorage['defaultDoc'], callback);   
@@ -323,78 +340,6 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
   amendDocHandler = function(docId, callback) {
   
-    constructSpreadBody_ = function(entryTitle, entryUrl, entrySummary, entryTags, entryAuthor) {            
-      
-      constructSpreadAtomXml_ = function(entryTitle, entryUrl, entrySummary, entryTags, entryAuthor) {
-  
-        var d = new Date();
-        var curr_date = d.getDate();
-        var curr_month = d.getMonth() + 1; //months are zero based
-        var curr_year = d.getFullYear();
-        var dd = curr_year + '/' + curr_month + '/' + curr_date;
-        
-        var atom = ["<?xml version='1.0' encoding='UTF-8'?>",
-                  '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gsx="http://schemas.google.com/spreadsheets/2006/extended">',//'--END_OF_PART\r\n',
-                    '<gsx:title>',entryTitle,'</gsx:title>',//'--END_OF_PART\r\n',
-                    '<gsx:url>',entryUrl,'</gsx:url>',//'--END_OF_PART\r\n',
-                    '<gsx:summary>',entrySummary,'</gsx:summary>',//'--END_OF_PART\r\n',
-                    '<gsx:tags>',entryTags,'</gsx:tags>',
-                    '<gsx:date>',dd,'</gsx:date>',
-                    '<gsx:author>',entryAuthor,'</gsx:author>',
-                    '</entry>'].join('');
-        return atom;
-      };
-
-      parseForHTML = function(content) {
-        //regular expression to find characters not accepted in XML.
-          var rx= /(<)|(>)|(&)|(")|(')/g; 
-        if(content == null){return null;}
-        var content = content.replace(rx, function(m){
-          switch(m)
-          {
-          case '<':
-            return '&lt;';
-            break;
-          case '>':
-            return '&gt;';
-            break;
-          case '&':
-            return '&amp;';
-            break;
-          case '"':
-            return '&quot;';
-            break;
-          case '\'':
-            return '&apos;';
-            break;
-          default:
-            return m;
-            break;
-          }
-        });
-        return content;
-      }
-
-      entryTitle = parseForHTML(entryTitle);
-      entrySummary = parseForHTML(entrySummary);
-      entryUrl = parseForHTML(entryUrl);
-      entryTags = parseForHTML(entryTags);
-      entryAuthor = parseForHTML(entryAuthor);
-              
-      var body = [
-      constructSpreadAtomXml_(entryTitle, entryUrl, entrySummary, entryTags, entryAuthor), '\r\n',
-      ].join('');
-      
-      return body;
-    };
-
-    var summary = $scope.data.citation.note;
-    var title = $scope.data.citation.title;
-    var url = $scope.data.citation.url;
-    var tags = $scope.data.citation.tags;
-    var author = $scope.data.citation.author;
-      
-
     var handleSuccess = function(resp, status, headers, config, statusText) {
       console.log('gdocs.amendDoc handleSuccess');
       if (status != 201) {
@@ -433,8 +378,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
     if (gdocs.accessToken) {
       showMsg('Adding citable...');
 
-      var data = constructSpreadBody_(title, url, summary, tags, author);
-      data = data.trim().replace("^([\\W]+)<","<"); //There are evidently bad characters in the XML that this regex removes.
+      var data = constructCitation();
 
       var config = {
         //params: {},
@@ -446,7 +390,6 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
         //body: data
       };
       console.log('data to send',config,data)
-      
 
       var worksheetId = 'od6';
 
@@ -460,7 +403,8 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
               gdocs.removeCachedAuthToken(
                   gdocs.auth.bind(gdocs, true, 
                       $scope.fetchDocs.bind($scope, false)));
-            } else if(status == 400 || status == 500 || status == 404) { 
+            } else if((status == 400 || status == 500 || status == 404)) { 
+
               console.log('Try updating headers: ',$scope.data.defaultDoc);
               //Try updating the column headers to fix faulty docs.
               //The second param is an optional doc so we don't update the whole list. We take the index of :selected and use just that doc from the docs array.
@@ -475,6 +419,58 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
       console.log('Citation: ', url, config);
     }
+  };
+
+  var constructCitation = function(){
+    
+    //TODO: rewrite these funtions to iterate through the citation object to create entry. Makes this code more reusable for future additions.
+    constructSpreadBody_ = function(entryTitle, entryUrl, entrySummary, entryTags, entryAuthor, entryDate) {            
+      
+      constructSpreadAtomXml_ = function(entryTitle, entryUrl, entrySummary, entryTags, entryAuthor, entryDate) {
+        /*var d = new Date();
+        var curr_date = d.getDate();
+        var curr_month = d.getMonth() + 1; //months are zero based
+        var curr_year = d.getFullYear();
+        var entryDate = curr_year + '/' + curr_month + '/' + curr_date;*/
+        
+        var atom = ["<?xml version='1.0' encoding='UTF-8'?>",
+                  '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gsx="http://schemas.google.com/spreadsheets/2006/extended">',//'--END_OF_PART\r\n',
+                    '<gsx:title>',entryTitle,'</gsx:title>',//'--END_OF_PART\r\n',
+                    '<gsx:url>',entryUrl,'</gsx:url>',//'--END_OF_PART\r\n',
+                    '<gsx:summary>',entrySummary,'</gsx:summary>',//'--END_OF_PART\r\n',
+                    '<gsx:tags>',entryTags,'</gsx:tags>',
+                    '<gsx:date>',entryDate,'</gsx:date>',
+                    '<gsx:author>',entryAuthor,'</gsx:author>',
+                    '</entry>'].join('');
+        return atom;
+      };
+
+      entryTitle = Util.parseForHTML(entryTitle);
+      entrySummary = Util.parseForHTML(entrySummary);
+      entryUrl = Util.parseForHTML(entryUrl);
+      entryTags = Util.parseForHTML(entryTags);
+      entryAuthor = Util.parseForHTML(entryAuthor);
+      //No need to parse the date since it's already formatted correctly.
+              
+      var body = [
+      constructSpreadAtomXml_(entryTitle, entryUrl, entrySummary, entryTags, entryAuthor, entryDate), '\r\n',
+      ].join('');
+      
+      return body;
+    };
+
+    var summary = $scope.data.citation.Note;
+    var title = $scope.data.citation.Title;
+    var url = $scope.data.citation.Url;
+    var tags = $scope.data.citation.Tags;
+    var author = $scope.data.citation.Author;
+    var date = $scope.data.citation.Date;
+
+    var data = constructSpreadBody_(title, url, summary, tags, author, date);
+    
+    //Main return
+    return  data = data.trim().replace("^([\\W]+)<","<"); //There are evidently bad characters in the XML that this regex removes.
+
   };
 
   $scope.updateHeaderSuccess = function(callback){

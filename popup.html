@@ -28,11 +28,11 @@
 	<div class="note" ng-controller='CitationController' ng-class="{fade:data.menu}">
 		<div id="citation">
 			<form id="addbookmark" name="addbookmark" >
-					<textarea id="summary" class="Droid input" name="summary" placeholder="Select some text or type a note" ng-model="data.citation.note" ng-disabled="data.menu"></textarea>
-					<input type="text" id="title" class="Droid input" name="title" value="" placeholder="Enter a title" ng-model="data.citation.title" ng-disabled="data.menu"/>
-					<input type="text" id="author" class="Droid input" name="author" value="" placeholder="Enter an author" ng-model="data.citation.author" ng-disabled="data.menu"/>
-					<input type="text" id="url" class="Droid input" name="url" value="" placeholder="URL" ng-model="data.citation.url" ng-disabled="data.menu"/>
-					<input type="text" id="tags" class="Droid input" name="tags" value="" placeholder="Enter some tags" ng-model="data.citation.tags" ng-disabled="data.menu"/>
+					<textarea id="summary" class="Droid input" name="summary" placeholder="Select some text or type a note" ng-model="data.citation.Summary" ng-disabled="data.menu"></textarea>
+					<input type="text" id="title" class="Droid input" name="title" value="" placeholder="Enter a title" ng-model="data.citation.Title" ng-disabled="data.menu"/>
+					<input type="text" id="author" class="Droid input" name="author" value="" placeholder="Enter an author" ng-model="data.citation.Author" ng-disabled="data.menu"/>
+					<input type="text" id="url" class="Droid input" name="url" value="" placeholder="URL" ng-model="data.citation.Url" ng-disabled="data.menu"/>
+					<input type="text" id="tags" class="Droid input" name="tags" value="" placeholder="Enter some tags" ng-model="data.citation.Tags" ng-disabled="data.menu"/>
 
 		</div>
 		<div id="shadow"></div>
@@ -42,7 +42,7 @@
 	    <label id="selectionLabel" for="selection" class="indent note" ng-class="{fade:data.menu}">Save note in:</label>
 		<div id="new_doc_container" ng-show="data.defaultDoc.id==null" ng-class="{'error':ng-dirty&&ng-invalid}">
 		  <div class="indent">
-			  <input type="text" id="doc_title" placeholder="Enter a document title" >
+			  <input type="text" id="doc_title" placeholder="Enter a document title" ng-model="data.newDoc">
 		  </div>
 		</div>
 		

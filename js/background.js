@@ -87,10 +87,10 @@
 
 		//Updates the dummy url to the actual url of the tab.
 		  var pageInfo = {
-		  	'title' : info.title,
-		  	'url' : tab.url,
-		  	'note' : info.summary,
-		  	'authorName' : info.authorName
+		  	'Title' : info.title,
+		  	'Url' : tab.url,
+		  	'Summary' : info.summary,
+		  	'Author' : info.authorName
 		  	};
 
 		  var callback = callbacks[0];//callbacks.shift();
@@ -148,10 +148,111 @@ function callPrintable(action){
 	}
 }
 /////////////////////////////////////////////////////////
-gdocs.createFolder = function(title, callback) {
+var createDocument = function(data, fileName, parentFolder, callback){
+	console.log('createDocument',data,fileName,callback);
+	// JSON to CSV Converter
+	
+	//TODO: use "for(var i in o){console.log(i,o[i]);}" to traverse a single object instead of an array of objects. i=key o[1]=value
+
+	// Accepts an object array in the form of [{a:1,b:2},{a:3,b:4},...] -> "a,b \r\n 1,2 \r\n 3,4"
+	var JSONToCSV = function (objArray) {
+        console.log('JSON objArray:',objArray);
+        var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray; //Insures that the incoming param is an object array.
+        //var header = array.length > 1 ? array[0] : array;
+        var str = Object.keys(array[0]) + '\r\n'; //Uses the first object in the array to get the column headers.
+        for (var i = 0; i < array.length; i++) {
+            var line = '';
+            for (var index in array[i]) {
+                if (line != '') line += ',';
+                console.log('line',i,array[i][index]);
+                line += '"'+Util.parseForHTML(array[i][index])+'"'; //Add the HTML parsed value of the citation to the CSV line.
+            }
+            str += line + '\r\n';
+        }
+        console.log('CSV data:',str);
+        return str;
+    }
+
+
+	var handleSuccess = function(response, xhr) {
+		console.log('category returned: ', xhr);
+		
+		if (xhr.status != 201) {
+			console.log('ERROR', xhr);
+			return;
+		} else {
+			requestFailureCount = 0;
+		}
+
+		//var resourceId = JSON.parse(response).entry.gd$resourceId.$t;
+				
+		//callback(resourceId);	
+		callback();	
+	}; 
+
+	const boundary = '-------314159265358979323846';
+  	const delimiter = "\r\n--" + boundary + "\r\n";
+  	const close_delim = "\r\n--" + boundary + "--";
+
+	//Alt: 'text/plain';
+	var contentType = 'text/csv';
+
+	var parent = {
+		  "kind": "drive#parentReference",
+		  "id": parentFolder.id//,
+		  //"selfLink": parentFolder.selfLink,
+		  //"parentLink": parentFolder.parents[0].parentLink,
+		  //"isRoot": false
+		}
+	
+	var metadata = {
+      'title': fileName,
+      'mimeType': contentType,
+      'parents': [parent]
+    };
+
+    //Base64 encode the JSON object array
+    var base64Data = btoa(JSONToCSV([data]));
+
+    var multipartRequestBody =
+        delimiter +
+        'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+        JSON.stringify(metadata) +
+        delimiter +
+        'Content-Type: ' + contentType + '\r\n' +
+        'Content-Transfer-Encoding: base64\r\n' +
+        '\r\n' +
+        base64Data +
+        close_delim;
+
+       /* 'path': '/upload/drive/v2/files',
+        'method': 'POST', */
+    var params = {
+		'uploadType':'multipart',
+		'convert':'true'
+    };
+
+    //Alt: 'multipart/mixed'
+    var headers = {
+		'Content-Type': 'multipart/related; boundary="' + boundary + '"'
+    };
+        //'body': multipartRequestBody});
+
+	//Sends the params to the background page to get delivered to gDocs.
+	var url = 'https://www.googleapis.com/upload/drive/v2/files?'+Util.stringify(params);
+
+	//TODO: make this angular and use $http
+	//Reference: GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_headers)
+	gdocs.makeRequest('POST', url, handleSuccess, multipartRequestBody, headers);
+
+  console.log('FOLDER:', url, headers);
+};
+
+/////////////////////////////////////////////////////////
+createFolder = function(title, callback) {
 console.log('gdocs.createFolder ', title);
   
-	constructFolderBody_ = function(title) {
+	/*constructFolderBody_ = function(title) {
 		var atom = ["<?xml version='1.0' encoding='UTF-8'?>",
 				      "<entry xmlns='http://www.w3.org/2005/Atom'>",
 		          "<category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/docs/2007#folder' />",
@@ -164,13 +265,13 @@ console.log('gdocs.createFolder ', title);
 	  this.entry = entry;
 	  this.resourceId = entry.gd$resourceId.$t;
 	};
+	*/
 
 	var handleSuccess = function(response, xhr) {
 		console.log('category returned: ', xhr);
 		
 		if (xhr.status != 201) {
 			console.log('ERROR', xhr);
-			gdocs.handleError(xhr, response);
 			return;
 		} else {
 			requestFailureCount = 0;
@@ -198,19 +299,21 @@ console.log('gdocs.createFolder ', title);
   var params = {
 		'alt': 'json',
 		"title": "Citable_Documents",
-		"parents": [{"id":"root"}]
+		"parents": [{"id":"root"}],
 		"mimeType": "application/vnd.google-apps.folder"
   };
 
+  /*
   var data = {
 	  "title": "Citable_Documents",
 	  "parents": [{"id":"root"}]
 	  "mimeType": "application/vnd.google-apps.folder"
 	};
+*/
 
   //Sends the params to the background page to get delivered to gDocs.
   //bgPage.oauth.sendSignedRequest(bgPage.DOCLIST_FEED, handleSuccess, params);
-  var url = gdocs.DOCLIST_FEED+'/?'+Util.stringify(params);
+  var url = DRIVE_SCOPE+'/?'+Util.stringify(params);
 
 	//TODO: make this angular and use $http
 	//Reference: GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_headers)
