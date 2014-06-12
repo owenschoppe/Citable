@@ -274,13 +274,13 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
       var totalEntries = resp.items.length;
 
       resp.items.forEach(function(entry, i) {
-        var cat = {
+        /*var cat = {
           title: entry.title,
           id: entry.id,
           updatedDate: Util.formatDate(entry.modifiedDate),
           alternateLink: entry.alternateLink,
           selfLink: entry.selfLink
-        };
+        };*/
         $scope.cats.push(entry);
         // Only want to sort and call $apply() when we have all entries.
         if (totalEntries - 1 == i) {
@@ -391,7 +391,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
       };
       console.log('data to send',config,data)
 
-      var worksheetId = 'od6';
+      var worksheetId = 'default';
 
       var url = bgPage.SPREAD_SCOPE +'/list/'+docId+'/'+worksheetId+'/private/full';
 
@@ -459,7 +459,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
       return body;
     };
 
-    var summary = $scope.data.citation.Note;
+    var summary = $scope.data.citation.Summary;
     var title = $scope.data.citation.Title;
     var url = $scope.data.citation.Url;
     var tags = $scope.data.citation.Tags;
