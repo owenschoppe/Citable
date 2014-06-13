@@ -48,5 +48,15 @@
   "web_accessible_resources": [
   	"chrome_ex_oauth.html",
   	"chrome_ex_oauth_init.js"
-  ]
+  ],
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "windows": "Ctrl+Shift+X",
+        "mac": "Command+Shift+X",
+        "chromeos": "Ctrl+Shift+X",
+        "linux": "Ctrl+Shift+X"
+      }
+    }
+  }
 }

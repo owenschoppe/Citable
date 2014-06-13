@@ -87,10 +87,10 @@
 
 		//Updates the dummy url to the actual url of the tab.
 		  var pageInfo = {
-		  	'Title' : info.title,
+		  	'Title' : info.title?info.title:"",
 		  	'Url' : tab.url,
-		  	'Summary' : info.summary,
-		  	'Author' : info.authorName
+		  	'Summary' : info.summary?info.summary:"",
+		  	'Author' : info.authorName?info.authorName:""
 		  	};
 
 		  var callback = callbacks[0];//callbacks.shift();
@@ -175,19 +175,35 @@ var createDocument = function(data, fileName, parentFolder, callback){
 
 
 	var handleSuccess = function(response, xhr) {
-		console.log('category returned: ', xhr);
+		console.log('doc returned: ',response, xhr);
 		
-		if (xhr.status != 201) {
+		if (xhr.status != 201 && xhr.status != 200) {
 			console.log('ERROR', xhr);
 			return;
 		} else {
+			//Make the new doc the default doc next time we open citable. Fully background so it won't update live.
+			var entry = JSON.parse(response);
+				var doc = {
+					title: entry.title,
+					id: entry.id,
+					updatedDate: Util.formatDate(entry.modifiedDate),
+					updatedDateFull: entry.modifiedDate,
+					icon: entry.iconLink,
+					alternateLink: entry.alternateLink,
+					size: entry.fileSize ? '( ' + entry.fileSize + ' bytes)' : null
+				};
+
+				chrome.storage.sync.set({'defaultDoc': doc}, function() {
+			      // Log that we saved.
+			      chrome.storage.sync.get('defaultDoc',function(items){console.log('storage.sync.get',items)});
+			    });
 			requestFailureCount = 0;
 		}
 
 		//var resourceId = JSON.parse(response).entry.gd$resourceId.$t;
 				
 		//callback(resourceId);	
-		callback();	
+		callback(JSON.parse(response));	
 	}; 
 
 	const boundary = '-------314159265358979323846';
@@ -198,7 +214,7 @@ var createDocument = function(data, fileName, parentFolder, callback){
 	var contentType = 'text/csv';
 
 	var parent = {
-		  "kind": "drive#parentReference",
+		  //"kind": "drive#parentReference",
 		  "id": parentFolder.id//,
 		  //"selfLink": parentFolder.selfLink,
 		  //"parentLink": parentFolder.parents[0].parentLink,
@@ -234,6 +250,8 @@ var createDocument = function(data, fileName, parentFolder, callback){
 
     //Alt: 'multipart/mixed'
     var headers = {
+    	'Authorization': 'Bearer ' + gdocs.accessToken,
+      	'GData-Version': '3.0',
 		'Content-Type': 'multipart/related; boundary="' + boundary + '"'
     };
         //'body': multipartRequestBody});
@@ -245,46 +263,17 @@ var createDocument = function(data, fileName, parentFolder, callback){
 	//Reference: GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_headers)
 	gdocs.makeRequest('POST', url, handleSuccess, multipartRequestBody, headers);
 
-  console.log('FOLDER:', url, headers);
+  console.log('New File:', url, headers);
 };
 
 /////////////////////////////////////////////////////////
 createFolder = function(title, callback) {
 console.log('gdocs.createFolder ', title);
-  
-	/*constructFolderBody_ = function(title) {
-		var atom = ["<?xml version='1.0' encoding='UTF-8'?>",
-				      "<entry xmlns='http://www.w3.org/2005/Atom'>",
-		          "<category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/docs/2007#folder' />",
-		          "<title type='text'>Citable_Documents</title>",
-		          "</entry>"].join('');
-		return atom;
-	};
-
-	Category = function(entry) {
-	  this.entry = entry;
-	  this.resourceId = entry.gd$resourceId.$t;
-	};
-	*/
 
 	var handleSuccess = function(response, xhr) {
-		console.log('category returned: ', xhr);
-		
-		if (xhr.status != 201) {
-			console.log('ERROR', xhr);
-			return;
-		} else {
-			requestFailureCount = 0;
-		}
-		
-		/*cat.splice(0, cat.length, new Category(JSON.parse(response).entry)); //Resets the cat list to have only the new folder id.
-		var parts = cat[0].resourceId.split(':');
-		var resourceId = parts[1];
-		console.log('category: ', resourceId, ' : ', cat[0]);*/
-
-		var resourceId = JSON.parse(response).entry.gd$resourceId.$t;
-				
-		callback(resourceId);		
+		console.log('Folder created: ', response, xhr);
+		var data = {items:[JSON.parse(response)]}; //Wrap the response in an object with property items so it looks like the fetchFolder response. Hack.	
+		callback(data);		
 	}; 
   	
   //util.displayMsg('Creating folder...');
@@ -296,28 +285,22 @@ console.log('gdocs.createFolder ', title);
       'Content-Type': 'application/json'
     };
 
-  var params = {
-		'alt': 'json',
-		"title": "Citable_Documents",
-		"parents": [{"id":"root"}],
-		"mimeType": "application/vnd.google-apps.folder"
-  };
+	var parent = {
+		  "id": "root"
+		}
+	
+	var metadata = {
+      'title': title,
+      'mimeType': "application/vnd.google-apps.folder",
+      'parents': [parent]
+    };
 
-  /*
-  var data = {
-	  "title": "Citable_Documents",
-	  "parents": [{"id":"root"}]
-	  "mimeType": "application/vnd.google-apps.folder"
-	};
-*/
-
-  //Sends the params to the background page to get delivered to gDocs.
-  //bgPage.oauth.sendSignedRequest(bgPage.DOCLIST_FEED, handleSuccess, params);
-  var url = DRIVE_SCOPE+'/?'+Util.stringify(params);
+	//Sends the params to the background page to get delivered to gDocs.
+	var url = 'https://www.googleapis.com/drive/v2/files';
 
 	//TODO: make this angular and use $http
 	//Reference: GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_headers)
-	gdocs.makeRequest('POST', url, handleSuccess, null, headers);
+	gdocs.makeRequest('POST', url, handleSuccess, JSON.stringify(metadata), headers);
 
   console.log('FOLDER:', url, headers);
 };

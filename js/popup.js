@@ -74,6 +74,8 @@ function sharedProps() {
   }];
   props.defaultDoc = '';
   props.butter = {'status':'', 'message':''};
+  props.loading = true;
+  props.requesting = false;
   /*props.defaultMeta = props.docs.filter(function(el){
       return el.id == props.defaultDoc;
     });*/
@@ -119,7 +121,6 @@ citable.controller('CitationController', function($scope, sharedProps){
 
   $scope.setCitation = function(pageInfo){
     for( var i in pageInfo ){
-      //console.log(i,':',pageInfo[i])
       $scope.data.citation[i] = pageInfo[i];
     }
 
@@ -145,19 +146,43 @@ citable.controller('CitationController', function($scope, sharedProps){
 //function DocsController($scope, $http, gdocs) { //Use this if not using closure.
 citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sharedProps){
   $scope.data = sharedProps.data; //shared 2-way data binding to factory object
-  $scope.docs = $scope.data.docs; //Alias the docs prop for easy access. DOES NOT WORK
+  //$scope.docs = $scope.data.docs; //Alias the docs prop for easy access. DOES NOT WORK
   $scope.cats = []; //Shared cats within controller
 
   console.log('gdocs',gdocs);
 
   var bgPage = chrome.extension.getBackgroundPage();
 
+  $scope.myEvent = function(e){
+    //showMsg('Key'+e.keyCode);
+    //TODO: do the clearFields alternate behavior.
+    console.log("Requesting",$scope.data.requesting);
+    if($scope.data.requesting){}  //Escapes all keyboard actions once a request has been made.
+    else {
+      if(e.keyCode == 13){
+          if (e.ctrlKey) { //Clears all fields on complete.
+            console.log("CTRL+RETURN pressed");
+            //$scope.amendDoc($('#destination').val(),function(){clearFields(true)}); 
+            $scope.saveNote();
+          }
+          if (e.altKey) { //Maintains the url and page title.
+            showMsg("ALT+RETURN pressed");
+            //$scope.amendDoc($('#destination').val(),function(){clearFields(false)});
+            $scope.saveNote();
+          }
+          if(e.shiftKey){
+            return 13;
+          }
+      }
+    }
+  }
+
   //Retreive and update the defaultDoc based on local storage
   storageSuccess = function(items) {
     //update sharedProps values
     $scope.data.defaultDoc = items.defaultDoc;
     //$scope.updateMeta($scope.data.defaultDoc);
-    console.log('Settings retrieved',items.defaultDoc,$scope.data.defaultDoc);
+    console.log('Settings retrieved',items,items.defaultDoc,$scope.data.defaultDoc);
   }
   chrome.storage.sync.get('defaultDoc', storageSuccess);
   
@@ -171,31 +196,49 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
   function successCallbackWithFsCaching(resp, status, headers, config, statusText) {
     console.log('successCallbackWithFsCaching',resp,status,headers,config, statusText);
 
-    var totalEntries = resp.items.length;
+    $scope.data.loading = false;
 
-    resp.items.forEach(function(entry, i) {
-      var doc = {
-        title: entry.title,
-        id: entry.id,
-        updatedDate: Util.formatDate(entry.modifiedDate),
-        updatedDateFull: entry.modifiedDate,
-        icon: entry.iconLink,
-        alternateLink: entry.alternateLink,
-        size: entry.fileSize ? '( ' + entry.fileSize + ' bytes)' : null
+    if(!resp.items.length){
+      console.log('No docs in list.',$scope);
+      showMsg('No Docs.','normal',2000)
+      //No docs in doc list, create new document.
+
+      $scope.data.defaultDoc = {
+        'id':'',
+        'title':'',
+        'alternateLink':''
       };
-
-      $scope.docs.push(doc);
-        // Only want to sort and call $apply() when we have all entries.
-        if (totalEntries - 1 == i) {
-          $scope.docs.sort(Util.sortByDate);
-          $scope.data.docs = $scope.docs; //?? Aliasing didn't work, so we had to make an explicit redefinition.
-          
-          //$scope.defaultDoc = $scope.docs[0].alternateLink;
-          //$scope.$apply(function($scope) {}); // Inform angular we made changes.
-        }
-    });
-    console.log('Documents List',$scope.docs);
-    showMsg('Got Docs!','success',2000);
+      $scope.clearDocs();
+      //$scope.data.docs = [{'id':'','title':'Create New Document'}];
+      //$scope.$apply(function($scope){});
+    } else {
+    
+        var totalEntries = resp.items.length;
+    
+        resp.items.forEach(function(entry, i) {
+          var doc = {
+            title: entry.title,
+            id: entry.id,
+            updatedDate: Util.formatDate(entry.modifiedDate),
+            updatedDateFull: entry.modifiedDate,
+            icon: entry.iconLink,
+            alternateLink: entry.alternateLink,
+            size: entry.fileSize ? '( ' + entry.fileSize + ' bytes)' : null
+          };
+    
+          $scope.data.docs.push(doc);
+            // Only want to sort and call $apply() when we have all entries.
+            if (totalEntries - 1 == i) {
+              $scope.data.docs.sort(Util.sortByDate);
+              //$scope.data.docs = $scope.docs; //?? Aliasing didn't work, so we had to make an explicit redefinition.
+              
+              //$scope.defaultDoc = $scope.docs[0].alternateLink;
+              //$scope.$apply(function($scope) {}); // Inform angular we made changes.
+            }
+        });
+        console.log('Documents List',$scope.data.docs);
+        showMsg('Got Docs!','success',2000);
+    }
   }
 
   //Displays message in butterBox with an optional class via status
@@ -234,7 +277,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
   
 
   $scope.clearDocs = function() {
-    $scope.docs = []; // Clear out old results.
+    $scope.data.docs = []; // Clear out old results.
   };
 
   $scope.fetchDocs = function(retry, folderId) {
@@ -244,7 +287,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
       var config = {
         params: {
             'alt': 'json', 
-            'q': "mimeType contains 'spreadsheet' and '"+folderId+"' in parents"
+            'q': "mimeType contains 'spreadsheet' and '"+folderId+"' in parents and trashed!=true"
         },
         headers: {
           'Authorization': 'Bearer ' + gdocs.accessToken
@@ -266,37 +309,32 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
   };
 
   $scope.fetchFolder = function(retry) {
+    var folderName = 'Citable_Tool_Documents';
+
     this.clearDocs();
 
     function successCallbackFolderId(resp, status, headers, config, statusText){
-      //var cats = []; //local cats
 
-      var totalEntries = resp.items.length;
-
-      resp.items.forEach(function(entry, i) {
-        /*var cat = {
-          title: entry.title,
-          id: entry.id,
-          updatedDate: Util.formatDate(entry.modifiedDate),
-          alternateLink: entry.alternateLink,
-          selfLink: entry.selfLink
-        };*/
-        $scope.cats.push(entry);
-        // Only want to sort and call $apply() when we have all entries.
-        if (totalEntries - 1 == i) {
-          //$scope.cats.sort(Util.sortByDate);
-          //$scope.$apply(function($scope) {}); // Inform angular we made changes.
-        }
-      });
-      console.log('Folders',$scope.cats);
-      //Get the files contained in the folder cats[0];
-      $scope.fetchDocs(false, $scope.cats[0].id);
-    }
+      if( resp.items.length > 0){
+          //Add the folder to $scope
+          resp.items.forEach(function(entry, i) {
+            $scope.cats.push(entry);
+          });
+          console.log('Folders',$scope.cats);
+          //Get the files contained in the folder cats[0];
+          $scope.fetchDocs(false, $scope.cats[0].id);
+      } else {
+          showMsg('createFolder');
+          //No folders found, create the folder
+          bgPage.createFolder(folderName,successCallbackFolderId);
+      }
+    } 
+    
 
     if (gdocs.accessToken) {
       console.log('fetchFolder',gdocs.accessToken);
       var config = {
-        params: {'alt': 'json', 'q': "mimeType contains 'folder' and title='Citable_Documents' and trashed!=true"},
+        params: {'alt': 'json', 'q': "mimeType contains 'folder' and title='"+folderName+"' and trashed!=true"},
         headers: {
           'Authorization': 'Bearer ' + gdocs.accessToken
         }
@@ -324,11 +362,14 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
     
     //destination = destination!=null ? destination : $scope.data.newDoc;
     //In the new scheme, new doc selected and no default on init are indistinguishable... this might be ok.
-    if(destination === null){
-      //title = $.trim($('#doc_title').val());
+    if(destination === null || destination.id == ''){
       console.log('bgPage.createDocument');
-      bgPage.createDocument($scope.data.citation,$scope.data.newDoc.trim(),$scope.cats[0],callback);
-      return;
+      showMsg('Creating New Spreadsheet.');
+      bgPage.createDocument($scope.data.citation,$scope.data.newDoc.trim(),$scope.cats[0],function(response){
+        console.log(response.title+' created!'); //Works.
+        showMsg(response.title+' created!','normal',3000); //Never displays... why?
+        callback();
+      });
     } /*else if(destination == null && localStorage['defaultDoc']){ //If the doc menu isn't loaded yet, then try using the default doc.
             gdocs.amendDocHandler(localStorage['defaultDoc'], callback);   
         //TODO: create error in amendDocHandler to catch sending note to a document that doesn't exist.
@@ -505,8 +546,8 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
   //On error, display error. On 200 OK evaluate doc list length.
   //Global variable with the state set. On callback success evaluate state and set global variable.
   $scope.gotDocs = function(index) {
-    console.log('Docs length:',$scope.docs.length>0);
-    return ($scope.docs.length > 0);
+    console.log('Docs length:',$scope.data.docs.length>0);
+    return (($scope.data.docs.length > 0 )||(!$scope.data.loading)); //This is silly since docs is always 0 before loading and after loading we'll always show the menu either defaulted or empty.
   }
 
   $scope.toggleMenu = function(){
@@ -520,8 +561,10 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
   $scope.saveNote = function(){
     console.log('Save Note: ', $scope.data);
+    $scope.data.requesting = true; //Set the global variable.
     saveNoteSuccess = function(){
       console.log('SaveNote success');
+      $scope.data.requesting = false; //Reset the variable.
       //remove citation from log
       //window.close();
     }

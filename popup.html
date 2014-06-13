@@ -37,10 +37,10 @@
 		</div>
 		<div id="shadow"></div>
 	</div> <!--note-->
-	<div id="controls" ng-controller="DocsController">
+	<div id="controls" ng-controller="DocsController" ng-keyup="myEvent($event)">
 		
 	    <label id="selectionLabel" for="selection" class="indent note" ng-class="{fade:data.menu}">Save note in:</label>
-		<div id="new_doc_container" ng-show="data.defaultDoc.id==null" ng-class="{'error':ng-dirty&&ng-invalid}">
+		<div id="new_doc_container" ng-show="data.defaultDoc.id==''||data.defaultDoc.id==null" ng-class="{'error':ng-dirty&&ng-invalid}">
 		  <div class="indent">
 			  <input type="text" id="doc_title" placeholder="Enter a document title" ng-model="data.newDoc">
 		  </div>
@@ -49,18 +49,18 @@
 		<div id="selection_box" class="clear">
 			<div id="menu" name="menu" class="button Droid left controls" ng-click="toggleMenu()"><!--<img id="menu" src="/css/img/menu.png" />--></div>
 			<div id="selection" name="selection" class="space">
-				<div ng-hide="gotDocs()">
-					<img id="loading" class="docName" src="css/img/loading.gif" data-ng-hide="gotDocs()"/>
+				<div data-ng-show="data.loading">
 					<span class="docName">{{data.defaultDoc.title}}</span>
+					<img id="loading" class="docName" src="css/img/loading.gif"/>
 				</div>
 				
-				<select id="destination" class="Droid" name="destination" ng-model="data.defaultDoc" ng-change="storeDefault()" ng-show="gotDocs()" ng-options="doc.title for doc in data.docs track by doc.id">
+				<select id="destination" class="Droid" name="destination" ng-model="data.defaultDoc" ng-change="storeDefault()" data-ng-show="!data.loading" ng-options="doc.title for doc in data.docs track by doc.id">
 					<option value="" ng-disabled="data.menu">Create New Document...</option>
 					<!--<option data-ng-repeat="doc in docs" value="{{doc.alternateLink}}" ng-selected="selectedOption(doc.alternateLink);">{{doc.title}}</option>-->
 					<!--ng-options="doc.title for doc in docs track by doc.alternateLink"-->
 				</select>
 			</div>
-			<div id="addNote" class="button Droid note" ng-click="saveNote()" ng-disabled="data.menu" ng-class="{button_disabled:data.menu, fade:data.menu}">Save</div>
+			<div id="addNote" class="button Droid note" ng-click="saveNote()" ng-disabled="data.menu || data.requesting" ng-class="{button_disabled:data.menu, fade:data.menu}">Save</div>
 		</div>
 		</form>
 		<div id="action_box" class="clear indent">
