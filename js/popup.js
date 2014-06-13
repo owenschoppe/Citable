@@ -561,14 +561,18 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
   $scope.saveNote = function(){
     console.log('Save Note: ', $scope.data);
-    $scope.data.requesting = true; //Set the global variable.
+    
     saveNoteSuccess = function(){
       console.log('SaveNote success');
       $scope.data.requesting = false; //Reset the variable.
-      //remove citation from log
+      //Remove citation from queue/log.
       //window.close();
     }
-    $scope.amendDoc($scope.data.defaultDoc,saveNoteSuccess);
+
+    if(!$scope.data.requesting && !$scope.getMenu()){
+      $scope.amendDoc($scope.data.defaultDoc,saveNoteSuccess);
+    }
+    $scope.data.requesting = true; //Set the global variable.
   }
   
   $scope.viewDoc = function(destination, url) {

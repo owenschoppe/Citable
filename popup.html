@@ -60,7 +60,7 @@
 					<!--ng-options="doc.title for doc in docs track by doc.alternateLink"-->
 				</select>
 			</div>
-			<div id="addNote" class="button Droid note" ng-click="saveNote()" ng-disabled="data.menu || data.requesting" ng-class="{button_disabled:data.menu, fade:data.menu}">Save</div>
+			<div id="addNote" class="button Droid note" ng-click="saveNote()" ng-disabled="data.menu || data.requesting" ng-class="{button_disabled:data.menu, fade:data.menu, button_disabled:data.requesting}">Save</div>
 		</div>
 		</form>
 		<div id="action_box" class="clear indent">
