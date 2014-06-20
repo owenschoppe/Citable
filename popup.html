@@ -25,7 +25,7 @@
 
 <body>
 <div id="frame">
-	<div class="note" ng-controller='CitationController' ng-class="{fade:data.menu}">
+	<div class="note" ng-controller='CitationController' ng-class="{fade:data.menu}" ng-keyup="myEvent($event)">
 		<div id="citation">
 			<form id="addbookmark" name="addbookmark" >
 					<textarea id="summary" class="Droid input" name="summary" placeholder="Select some text or type a note" ng-model="data.citation.Summary" ng-disabled="data.menu"></textarea>

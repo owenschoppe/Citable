@@ -141,6 +141,11 @@ citable.controller('CitationController', function($scope, sharedProps, $rootScop
 
   $scope.getPageInfo();
 
+  //Broadcast key events to the other controllers.
+  $scope.myEvent = function(e){
+    $rootScope.$broadcast('keyDown',{'event':e});
+  }
+
 });
 
 // Main Angular controller for app.
@@ -153,6 +158,11 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
   console.log('gdocs',gdocs);
 
   var bgPage = chrome.extension.getBackgroundPage();
+
+  //Catch key events passed from the citation controller.
+  $scope.$on('keyDown',function(event,args){
+    $scope.myEvent(args.event);
+  })
 
   $scope.myEvent = function(e){
     //showMsg('Key'+e.keyCode);
