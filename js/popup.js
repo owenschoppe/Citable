@@ -45,13 +45,14 @@ citable.factory('sharedProps', sharedProps);
 function sharedProps() {
   //private variable
   var props = {};
-  //set init values
+  //set init values 
+  //ORDER: 'Title','Url','Date','Author','Summary','Tags'
   props.citation = {
-    'Summary':'',
     'Title':'',
-    'Author':'',
-    'Date':'',
     'Url':'',
+    'Date':'',
+    'Author':'',
+    'Summary':'',
     'Tags':''
   };
   props.menu = false;
@@ -109,7 +110,7 @@ citable.controller('butterController', function($scope, sharedProps){
 //gDriveApp.service('gdocs', GDocs);
 //gDriveApp.controller('DocsController', ['$scope', '$http', DocsController]);
 
-citable.controller('CitationController', function($scope, sharedProps){
+citable.controller('CitationController', function($scope, sharedProps, $rootScope){
   
   var bgPage = chrome.extension.getBackgroundPage();
 
@@ -245,7 +246,8 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
   //Valid statuses: error, normal, success
   //Pushes everything to the $timeout event queue to force redrawing.
   showMsg = function(message,status,delay){
-    status = status!=null ? status : 'normal';
+    status = status!=null ? status.trim().toLowerCase() : 'normal'; //Normalize the status parameter.
+    message = message!=null?message.toString():''; //Normalize the message.
     console.log('showMsg',message,status, Date.now());
     
     //TODO: Not working... consider making this a directive a la http://www.bennadel.com/blog/2548-don-t-forget-to-cancel-timeout-timers-in-your-destroy-events-in-angularjs.htm
@@ -253,6 +255,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
     $scope.data.butter.status = status;
     $scope.data.butter.message = message;
+    $scope.$apply(); //Fixes the occasional issue where the butter doesn't update.
     
     if(delay > 0) { //By allowing persisent messages we can avoid ever having messages cleared prematurely.
       //Clears the message after a set interval, but if a new message comes in before the clear completes then the message may be cleared prematurely.
@@ -449,8 +452,22 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
               console.log('Try updating headers: ',$scope.data.defaultDoc);
               //Try updating the column headers to fix faulty docs.
               //The second param is an optional doc so we don't update the whole list. We take the index of :selected and use just that doc from the docs array.
-              bgPage.updateDocument(function(){$scope.updateHeaderSuccess(callback)}, $scope.data.defaultDoc);            
+              bgPage.updateDocument(function(error){
+                console.log('updateHeaders complete',error);
+                if(!error){ //only complete the callback if updateDocument didn't encounter an error.
+                  $scope.updateHeaderSuccess(callback)
+                } else {
+                  $scope.data.requesting = false; //Reset the variable.
+                  //Don't close the window.
+                  showMsg('Opps '.concat(error,' , retry?'),'error');
+
+                  //Exit the amend sequence and throw the error.
+                  //$scope.saveNote.saveNoteFailure(error);
+                }
+              }, $scope.data.defaultDoc);            
+              
               showMsg('Updating Headers...');
+
             } else {
               console.log('amend note error',status,data);
               showMsg(status,'error',10000);
@@ -562,11 +579,18 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
   $scope.saveNote = function(){
     console.log('Save Note: ', $scope.data);
     
-    saveNoteSuccess = function(){
+    var saveNoteSuccess = function(){
       console.log('SaveNote success');
       $scope.data.requesting = false; //Reset the variable.
       //Remove citation from queue/log.
       //window.close();
+    }
+
+    //TODO: should I push errors in the amend process to this function or just handle them individually?
+    var saveNoteFailure = function(error){
+      $scope.data.requesting = false; //Reset the variable.
+      //Don't close the window.
+      showMsg('Opps '.concat(error,' , retry?'),'error');
     }
 
     if(!$scope.data.requesting && !$scope.getMenu()){

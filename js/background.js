@@ -346,7 +346,8 @@ updateDocument = function(callback, docToUpdate) {
 	}
 	console.log('updateDocument ');
 	var docId = '';
-	var worksheetId = 'od6';
+	//var worksheetId = 'od6';
+	var worksheetId = 'default'; //Switch to default to support documents created through the Drive API.
 	var order = ['Title','Url','Date','Author','Summary','Tags']; //'Title,Url,Date,Author,Summary,Tags'
 	var Cells = [];
 	var Cell = function(entry){
@@ -370,7 +371,7 @@ updateDocument = function(callback, docToUpdate) {
 		if (xhr.status != 200) {
 			console.log('ERROR: ',xhr, response);
 			//callback(xhr.status); //Return the error to the calling function.
-			nextDocument(); //If the document is not a spreadsheet for some absurd reason, just skip it.
+			nextDocument(xhr.status); //If the document is not a spreadsheet for some absurd reason, just skip it. Pass the error to the nextDoc fucntion.
 			return; //Exit this instance of the function.
 		} else {
 			requestFailureCount = 0;
@@ -543,7 +544,7 @@ updateDocument = function(callback, docToUpdate) {
 	};
 		
 	//Decriment through the privateDocs array and update each one.
-	var nextDocument = function(){
+	var nextDocument = function(hasError){
 		console.log(privateDocs.length)
 		if(privateDocs.length != 0 && k>-1){
 			docId = privateDocs[k].id;
@@ -578,7 +579,7 @@ updateDocument = function(callback, docToUpdate) {
 			
 		} else {
 			//End of updateDocument.
-			if(callback){ callback() };
+			if(callback){ callback(hasError) };
 		}
     }
     //Intitialize k to privateDocs.length-1 for the doc list.
@@ -587,6 +588,7 @@ updateDocument = function(callback, docToUpdate) {
     nextDocument(); //Start the process.
 };
 
+//Callback for calling updateDocuments on first run from background page.
 var updateDocumentCallback = function() {
 	console.log('Successfully completed spreadsheets header update.');
 	firstRun = false; 
