@@ -27,6 +27,30 @@ function onError(e) {
 //Original
 var citable = angular.module('gDriveApp', []);
 
+citable.directive('shownValidation', function() {
+    return {
+      require: '^form',
+      restrict: 'A',
+      link: function(scope, element, attrs,form) {
+        var control;
+        
+        scope.$watch(attrs.ngShow,function(value){
+          if (!control){
+            control = form[element.attr("name")];
+          }
+          if (value == true){
+            form.$addControl(control);
+            angular.forEach(control.$error, function(validity, validationToken) {
+       form.$setValidity(validationToken, !validity, control);
+    });
+          }else{
+             form.$removeControl(control);
+          }
+        });
+      }
+    };
+  });
+
 //Creates a service called gdocs
 citable.factory('gdocs', function() {
   console.log('run GDocs constructor');
@@ -117,6 +141,7 @@ citable.controller('CitationController', function($scope, sharedProps, $rootScop
   $scope.data = sharedProps.data; //shared 2-way data binding to factory object
   
   $scope.getPageInfo = function(){
+    console.log('getPageInfo');
     bgPage.getPageInfo($scope.setCitation);
   }
 
@@ -174,12 +199,12 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
           if (e.ctrlKey) { //Clears all fields on complete.
             console.log("CTRL+RETURN pressed");
             //$scope.amendDoc($('#destination').val(),function(){clearFields(true)}); 
-            $scope.saveNote();
+            $scope.saveNote(e);
           }
           if (e.altKey) { //Maintains the url and page title.
             showMsg("ALT+RETURN pressed");
             //$scope.amendDoc($('#destination').val(),function(){clearFields(false)});
-            $scope.saveNote();
+            $scope.saveNote(e);
           }
           if(e.shiftKey){
             return 13;
@@ -227,15 +252,8 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
         var totalEntries = resp.items.length;
     
         resp.items.forEach(function(entry, i) {
-          var doc = {
-            title: entry.title,
-            id: entry.id,
-            updatedDate: Util.formatDate(entry.modifiedDate),
-            updatedDateFull: entry.modifiedDate,
-            icon: entry.iconLink,
-            alternateLink: entry.alternateLink,
-            size: entry.fileSize ? '( ' + entry.fileSize + ' bytes)' : null
-          };
+          
+          var doc = buildDocEntry(entry);
     
           $scope.data.docs.push(doc);
             // Only want to sort and call $apply() when we have all entries.
@@ -250,6 +268,18 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
         console.log('Documents List',$scope.data.docs);
         showMsg('Got Docs!','success',2000);
     }
+  }
+
+  buildDocEntry = function(entry){
+    return {
+            title: entry.title,
+            id: entry.id,
+            updatedDate: Util.formatDate(entry.modifiedDate),
+            updatedDateFull: entry.modifiedDate,
+            icon: entry.iconLink,
+            alternateLink: entry.alternateLink,
+            size: entry.fileSize ? '( ' + entry.fileSize + ' bytes)' : null
+          };
   }
 
   //Displays message in butterBox with an optional class via status
@@ -370,29 +400,39 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
   };
 
   //Handler for saving a new citation.
-  $scope.amendDoc = function(destination, callback) {
+  $scope.amendDoc = function(retry, destination, callback) {
   console.log('gdocs.amendDoc..');
     
     //destination = destination!=null ? destination : $scope.data.newDoc;
     //In the new scheme, new doc selected and no default on init are indistinguishable... this might be ok.
-    if((destination === null || destination.id == '') && $scope.data.newDoc){
+    if((destination === null || destination.id == '')){ // && $scope.data.newDoc //Manual validation... icky.
       console.log('bgPage.createDocument');
       showMsg('Creating New Spreadsheet.');
       bgPage.createDocument($scope.data.citation,$scope.data.newDoc.trim(),$scope.cats[0],function(response){
-        console.log(response.title+' created!'); //Works.
-        showMsg(response.title+' created!','normal',3000); //Never displays... why?
-        callback();
+        console.log(response.title+' created!',response,callback); //Works.
+        showMsg(response.title+' created!','normal',3000); //Works.
+        
+        //Cleanup the new doc creation process.
+        $scope.data.newDoc = '';
+
+        //Add doc to the menu.
+        $scope.data.docs.unshift(buildDocEntry(response));
+
+        //Set doc as default.
+        $scope.data.defaultDoc = $scope.data.docs[0];
+
+        callback(); //Doesn't get called...?
       });
     } /*else if(destination == null && localStorage['defaultDoc']){ //If the doc menu isn't loaded yet, then try using the default doc.
             gdocs.amendDocHandler(localStorage['defaultDoc'], callback);   
         //TODO: create error in amendDocHandler to catch sending note to a document that doesn't exist.
     }*/ else{
       console.log('destination: ',destination.id,destination.title);
-      amendDocHandler(destination.id, callback);
+      amendDocHandler(retry, destination.id, callback); //Call the handler passing in the formatted values.
     }
   }
 
-  amendDocHandler = function(docId, callback) {
+  amendDocHandler = function(retry, docId, callback) {
   
     var handleSuccess = function(resp, status, headers, config, statusText) {
       console.log('gdocs.amendDoc handleSuccess');
@@ -413,8 +453,6 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
         }; 
         return;*/
       } else {
-        showMsg('Citable added!','success', 2000);
-
         /*bgPage.updateDocument(function(){
             showMsg('Headers Updated!');
             //$scope.saveNote();
@@ -457,7 +495,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
               gdocs.removeCachedAuthToken(
                   gdocs.auth.bind(gdocs, true, 
                       $scope.fetchDocs.bind($scope, false)));
-            } else if((status == 400 || status == 500 || status == 404)) { 
+            } else if((status == 400 || status == 500 || status == 404) && retry) { 
 
               console.log('Try updating headers: ',$scope.data.defaultDoc);
               //Try updating the column headers to fix faulty docs.
@@ -469,10 +507,10 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
                 } else {
                   $scope.data.requesting = false; //Reset the variable.
                   //Don't close the window.
-                  showMsg('Opps '.concat(error,' , retry?'),'error');
+                  showMsg(error+' Check your document columns.','error',10000);
 
                   //Exit the amend sequence and throw the error.
-                  //$scope.saveNote.saveNoteFailure(error);
+                  //$scope.saveNote.saveNoteFailure(error); //Not a function within this scope...
                 }
               }, $scope.data.defaultDoc);            
               
@@ -480,7 +518,9 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
             } else {
               console.log('amend note error',status,data);
-              showMsg(status,'error',10000);
+              //$scope.saveNote.saveNoteFailure(status);
+              $scope.data.requesting = false; //Reset the variable.
+              showMsg(status+' Problem with the citation.','error',10000);
             }
           });
           //
@@ -544,7 +584,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
   $scope.updateHeaderSuccess = function(callback){
     console.log('updateHeaderSuccess',callback);
     showMsg('Headers Updated!');
-    $scope.amendDoc($scope.data.defaultDoc,callback); //Resubmit the add note request.
+    $scope.amendDoc(false, $scope.data.defaultDoc, callback); //Resubmit the add note request, without the retry flag.
   }
 
   // Toggles the authorization state.
@@ -592,21 +632,27 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
     console.log('Save Note: ', $scope.data);
     event.preventDefault();
     var saveNoteSuccess = function(){
-      console.log('SaveNote success');
+      console.log('SaveNote success', $scope.data);
+      showMsg('Note added!','success', 2000);
       $scope.data.requesting = false; //Reset the variable.
+      
       //Remove citation from queue/log.
+      //Clear citation.
+      $scope.data.citation.Summary = "";
+
       //window.close();
     }
 
     //TODO: should I push errors in the amend process to this function or just handle them individually?
     var saveNoteFailure = function(error){
+      console.log('SaveNote failure', $scope.data);
+      showMsg('Opps '.concat(error,' , retry?'),'error');
       $scope.data.requesting = false; //Reset the variable.
       //Don't close the window.
-      showMsg('Opps '.concat(error,' , retry?'),'error');
     }
 
     if(!$scope.data.requesting && !$scope.getMenu()){
-      $scope.amendDoc($scope.data.defaultDoc,saveNoteSuccess);
+      $scope.amendDoc(true, $scope.data.defaultDoc, saveNoteSuccess); //Amend the note, with retry enabled to update headers on error.
       $scope.data.requesting = true; //Set the global variable.
     }
   }

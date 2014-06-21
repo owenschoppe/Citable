@@ -58,18 +58,33 @@
  // This function is called onload in the popup code
     function getPageInfo(callback) 
     { 
-        console.log('getPageInfo');
-        try {
-            // Add the callback to the queue
-            callbacks = [];
-            callbacks.push(callback); 
-            // Inject the content script into the current page        
-    		//chrome.tabs.executeScript(null, { file: "content_script.js" }); 
-    		chrome.tabs.executeScript(null, { file: "jquery-1.7.2.min.js" }, function() {
-        		chrome.tabs.executeScript(null, { file: "content_script.js" });
-    		});
-    		//console.log('callbacks',callbacks);
-    	} finally {}
+        chrome.tabs.getSelected(function(tab){
+	        console.log('getPageInfo',tab);
+	        if ((tab.url.indexOf("chrome-devtools://") == -1) 
+	        	&& (tab.url.indexOf("chrome://") == -1) 
+	        	&& (tab.url.indexOf("chrome-extension://") == -1)
+	        	&& (tab.url.indexOf("file://") == -1)) {
+	            console.log('execute content scripts');
+	            // Add the callback to the queue
+	            callbacks = [];
+	            callbacks.push(callback); 
+	            // Inject the content script into the current page        
+	    		//chrome.tabs.executeScript(null, { file: "content_script.js" }); 
+	    		chrome.tabs.executeScript(null, { file: "jquery-1.7.2.min.js" }, function() {
+	        			chrome.tabs.executeScript(null, { file: "content_script.js" });
+	    		});
+	    		//console.log('callbacks',callbacks);
+	    	} else {
+	    		console.log('getPageInfo error');
+	    		//If the content script injection fails (ie. we're in devtools or another protected Chrome page) do a generic callback.
+	    		var pageInfo = {
+			  	'Title' : tab.title.trim(),
+			  	//'Summary': getClipboard(),
+			  	'Url' : tab.url
+			  	};
+	    		callback(pageInfo);
+	    	}
+    	});
     }; 
     
     chrome.extension.onConnect.addListener(function(port) {
@@ -87,10 +102,10 @@
 
 		//Updates the dummy url to the actual url of the tab.
 		  var pageInfo = {
-		  	'Title' : info.title?info.title:"",
+		  	'Title' : info.title?info.title.trim():"",
 		  	'Url' : tab.url,
-		  	'Summary' : info.summary?info.summary:"",
-		  	'Author' : info.authorName?info.authorName:""
+		  	'Summary' : info.summary?info.summary.trim():"",
+		  	'Author' : info.authorName?info.authorName.trim():""
 		  	};
 
 		  var callback = callbacks[0];//callbacks.shift();
@@ -99,6 +114,20 @@
 		  //executeMailto(tab.id, info.title, tab.url, info.selection);
 	  });
 	});
+
+/*function getClipboard(){
+	chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+	 if (request.method == "getClipData")
+	   sendResponse({data: document.execCommand('paste')});
+	 else
+	   sendResponse({}); // snub them.
+	 });
+	       
+	chrome.extension.sendRequest({method: "getClipData"}, function(response) {
+	   console.log(response);
+	   return response.data;
+	});
+}*/
     
    
 /////////////////////////////////////////////////////////

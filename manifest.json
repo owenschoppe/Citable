@@ -38,12 +38,12 @@
     "https://www.google.com/accounts/OAuthGetRequestToken",
     "https://www.google.com/accounts/OAuthAuthorizeToken",
     "https://www.google.com/accounts/OAuthGetAccessToken",
-    "cookies",
     "storage",
     "identity",
     "https://ssl.gstatic.com/",
     "https://www.googleapis.com/",
-    "https://accounts.google.com/"
+    "https://accounts.google.com/",
+    "clipboardRead"
   ],
   "web_accessible_resources": [
   	"chrome_ex_oauth.html",

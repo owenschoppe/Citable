@@ -169,5 +169,39 @@ Util.parseForHTML = function(content) {
             break;
           }
         });
-        return content;
+        return sanitizeStringForXML(content);
       }
+
+// WARNING: too painful to include supplementary planes, these characters (0x10000 and higher) 
+// will be stripped by this function. See what you are missing (heiroglyphics, emoji, etc) at:
+// http://en.wikipedia.org/wiki/Plane_(Unicode)#Supplementary_Multilingual_Plane
+var NOT_SAFE_IN_XML_1_0 = /[^\x09\x0A\x0D\x20-\xFF\x85\xA0-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD]/gm;
+function sanitizeStringForXML(theString) {
+    "use strict";
+    return theString.replace(NOT_SAFE_IN_XML_1_0, '');
+}
+
+function removeInvalidCharacters(node) {
+    "use strict";
+
+    if (node.attributes) {
+        for (var i = 0; i < node.attributes.length; i++) {
+            var attribute = node.attributes[i];
+            if (attribute.nodeValue) {
+                attribute.nodeValue = sanitizeStringForXML(attribute.nodeValue);
+            }
+        }
+    }
+    if (node.childNodes) {
+        for (var i = 0; i < node.childNodes.length; i++) {
+            var childNode = node.childNodes[i];
+            if (childNode.nodeType == 1 /* ELEMENT_NODE */) {
+                removeInvalidCharacters(childNode);
+            } else if (childNode.nodeType == 3 /* TEXT_NODE */) {
+                if (childNode.nodeValue) {
+                    childNode.nodeValue = sanitizeStringForXML(childNode.nodeValue);
+                }
+            }
+        }
+    }
+}
