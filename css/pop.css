@@ -28,10 +28,11 @@ a:hover {
   color: #880000;
   text-decoration: underline;
 }
-a.disabled, a.disabled:hover {
+a[disabled=disabled], a.disabled, a.disabled:hover {
 	color: #333;
 	text-decoration: none;
 	outline:none;
+	cursor:default;
 }
 .butterbox {
 	text-align:center;
@@ -110,17 +111,20 @@ a.disabled, a.disabled:hover {
 		overflow: hidden;
 		padding: 2px 6px 2px 6px;
 		white-space: nowrap;
+		text-decoration: none;
 	}
 	.button:HOVER{
 		background-image:-webkit-gradient(linear,left bottom,left top,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
 		/*border:1px solid #909090;*/
 		border:1px solid #CCC;
 		color:#000;
+		text-decoration: none;
 	}
 	.button:ACTIVE{
 		background-image:-webkit-gradient(linear,left top,left bottom,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
 		border:1px solid #4080fa;
 		color:#000;
+		text-decoration: none;
 	}
 	
 select {
@@ -157,11 +161,12 @@ select:HOVER{
 		border:1px solid #4080fa;
 		color:#000;
 	}
-.button_disabled, .button_disabled:HOVER, .button_disabled:ACTIVE{
+.button[disabled=disabled], .button_disabled, .button_disabled:HOVER, .button_disabled:ACTIVE{
 	border:1px solid #ccc;
 	background-image:-webkit-gradient(linear,left bottom,left top,color-stop(0,#fafafa),color-stop(1,#eeeeee));
 	color:#ccc;
 	outline:none;
+	text-decoration: none;
 }
 
 #menu.button{
@@ -175,7 +180,7 @@ select:HOVER{
 #menu.button:HOVER, #menu.button:ACTIVE{
   background-image: url(img/menu.png), -webkit-gradient(linear,left bottom,left top,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
 }
-#menu.disabled, #menu.disabled:HOVER, #menu.disabled:ACTIVE{
+#menu.button[disabled=disabled], #menu.disabled, #menu.disabled:HOVER, #menu.disabled:ACTIVE{
 	background-image: url(img/menu-75.png), -webkit-gradient(linear,left top,left bottom,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
 	border:1px solid #ccc;
 	outline:none;

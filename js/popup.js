@@ -375,7 +375,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
     
     //destination = destination!=null ? destination : $scope.data.newDoc;
     //In the new scheme, new doc selected and no default on init are indistinguishable... this might be ok.
-    if(destination === null || destination.id == ''){
+    if((destination === null || destination.id == '') && $scope.data.newDoc){
       console.log('bgPage.createDocument');
       showMsg('Creating New Spreadsheet.');
       bgPage.createDocument($scope.data.citation,$scope.data.newDoc.trim(),$scope.cats[0],function(response){

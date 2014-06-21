@@ -29,7 +29,7 @@
 	<!--Note-->
 	<div class="note" ng-controller='CitationController' ng-class="{fade:data.menu}" ng-keyup="myEvent($event)">
 		<div id="citation">
-			<form id="addbookmark" name="addbookmark" class="inset-20">
+			<form id="addbookmark" name="citation" class="inset-20">
 				<!--Summary Field-->
 				<textarea id="summary" class="Droid input" name="summary" placeholder="Select some text or type a note" ng-model="data.citation.Summary" ng-disabled="data.menu"></textarea>
 				<!--Title Field-->
@@ -40,6 +40,8 @@
 				<input type="text" id="url" class="Droid input" name="url" value="" placeholder="URL" ng-model="data.citation.Url" ng-disabled="data.menu"/>
 				<!--Tags Field-->
 				<input type="text" id="tags" class="Droid input" name="tags" value="" placeholder="Enter some tags" ng-model="data.citation.Tags" ng-disabled="data.menu"/>
+
+				<!--Hack the citation validation by having a hidden required input with the date value. This would cause the form to be invalid if missing. Or we could require the url, or some other field... -->
 			</form>		
 		</div>
 		<div id="shadow"></div>
@@ -47,7 +49,7 @@
 
 	<!--Controls-->
 	<div class="controls" ng-controller="DocsController" ng-keyup="myEvent($event)">
-	    <form>
+	    <form name="controls">
 
 	    	<!--Label-->
 			<label id="selectionLabel" for="selection" class="indent note" ng-class="{fade:data.menu}">Save note in:</label>
@@ -55,7 +57,7 @@
 			<div id="selection_box" class="clear">
 				
 				<!--Menu Button-->
-				<a id="menu" name="menu" class="button Droid left" ng-click="toggleMenu($event)" ng-disabled="!data.defaultDoc.title" ng-class="{button_disabled:!data.defaultDoc.title, fade:!data.defaultDoc.title}" tabindex="{{!data.defaultDoc.title?'-1':$index}}" href></a>
+				<a id="menu" name="menu" class="button Droid left" ng-click="toggleMenu($event)" ng-disabled="!data.defaultDoc.title" ng-class="{fade:!data.defaultDoc.title}" tabindex="{{!data.defaultDoc.title?'-1':$index}}" href></a>
 				
 				<!--Document Selector and Loading Module-->
 				<div id="selection" name="selection" class="space">
@@ -72,15 +74,15 @@
 					</select>
 
 					<!--New Doc Title Input-->
-					<div id="new_doc_container" ng-show="data.defaultDoc.id==''||data.defaultDoc.id==null" ng-class="{'error':ng-dirty&&ng-invalid}">
-						  <input type="text" id="doc_title" placeholder="Enter a document title" ng-model="data.newDoc">
+					<div id="new_doc_container" ng-hide="data.defaultDoc.id" ng-class="{'error':ng-dirty&&ng-invalid}">
+						  <input type="text" name="docTitle" placeholder="Enter a document title" ng-model="data.newDoc" ng-required="{{!data.defaultDoc.id?true:false}}" ng-hide="data.defaultDoc.id">
 					</div>
 
 				</div>
 
 				<!--Save Button-->
 				<div class="right relative addNoteContainer">
-					<a class="button Droid addNote right" ng-click="saveNote($event)" ng-disabled="data.menu || data.requesting" ng-class="{button_disabled:(data.menu || data.requesting), fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" href>Save</a>
+					<a class="button Droid addNote right" ng-click="saveNote($event)" ng-disabled="data.menu || data.requesting || controls.$invalid" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" href>Save</a>
 					<span class="addNoteLabel" ng-class="{fade:data.menu}">alt+return</span>
 				</div>
 
