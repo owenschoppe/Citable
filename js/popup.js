@@ -577,18 +577,20 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
     return (($scope.data.docs.length > 0 )||(!$scope.data.loading)); //This is silly since docs is always 0 before loading and after loading we'll always show the menu either defaulted or empty.
   }
 
-  $scope.toggleMenu = function(){
-    $scope.data.menu = !$scope.data.menu;
-    
+  $scope.toggleMenu = function(event){
+    event.preventDefault();
+    if($scope.data.defaultDoc.title){
+      $scope.data.menu = !$scope.data.menu;
+    }
   }
 
   $scope.getMenu = function(){
     return $scope.data.menu;
   }
 
-  $scope.saveNote = function(){
+  $scope.saveNote = function(event){
     console.log('Save Note: ', $scope.data);
-    
+    event.preventDefault();
     var saveNoteSuccess = function(){
       console.log('SaveNote success');
       $scope.data.requesting = false; //Reset the variable.
@@ -605,8 +607,8 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
     if(!$scope.data.requesting && !$scope.getMenu()){
       $scope.amendDoc($scope.data.defaultDoc,saveNoteSuccess);
+      $scope.data.requesting = true; //Set the global variable.
     }
-    $scope.data.requesting = true; //Set the global variable.
   }
   
   $scope.viewDoc = function(destination, url) {

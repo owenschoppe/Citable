@@ -31,6 +31,7 @@ a:hover {
 a.disabled, a.disabled:hover {
 	color: #333;
 	text-decoration: none;
+	outline:none;
 }
 .butterbox {
 	text-align:center;
@@ -79,18 +80,20 @@ a.disabled, a.disabled:hover {
 #frame #shadow {
 	height: 20px;
 }
-#controls{
+.controls{
 	font-size: 12px;
 	padding: 0px 0px 0px 0px;
-	width: 288px;
 	-webkit-user-select: none;
-	cursor: default;
+	cursor:default;
 }
-#controlBar{
-	padding-top: 0px;
+.controlBar {
+	padding-top:4px;
+	min-height: 16px;
 }
+
 .action {
 	padding-right: 10px;
+
 }
 .button{
 		/*-webkit-appearance: button;*/
@@ -105,7 +108,7 @@ a.disabled, a.disabled:hover {
 		background-image:-webkit-gradient(linear,left bottom,left top,color-stop(1,#fafafa),color-stop(0,#e5e5e5));
 		border:1px solid #ccc;
 		overflow: hidden;
-		padding: 3px 6px 2px 6px;
+		padding: 2px 6px 2px 6px;
 		white-space: nowrap;
 	}
 	.button:HOVER{
@@ -142,6 +145,7 @@ select {
   padding-right: 15px;
   text-overflow: ellipsis;
   white-space: nowrap;
+  cursor: pointer;
 }
 select:HOVER{
 		background-image:url(img/select-arrow.png), -webkit-gradient(linear,left bottom,left top,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
@@ -157,6 +161,7 @@ select:HOVER{
 	border:1px solid #ccc;
 	background-image:-webkit-gradient(linear,left bottom,left top,color-stop(0,#fafafa),color-stop(1,#eeeeee));
 	color:#ccc;
+	outline:none;
 }
 
 #menu.button{
@@ -173,6 +178,7 @@ select:HOVER{
 #menu.disabled, #menu.disabled:HOVER, #menu.disabled:ACTIVE{
 	background-image: url(img/menu-75.png), -webkit-gradient(linear,left top,left bottom,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
 	border:1px solid #ccc;
+	outline:none;
 }
 #menu_items {
 	/*display:none;*/
@@ -184,7 +190,7 @@ select:HOVER{
 	position: relative;
 	left:-20px;
 }
-#selection_box, #new_doc_container {
+#selection_box{
   padding-top: 4px;
   padding-bottom: 6px;
   height: 20px;
@@ -195,9 +201,7 @@ select:HOVER{
 .indent{
 	margin-left: 38px;
 }
-#new_doc_container {
-	padding-bottom: 4px;
-}
+
 #selection{
 	clear:none;
 	/*display: inline-block;*/
@@ -215,15 +219,22 @@ select:HOVER{
   height: 20px;
   border: #ccc 1px solid;
 }
-#addNote{
-  float:right;
+.addNote{
+
+  width:40px;
+  text-align: center;
 }
-#addNoteLabel{
-  float:right;
+.addNoteLabel{
+  position:absolute;
+  top:30px;
+  right:0;
   margin-right: 0px;
   padding-top: 0px;
   color:#ccc;
   -webkit-user-select: none;
+}
+.addNoteContainer{
+
 }
 #citation #addbookmark input, #citation #addbookmark textarea {
   background-color: transparent !important;
@@ -232,17 +243,20 @@ select:HOVER{
   display: block;
 }
 #new_doc_container {
-  /*display: none;*/
-  width: 200px;
+  width: 165px;
+  padding-top:4px;
 }
 #new_doc_container input[type='text'],textarea,input{ /*,#selection,#selection_box*/
   width: 100%;
+
+  margin: 0;
 }
-form {
+.inset-20 {
 	padding:20px;
 	margin: 0px;
 	display:block; 
 }
+
 .left{
 	float: left;
 }
@@ -255,6 +269,12 @@ form {
 
 .fade {
   opacity: .35;
+}
+.relative {
+	position:relative;
+}
+.clear{
+	clear:both;
 }
 
 /*#title{
