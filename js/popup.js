@@ -92,7 +92,7 @@ function sharedProps() {
     'Tags':''
   };
   props.menu = false;
-  props.docs = [{
+  props.docs = [/*{
     'alternateLink': "https://docs.google.com/spreadsheet/ccc?key=0AkX20VUVZL5CdGZJWlVjR0tTRHVnVGZqSUZJOEEtMXc&usp=drivesdk",
     'icon': "https://ssl.gstatic.com/docs/doclist/images/icon_11_spreadsheet_list.png",
     'id': "0AkX20VUVZL5CdGZJWlVjR0tTRHVnVGZqSUZJOEEtMXc",
@@ -108,7 +108,7 @@ function sharedProps() {
     'title': "Test Spreadsheet",
     'updatedDate': "5/7/14",
     'updatedDateFull': "2014-05-08T15:22:37.186Z"
-  }];
+  }*/];
   props.defaultDoc = '';
   props.butter = {'status':'', 'message':''};
   props.loading = true;
@@ -225,6 +225,42 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
     }
   }
 
+  //Displays message in butterBox with an optional class via status
+  //Valid statuses: error, normal, success
+  //Pushes everything to the $timeout event queue to force redrawing.
+  showMsg = function(message,status,delay){
+    status = status!=null ? status.trim().toLowerCase() : 'normal'; //Normalize the status parameter.
+    message = message!=null?message.toString():''; //Normalize the message.
+    console.log('showMsg',message,status, Date.now());
+    
+    //TODO: Not working... consider making this a directive a la http://www.bennadel.com/blog/2548-don-t-forget-to-cancel-timeout-timers-in-your-destroy-events-in-angularjs.htm
+    $timeout.cancel(clearMsg);
+
+    $scope.data.butter.status = status;
+    $scope.data.butter.message = message;
+    //$scope.$apply(); //Fixes the occasional issue where the butter doesn't update.
+    
+    if(delay > 0) { //By allowing persisent messages we can avoid ever having messages cleared prematurely.
+      //Clears the message after a set interval, but if a new message comes in before the clear completes then the message may be cleared prematurely.
+      var clearMsg = $timeout(function(){
+        $scope.data.butter.status = '';
+        $scope.data.butter.message = '';
+        //TODO: Add fadout animation using ngAnimage and $animate?
+      },delay);
+
+       //Callbacks using $timeout promises
+      clearMsg.then(
+        function(){
+          console.log( "clearMsg resolved", Date.now() );
+        },
+        function(){
+          console.log( "clearMsg canceled", Date.now() );
+        }
+      );
+    }
+
+  }  
+
   //Retreive and update the defaultDoc based on local storage
   storageSuccess = function(items) {
     //update sharedProps values
@@ -277,8 +313,16 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
               //$scope.$apply(function($scope) {}); // Inform angular we made changes.
             }
         });
-        console.log('Documents List',$scope.data.docs);
+        console.log('Documents List',$scope.data.docs,$scope.data.defaultDoc);
         showMsg('Got Docs!','success',2000);
+
+        //We have docs, so reset the defaultDoc if it isn't set already.
+        if(!$scope.data.defaultDoc){
+          console.log('Reset Default');
+          $scope.data.defaultDoc = $scope.data.docs[0];
+          //Don't automatically store this default. Instead continue to reset to the latest file until the user makes an explicit selection.
+          //storeDefault();
+        }
     }
   }
 
@@ -289,47 +333,10 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
             updatedDate: Util.formatDate(entry.modifiedDate),
             updatedDateFull: entry.modifiedDate,
             icon: entry.iconLink,
-            alternateLink: entry.alternateLink,
-            size: entry.fileSize ? '( ' + entry.fileSize + ' bytes)' : null
+            size: entry.fileSize ? '( ' + entry.fileSize + ' bytes)' : null,
+            alternateLink: entry.alternateLink
           };
   }
-
-  //Displays message in butterBox with an optional class via status
-  //Valid statuses: error, normal, success
-  //Pushes everything to the $timeout event queue to force redrawing.
-  showMsg = function(message,status,delay){
-    status = status!=null ? status.trim().toLowerCase() : 'normal'; //Normalize the status parameter.
-    message = message!=null?message.toString():''; //Normalize the message.
-    console.log('showMsg',message,status, Date.now());
-    
-    //TODO: Not working... consider making this a directive a la http://www.bennadel.com/blog/2548-don-t-forget-to-cancel-timeout-timers-in-your-destroy-events-in-angularjs.htm
-    $timeout.cancel(clearMsg);
-
-    $scope.data.butter.status = status;
-    $scope.data.butter.message = message;
-    $scope.$apply(); //Fixes the occasional issue where the butter doesn't update.
-    
-    if(delay > 0) { //By allowing persisent messages we can avoid ever having messages cleared prematurely.
-      //Clears the message after a set interval, but if a new message comes in before the clear completes then the message may be cleared prematurely.
-      var clearMsg = $timeout(function(){
-        $scope.data.butter.status = '';
-        $scope.data.butter.message = '';
-        //TODO: Add fadout animation using ngAnimage and $animate?
-      },delay);
-
-       //Callbacks using $timeout promises
-      clearMsg.then(
-        function(){
-          console.log( "clearMsg resolved", Date.now() );
-        },
-        function(){
-          console.log( "clearMsg canceled", Date.now() );
-        }
-      );
-    }
-
-  }  
-  
 
   $scope.clearDocs = function() {
     $scope.data.docs = []; // Clear out old results.

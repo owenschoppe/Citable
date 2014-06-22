@@ -74,7 +74,7 @@
 					</select>
 
 					<!--New Doc Title Input-->
-					<div id="new_doc_container" ng-hide="data.defaultDoc.id" ng-class="{'error':ng-dirty&&ng-invalid}">
+					<div id="new_doc_container" ng-hide="data.defaultDoc.id || data.loading" ng-class="{'error':ng-dirty&&ng-invalid}">
 						  <input type="text" name="docTitle" placeholder="Enter a document title" ng-model="data.newDoc" ng-show="!data.defaultDoc.id" shown-validation sel-focus="data.defaultDoc.id" required> <!--ng-required="{{!data.defaultDoc.id?true:false}}" -->
 					</div>
 
