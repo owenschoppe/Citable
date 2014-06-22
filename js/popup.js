@@ -198,12 +198,20 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
             $scope.saveNote(e);
           }
           if (e.altKey) { //Maintains the url and page title.
-            showMsg("ALT+RETURN pressed");
+            console.log("ALT+RETURN pressed");
             //$scope.amendDoc($('#destination').val(),function(){clearFields(false)});
             $scope.saveNote(e);
           }
           if(e.shiftKey){
+            console.log("SHIFT+RETURN pressed");
             return 13;
+          }
+          else {
+            console.log("RETURN pressed");
+            //Instead of submitting move to the next field.
+            //Doesn't work. TODO: make return act like tab. Use tab-index?
+            return 9;
+            //Check if the save input is focused and make the submit if so.
           }
       }
     }
@@ -213,36 +221,37 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
   //Valid statuses: error, normal, success
   //Pushes everything to the $timeout event queue to force redrawing.
   showMsg = function(message,status,delay){
-    status = status!=null ? status.trim().toLowerCase() : 'normal'; //Normalize the status parameter.
-    message = message!=null?message.toString():''; //Normalize the message.
-    console.log('showMsg',message,status, Date.now());
-    
-    //TODO: Not working... consider making this a directive a la http://www.bennadel.com/blog/2548-don-t-forget-to-cancel-timeout-timers-in-your-destroy-events-in-angularjs.htm
-    $timeout.cancel(clearMsg);
+    $timeout(function(){
+      status = status!=null ? status.trim().toLowerCase() : 'normal'; //Normalize the status parameter.
+      message = message!=null?message.toString():''; //Normalize the message.
+      console.log('showMsg',message,status, Date.now());
+      
+      //TODO: Not working... consider making this a directive a la http://www.bennadel.com/blog/2548-don-t-forget-to-cancel-timeout-timers-in-your-destroy-events-in-angularjs.htm
+      $timeout.cancel(clearMsg);
 
-    $scope.data.butter.status = status;
-    $scope.data.butter.message = message;
-    //$scope.$apply(); //Fixes the occasional issue where the butter doesn't update.
-    
-    if(delay > 0) { //By allowing persisent messages we can avoid ever having messages cleared prematurely.
-      //Clears the message after a set interval, but if a new message comes in before the clear completes then the message may be cleared prematurely.
-      var clearMsg = $timeout(function(){
-        $scope.data.butter.status = '';
-        $scope.data.butter.message = '';
-        //TODO: Add fadout animation using ngAnimage and $animate?
-      },delay);
+      $scope.data.butter.status = status;
+      $scope.data.butter.message = message;
+      //$scope.$apply(); //Fixes the occasional issue where the butter doesn't update.
+      
+      if(delay > 0) { //By allowing persisent messages we can avoid ever having messages cleared prematurely.
+        //Clears the message after a set interval, but if a new message comes in before the clear completes then the message may be cleared prematurely.
+        var clearMsg = $timeout(function(){
+          $scope.data.butter.status = '';
+          $scope.data.butter.message = '';
+          //TODO: Add fadout animation using ngAnimage and $animate?
+        },delay);
 
-       //Callbacks using $timeout promises
-      clearMsg.then(
-        function(){
-          console.log( "clearMsg resolved", Date.now() );
-        },
-        function(){
-          console.log( "clearMsg canceled", Date.now() );
-        }
-      );
-    }
-
+         //Callbacks using $timeout promises
+        clearMsg.then(
+          function(){
+            console.log( "clearMsg resolved", Date.now() );
+          },
+          function(){
+            console.log( "clearMsg canceled", Date.now() );
+          }
+        );
+      }
+    },0);
   }  
 
   //Retreive and update the defaultDoc based on local storage

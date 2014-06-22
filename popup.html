@@ -83,8 +83,12 @@
 				<!--Save Button-->
 				<div class="right relative addNoteContainer">
 					<!--<a class="button Droid addNote right" ng-click="saveNote($event)" ng-disabled="data.menu || data.requesting || controls.$invalid" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" href>Save</a>-->
-					<!--<input ng-disabled="data.menu || data.requesting || controls.$invalid" class="button Droid addNote right" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" value="Save" ng-click="controls.$valid && saveNote($event)"/>-->
+					<input type="submit" ng-disabled="data.menu || data.requesting || controls.$invalid" class="button Droid addNote right" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" value="Save" ng-click="controls.$valid && focused && saveNote($event)" ng-focus="focused = true" ng-blur="focused = false"/>
+					
+					<!--works-->
+					<!--
 					<a ng-disabled="data.menu || data.requesting || controls.$invalid" class="button Droid addNote right" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" ng-click="controls.$valid && saveNote($event)" href>Save</a>
+					-->
 					<span class="addNoteLabel" ng-class="{fade:data.menu}">alt+return</span>
 				</div>
 
