@@ -92,23 +92,7 @@ function sharedProps() {
     'Tags':''
   };
   props.menu = false;
-  props.docs = [/*{
-    'alternateLink': "https://docs.google.com/spreadsheet/ccc?key=0AkX20VUVZL5CdGZJWlVjR0tTRHVnVGZqSUZJOEEtMXc&usp=drivesdk",
-    'icon': "https://ssl.gstatic.com/docs/doclist/images/icon_11_spreadsheet_list.png",
-    'id': "0AkX20VUVZL5CdGZJWlVjR0tTRHVnVGZqSUZJOEEtMXc",
-    'size': null,
-    'title': "LTC Initial Secondary Research Links",
-    'updatedDate': "5/13/14",
-    'updatedDateFull': "2014-05-14T01:13:04.561Z"
-  }, {
-    'alternateLink': "https://docs.google.com/spreadsheets/d/1c0MTew5ivtnWhfSqXHUONyD83BG3xLmN1HAS4q-fVU0/edit?usp=drivesdk",
-    'icon': "https://ssl.gstatic.com/docs/doclist/images/icon_11_spreadsheet_list.png",
-    'id': "1c0MTew5ivtnWhfSqXHUONyD83BG3xLmN1HAS4q-fVU0",
-    'size': null,
-    'title': "Test Spreadsheet",
-    'updatedDate': "5/7/14",
-    'updatedDateFull': "2014-05-08T15:22:37.186Z"
-  }*/];
+  props.docs = [];
   props.defaultDoc = '';
   props.butter = {'status':'', 'message':''};
   props.loading = true;
@@ -284,7 +268,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
     if(!resp.items.length){
       console.log('No docs in list.',$scope);
-      showMsg('No Docs.','normal',2000)
+      showMsg('Welcome to Citable!','normal',2000)
       //No docs in doc list, create new document.
 
       $scope.data.defaultDoc = {

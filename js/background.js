@@ -20,20 +20,6 @@
       var callbacks = []; 
       
       var firstRun = true; //Variable that is only true in the first start after an update. //Set to false if there is no need to update the headers.
-    
-      //Initializes the oauth object. Parameters are defined in chrome_ex_oauth.js. Important for the getToken stream.
-      /*var oauth = ChromeExOAuth.initBackgroundPage({
-        'request_url': 'https://www.google.com/accounts/OAuthGetRequestToken',
-        'authorize_url': 'https://www.google.com/accounts/OAuthAuthorizeToken',
-        'access_url': 'https://www.google.com/accounts/OAuthGetAccessToken',
-        //'consumer_key': 'anonymous',
-        //'consumer_secret': 'anonymous',
-        'consumer_key': '1034066493115.apps.googleusercontent.com',
-        'consumer_secret': 'ZYDYGWh1g71m2-w1iA0-VxSC',
-		//'scope': 'https://docs.google.com/feeds/',
-        'scope': FULL_SCOPE,
-        'app_name': 'Citable'
-      });*/
 
 	//defines a common and persistant object for handling the accessToken and other functions. avoids having to invoke angular in the background.
 	var gdocs = new GDocs();
