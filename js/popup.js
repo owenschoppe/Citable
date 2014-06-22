@@ -28,28 +28,40 @@ function onError(e) {
 var citable = angular.module('gDriveApp', []);
 
 citable.directive('shownValidation', function() {
-    return {
-      require: '^form',
-      restrict: 'A',
-      link: function(scope, element, attrs,form) {
-        var control;
-        
-        scope.$watch(attrs.ngShow,function(value){
-          if (!control){
-            control = form[element.attr("name")];
-          }
-          if (value == true){
-            form.$addControl(control);
-            angular.forEach(control.$error, function(validity, validationToken) {
-       form.$setValidity(validationToken, !validity, control);
-    });
-          }else{
-             form.$removeControl(control);
-          }
-        });
-      }
-    };
+  return {
+    require: '^form',
+    restrict: 'A',
+    link: function(scope, element, attrs,form) {
+      var control;
+      
+      scope.$watch(attrs.ngShow,function(value){
+        if (!control){
+          control = form[element.attr("name")];
+        }
+        if (value == true){
+          form.$addControl(control);
+          angular.forEach(control.$error, function(validity, validationToken) {
+     form.$setValidity(validationToken, !validity, control);
   });
+        }else{
+           form.$removeControl(control);
+        }
+      });
+    }
+  };
+});
+
+citable.directive('selFocus', function($timeout) {
+  return function(scope, element, attrs) {
+     //Watches the referenced model from the context of the element with the attached directive.
+    scope.$watch(attrs.selFocus, 
+      function (newValue) { 
+        //Checks the current value of the model/selector to set focus.
+        console.log('selFocus', newValue, !newValue, element.focus());
+        $timeout(function(){!newValue && element.focus();},0); 
+      },true);
+  };    
+});
 
 //Creates a service called gdocs
 citable.factory('gdocs', function() {
