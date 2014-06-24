@@ -97,6 +97,7 @@ function sharedProps() {
   props.butter = {'status':'', 'message':''};
   props.loading = true;
   props.requesting = false;
+  props.folderName = 'Citable_Tool_Documents';
   /*props.defaultMeta = props.docs.filter(function(el){
       return el.id == props.defaultDoc;
     });*/
@@ -129,7 +130,7 @@ citable.controller('butterController', function($scope, sharedProps){
 
 citable.controller('menuController', function($scope, sharedProps){
    $scope.data = sharedProps.data;
-   
+
    $scope.toggleMenu = function(event){
     event.preventDefault();
     if($scope.data.defaultDoc.title){
@@ -419,6 +420,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
         showMsg('Got Docs!','success',2000);
 
         //We have docs, so reset the defaultDoc if it isn't set already.
+        //TODO: check if document is in the list of docs. If not reset the default.
         if(!$scope.data.defaultDoc){
           console.log('Reset Default');
           $scope.data.defaultDoc = $scope.data.docs[0];
@@ -473,7 +475,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
   };
 
   $scope.fetchFolder = function(retry) {
-    var folderName = 'Citable_Tool_Documents';
+    var folderName = $scope.data.folderName;
 
     this.clearDocs();
 
