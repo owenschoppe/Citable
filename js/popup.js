@@ -127,6 +127,104 @@ citable.controller('butterController', function($scope, sharedProps){
   };
 });
 
+citable.controller('actionController', function($scope, $http, gdocs, sharedProps){
+  $scope.data = sharedProps.data;
+
+  var bgPage = chrome.extension.getBackgroundPage();
+
+  processDocContent = function(response, xhr, callback) {
+    console.log('rows returned: ', xhr);
+    
+    //Clear row cache in bgPage. //TODO: clean this up so as to not leave a copy lying around. Maybe use localStorage?
+    bgPage.row = [];
+    
+    var data = response;
+    //console.log('row data: ',data,Boolean(data.feed.entry));
+    if(data.feed.entry) {
+      
+      for (var i = 0, entry; entry = data.feed.entry[i]; ++i) {
+        console.log(i);
+        bgPage.row.push(new Row(entry));
+        //console.log(entry);
+      }
+      console.log('rows: ', bgPage.row);
+      bgPage.docName = $scope.data.defaultDoc.title;
+      callback();
+    
+    } else {
+      console.log('No entries');
+      showMsg('Invalid file.',error,10000);
+    }
+  };
+
+  Row = function(entry) {
+    this.title = (entry.gsx$title ? entry.gsx$title.$t : '');
+    this.url = (entry.gsx$url ? entry.gsx$url.$t : '');
+    this.summary = (entry.gsx$summary ? entry.gsx$summary.$t : '');
+    this.tags = (entry.gsx$tags ? entry.gsx$tags.$t : '');
+    this.author = (entry.gsx$author ? entry.gsx$author.$t : '');
+    this.date = (entry.gsx$date ? entry.gsx$date.$t : '');
+  };
+
+  String.prototype.toProperCase = function () {
+    return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+  };
+
+  $scope.getDocument = function(param){
+    var docId = $scope.data.defaultDoc.id;
+    
+    if(docId == ''){ return; }
+    else {
+      console.log('exportDocument');
+
+      var config = {
+        params: {
+            'alt': 'json'
+        },
+        headers: {
+          'Authorization': 'Bearer ' + gdocs.accessToken,
+          'GData-Version': '3.0',
+        }
+      };
+
+      var worksheetId = 'default';
+
+      var url = bgPage.SPREAD_SCOPE +'/list/'+docId+'/'+worksheetId+'/private/full';
+
+      $scope.data.requesting = true; //Reset the variable.
+
+      $http.get(url, config).
+          success(function(response,xhr){
+            console.log('Response',response,'XHR:',xhr);
+
+            processDocContent(response,xhr,function(){
+              bgPage.callPrintable(param,function(response){
+                console.log(response);
+                showMsg(param.toProperCase()+' '+$scope.data.defaultDoc+'!'.title,'normal',5000);
+                //Close popup. //Happens automatically when the page is launched.
+              });
+            });
+            $scope.data.requesting = false; //Reset the variable.
+
+          }).
+          error(function(data, status, headers, config) {
+            
+            if (status == 401 && retry) {
+              gdocs.removeCachedAuthToken(
+                  gdocs.auth.bind(gdocs, true, 
+                      $scope.fetchDocs.bind($scope, false)));
+            } else if((status == 400 || status == 500 || status == 404) && retry) { 
+
+            } else {
+              console.log('export error',status,data);
+              $scope.data.requesting = false; //Reset the variable.
+              showMsg(status+"Couldn't get document.",'error',10000);
+            }
+          }); 
+    }
+  }
+});
+
 //gDriveApp.service('gdocs', GDocs);
 //gDriveApp.controller('DocsController', ['$scope', '$http', DocsController]);
 

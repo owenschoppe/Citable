@@ -90,13 +90,15 @@ util.displayError = function(msg) {
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 function saveFile() {
-	var bb = new window.WebKitBlobBuilder(); 
+	/*var bb = new window.WebKitBlobBuilder(); 
 	// Note: window.WebKitBlobBuilder in Chrome 12.
     //var content = doExport();
-    bb.append(content.toString());
-    saveAs(bb.getBlob("text/plain"), docName+".bib"); //Uses FileSave.js
+    bb.append(content.toString());*/
+    
+    var blob = new Blob([content.toString()]);
+
+    saveAs(blob, docName+".bib"); //Uses FileSave.js
     //Is FileSave.js a future compatible option?
-    //renderDoc(content);
 }
 
 function renderDoc(bibtex){

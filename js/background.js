@@ -101,57 +101,21 @@
 	  });
 	});
 
-/*function getClipboard(){
-	chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-	 if (request.method == "getClipData")
-	   sendResponse({data: document.execCommand('paste')});
-	 else
-	   sendResponse({}); // snub them.
-	 });
-	       
-	chrome.extension.sendRequest({method: "getClipData"}, function(response) {
-	   console.log(response);
-	   return response.data;
-	});
-}*/
-    
-   
-/////////////////////////////////////////////////////////
-function printDocumentPage(callback) 
-{
-	//Try...Catch is not actually being used here.
-	try { callPrintable("print"); }
-	catch(err){ 
-		console.log(err);
-		chrome.tabs.create({ 'url' : 'view.html'}); 
-	}
-	callback();
-}
-/////////////////////////////////////////////////////////
-function exportDocument(callback) 
-{
-	//Try...Catch is not actually being used here.
-	try { callPrintable("export"); }
-	catch(err){ 
-		console.log(err);
-		chrome.tabs.create({ 'url' : 'export.html'}); 
-	}
-	callback();
-}
 /////////////////////////////////////////////////////////
 //Try to connect with printable.
-function callPrintable(action){
+function callPrintable(action, callback){
 	console.log('callPrintable');
 	// The ID of the extension we want to talk to.
 	//var printableId = "bdhofmoocbkmplcojaemnjogcmefeido"; //Local, for testing.
-	var printableId = "jihmnnkhocjgfhnffpigaachefmnelfg"; //Live.
+	var printableId = null; //"jihmnnkhocjgfhnffpigaachefmnelfg"; //Live. //Intentionally broken since Printable is broken
 	// Make a simple request:
 	if(action == "print") {
 		chrome.extension.sendRequest(printableId, {printDoc: true, key: docKey, name: docName}, function(response) {
 			console.log('response ',response);
 			if(response == undefined){
-				chrome.tabs.create({ 'url' : 'view.html'});
+				chrome.tabs.create({ 'url' : 'view.html'}); //Disabled temporarily.
 			}
+			callback(response);
 		});
 	} else if(action == "export") {
 		chrome.extension.sendRequest(printableId, {exportDoc: true, key: docKey, name: docName}, function(response) {
@@ -159,8 +123,12 @@ function callPrintable(action){
 			if(response == undefined){
 				chrome.tabs.create({ 'url' : 'export.html'});
 			}
+			callback(response);
 		});
+	} else {
+		callback(null);
 	}
+
 }
 /////////////////////////////////////////////////////////
 var createDocument = function(data, fileName, parentFolder, callback){
