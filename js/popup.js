@@ -127,6 +127,17 @@ citable.controller('butterController', function($scope, sharedProps){
   };
 });
 
+citable.controller('menuController', function($scope, sharedProps){
+   $scope.data = sharedProps.data;
+   
+   $scope.toggleMenu = function(event){
+    event.preventDefault();
+    if($scope.data.defaultDoc.title){
+      $scope.data.menu = !$scope.data.menu;
+    }
+  }
+});
+
 citable.controller('actionController', function($scope, $http, gdocs, sharedProps){
   $scope.data = sharedProps.data;
 
@@ -725,13 +736,6 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
   $scope.gotDocs = function(index) {
     console.log('Docs length:',$scope.data.docs.length>0);
     return (($scope.data.docs.length > 0 )||(!$scope.data.loading)); //This is silly since docs is always 0 before loading and after loading we'll always show the menu either defaulted or empty.
-  }
-
-  $scope.toggleMenu = function(event){
-    event.preventDefault();
-    if($scope.data.defaultDoc.title){
-      $scope.data.menu = !$scope.data.menu;
-    }
   }
 
   $scope.getMenu = function(){

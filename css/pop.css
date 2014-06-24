@@ -53,10 +53,11 @@ a[disabled=disabled], a.disabled, a.disabled:hover {
   background-color: red;
 }
 .success {
-  background-color: #4C8EF9;
+  /*background-color: #4C8EF9;*/
+  background-color: #333333;
 }
 .normal {
-  background-color: #000033;
+  background-color: #333333;
 }
 
 #citation {
@@ -169,24 +170,27 @@ select:HOVER{
 	text-decoration: none;
 }
 
-#menu.button{
-  background-image: url(img/menu-75.png), -webkit-gradient(linear,left top,left bottom,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
+.menu{
+  background-image: url(img/menu-75.png);
+  /*background-image: url(img/menu-75.png), -webkit-gradient(linear,left top,left bottom,color-stop(0,#fefefe),color-stop(1,#e9e9e9));*/
+  border:0px;
   background-position: center center;
   background-repeat: no-repeat;
   width: 18px;
   height: 14px;
   margin: 0px;
 }
-#menu.button:HOVER, #menu.button:ACTIVE{
-  background-image: url(img/menu.png), -webkit-gradient(linear,left bottom,left top,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
+.menu:HOVER, .menu:ACTIVE{
+	background-image: url(img/menu.png);
+	border:0px;
+  /*background-image: url(img/menu.png), -webkit-gradient(linear,left bottom,left top,color-stop(0,#fefefe),color-stop(1,#e9e9e9));*/
 }
-#menu.button[disabled=disabled], #menu.disabled, #menu.disabled:HOVER, #menu.disabled:ACTIVE{
-	background-image: url(img/menu-75.png), -webkit-gradient(linear,left top,left bottom,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
-	border:1px solid #ccc;
+.menu[disabled=disabled], .menu.disabled, .menu.disabled:HOVER, .menu.disabled:ACTIVE{
+	background-image: url(img/menu-75.png);
+	/*background-image: url(img/menu-75.png), -webkit-gradient(linear,left top,left bottom,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
+	border:1px solid #ccc;*/
+	border:0px;
 	outline:none;
-}
-#menu_items {
-	/*display:none;*/
 }
 .divider {
 	margin:10px 0 10px 0;
@@ -226,7 +230,7 @@ select:HOVER{
 }
 .addNote{
 
-  width:40px;
+  width:55px;
   text-align: center;
 }
 .addNoteLabel{
