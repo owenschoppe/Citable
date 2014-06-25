@@ -97,7 +97,7 @@ function sharedProps() {
   props.butter = {'status':'', 'message':''};
   props.loading = true;
   props.requesting = false;
-  props.folderName = 'Citable_Tool_Documents';
+  props.folderName = 'Citable_Documents';
   /*props.defaultMeta = props.docs.filter(function(el){
       return el.id == props.defaultDoc;
     });*/
@@ -305,12 +305,18 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
           if (e.ctrlKey) { //Clears all fields on complete.
             console.log("CTRL+RETURN pressed");
             //$scope.amendDoc($('#destination').val(),function(){clearFields(true)}); 
-            $scope.saveNote(e);
+            $scope.saveNote(e,$scope.clearFields);
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
           }
           if (e.altKey) { //Maintains the url and page title.
             console.log("ALT+RETURN pressed");
             //$scope.amendDoc($('#destination').val(),function(){clearFields(false)});
-            $scope.saveNote(e);
+            $scope.saveNote(e,$scope.closeWindow);
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
           }
           if(e.shiftKey){
             console.log("SHIFT+RETURN pressed");
@@ -417,15 +423,25 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
             }
         });
         console.log('Documents List',$scope.data.docs,$scope.data.defaultDoc);
-        showMsg('Got Docs!','success',2000);
+        //showMsg('Got Docs!','success',2000);
 
         //We have docs, so reset the defaultDoc if it isn't set already.
         //TODO: check if document is in the list of docs. If not reset the default.
         if(!$scope.data.defaultDoc){
           console.log('Reset Default');
+          //Temporarily reset the default value, if there isn't a predefined default.
           $scope.data.defaultDoc = $scope.data.docs[0];
           //Don't automatically store this default. Instead continue to reset to the latest file until the user makes an explicit selection.
-          //storeDefault();
+        } else {
+          var defaultFound = false;
+          for(var doc in $scope.data.docs){
+              if($scope.data.defaultDoc.id == doc.id){
+                defaultFound = true;
+              }
+            }
+          console.log('Default Found',defaultFound);
+          //Temporarily redefine the default if the defaultDoc isn't in the doc list.
+          $scope.data.defaultDoc = defaultFound == true ? $scope.data.defaultDoc : $scope.data.docs[0];
         }
     }
   }
@@ -591,7 +607,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
     };
     
     if (gdocs.accessToken) {
-      showMsg('Adding citable...');
+      showMsg('Adding note...');
 
       var data = constructCitation();
 
@@ -744,19 +760,29 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
     return $scope.data.menu;
   }
 
-  $scope.saveNote = function(event){
+  $scope.closeWindow = function(){
+    $timeout(function(){window.close();},1500);
+  }
+
+  $scope.clearFields = function(){
+    //Clear citation.
+    $scope.data.citation.Summary = null;
+    $scope.$apply();
+  }
+
+  $scope.saveNote = function(event,callback){
     console.log('Save Note: ', $scope.data);
-    event.preventDefault();
+
+    try { event.preventDefault(); } catch(e){}
+
     var saveNoteSuccess = function(){
-      console.log('SaveNote success', $scope.data);
+      console.log('SaveNote success', $scope.data, callback);
       showMsg('Note added!','success', 2000);
       $scope.data.requesting = false; //Reset the variable.
       
       //Remove citation from queue/log.
-      //Clear citation.
-      $scope.data.citation.Summary = "";
 
-      //window.close();
+      if(callback){ callback(); }     
     }
 
     //TODO: should I push errors in the amend process to this function or just handle them individually?

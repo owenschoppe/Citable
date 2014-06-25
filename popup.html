@@ -50,9 +50,12 @@
 	<!--Controls-->
 	<div class="controls" ng-controller="DocsController" ng-keyup="myEvent($event)">
 	    <form name="controls" novalidate>
+	    	<div>
+		    	<!--Label-->
+				<label for="selection" class="space lg" ng-class="{fade:data.menu}">Save note in</label>
 
-	    	<!--Label-->
-			<label id="selectionLabel" for="selection" class="note" ng-class="{fade:data.menu}">Save note in:</label>
+				<span class="addNoteLabel lg" ng-class="{fade:data.menu}">alt+enter</span>
+			</div>
 			
 			<div id="selection_box" class="clear">
 				
@@ -66,12 +69,12 @@
 					</div>
 
 					<!--Document Selector-->
-					<select id="destination" class="Droid" name="destination" ng-model="data.defaultDoc" ng-change="storeDefault()" data-ng-show="!data.loading" ng-options="doc.title for doc in data.docs track by doc.id">
+					<select class="Droid destination" name="destination" ng-model="data.defaultDoc" ng-change="storeDefault()" data-ng-show="!data.loading" ng-options="doc.title for doc in data.docs track by doc.id" sel-focus="!data.defaultDoc.id">
 						<option value="" ng-disabled="data.menu">Create New Document...</option>
 					</select>
 
 					<!--New Doc Title Input-->
-					<div id="new_doc_container" ng-hide="data.defaultDoc.id || data.loading" ng-class="{'error':ng-dirty&&ng-invalid}">
+					<div class="new_doc_container" ng-hide="data.defaultDoc.id || data.loading" ng-class="{'error':ng-dirty&&ng-invalid}">
 						  <input type="text" name="docTitle" placeholder="Enter a document title" ng-model="data.newDoc" ng-show="!data.defaultDoc.id" shown-validation sel-focus="data.defaultDoc.id" required> <!--ng-required="{{!data.defaultDoc.id?true:false}}" -->
 					</div>
 
@@ -80,26 +83,21 @@
 				<!--Save Button-->
 				<div class="right relative addNoteContainer">
 					<!--<a class="button Droid addNote right" ng-click="saveNote($event)" ng-disabled="data.menu || data.requesting || controls.$invalid" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" href>Save</a>-->
-					<input type="submit" ng-disabled="data.menu || data.requesting || controls.$invalid" class="button Droid addNote right" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" value="Save" ng-click="controls.$valid && focused && saveNote($event)" ng-focus="focused = true" ng-blur="focused = false"/>
+					<input type="submit" ng-disabled="data.menu || data.requesting || controls.$invalid" class="button Droid addNote right" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" value="Save" ng-click="controls.$valid && focused && saveNote($event,closeWindow)" ng-focus="focused = true" ng-blur="focused = false"/>
 					
 					<!--works-->
 					<!--
 					<a ng-disabled="data.menu || data.requesting || controls.$invalid" class="button Droid addNote right" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" ng-click="controls.$valid && saveNote($event)" href>Save</a>
 					-->
-					<span class="addNoteLabel" ng-class="{fade:data.menu}">alt+return</span>
+					
 				</div>
 
 			</div>
 			
 			<!--Actions Menu-->
 			<div id="action_box" class="clear" ng-controller="actionController">
-				
-				<div ng-controller="menuController">
-					<!--Menu Button-->
-					<a name="menu" class="menu button Droid left" ng-click="toggleMenu($event)" ng-hide="!data.defaultDoc.title" ng-class="{fade:!data.defaultDoc.title}" tabindex="{{!data.defaultDoc.title?'-1':$index}}" href></a>
-				</div>
 
-				<div class="controls controlBar indent" ng-hide="!data.defaultDoc.title">
+				<div class="controls controlBar space" ng-hide="!data.defaultDoc.title">
 
 					<!--View Doc-->
 					<a id="viewDoc" class="action" ng-click="viewDoc(data.defaultDoc.id,data.defaultDoc.alternateLink)" href>view document</a>
@@ -115,6 +113,13 @@
 						<div class="item"><a id="exportDoc" class="action" ng-click="getDocument('export')" href>export citations</a></div>
 					</div>
 				</div>
+
+				<div ng-controller="menuController" class="center menu_box">
+					<!--Menu Button-->
+					<a name="menu" class="Droid menu" ng-click="toggleMenu($event)" ng-hide="!data.defaultDoc.title" ng-class="{fade:!data.defaultDoc.title, closed:!data.menu, open:data.menu}" tabindex="{{!data.defaultDoc.title?'-1':$index}}" href>
+					</a>
+				</div>
+
 			</div>
 		</form>
 	</div>
