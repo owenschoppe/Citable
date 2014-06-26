@@ -215,6 +215,7 @@ citable.controller('actionController', function($scope, $http, gdocs, sharedProp
                 console.log(response);
                 showMsg(param.toProperCase()+' '+$scope.data.defaultDoc+'!'.title,'normal',5000);
                 //Close popup. //Happens automatically when the page is launched.
+                $scope.closeWindow();
               });
             });
             $scope.data.requesting = false; //Reset the variable.
