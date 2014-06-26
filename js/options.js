@@ -2,14 +2,15 @@ var bgPage = chrome.extension.getBackgroundPage();
 //var access_token;
 
 document.addEventListener('DOMContentLoaded', function () {
+  _gaq.push(['_trackEvent', 'Button', 'Revoke Token']);
   document.querySelector('#revoke').addEventListener('click', revokeToken);
 });
 
-$('#refresh_rate').change(function() {
+/*$('#refresh_rate').change(function() {
 localStorage.refreshRate = $(this).val();
 bgPage.refreshRate = localStorage.refreshRate;
 bgPage.pollIntervalMin =  bgPage.refreshRate * 1000;
-});
+});*/
 
 //Broken
 /*function logout(e) {
@@ -71,11 +72,11 @@ function initUI() {
 	});
 }
 
-if (localStorage.refreshRate) {
+/*if (localStorage.refreshRate) {
   $('#refresh_rate').val(localStorage.refreshRate);
 } else {
    $('#refresh_rate').val(bgPage.refreshRate);
-}
+}*/
 
 
 //Inital function fired on page load.

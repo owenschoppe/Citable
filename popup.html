@@ -53,7 +53,7 @@
 		    	<!--Label-->
 				<label for="selection" class="space lg" ng-class="{fade:data.menu}">Save note in</label>
 
-				<span class="addNoteLabel lg" ng-class="{fade:data.menu}">alt+enter</span>
+				<span class="addNoteLabel lg" ng-class="{fade:data.menu}">alt+return</span>
 			</div>
 			
 			<div id="selection_box" class="clear">
@@ -82,7 +82,7 @@
 				<!--Save Button-->
 				<div class="right relative addNoteContainer">
 					<!--<a class="button Droid addNote right" ng-click="saveNote($event)" ng-disabled="data.menu || data.requesting || controls.$invalid" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" href>Save</a>-->
-					<input type="submit" ng-disabled="data.menu || data.requesting || controls.$invalid" class="button Droid addNote right" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" value="Save" ng-click="controls.$valid && focused && saveNote($event,closeWindow)" ng-focus="focused = true" ng-blur="focused = false"/>
+					<input type="submit" ng-disabled="data.menu || data.requesting || controls.$invalid" class="button Droid addNote right" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" value="Save" ng-click="controls.$valid && focused && saveNoteButton($event,closeWindow)" ng-focus="focused = true" ng-blur="focused = false"/>
 					
 					<!--works-->
 					<!--

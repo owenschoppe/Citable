@@ -28,24 +28,29 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function fontHandler(e) {
+	_gaq.push(['_trackEvent', 'Button', 'Change Font', this.value]);
 	changeFont(this.form,this.value);
 }
 
 function orientHandler(e) {
+	_gaq.push(['_trackEvent', 'Button', 'Change Orientation', this.value]);
 	changeOrient(this.form,this.value);
 }
 
 function printHandler(e) {
+	_gaq.push(['_trackEvent', 'Button', 'Print Stickies']);
 	printDocumentPage();
 	return false;
 }
 
 function cancelHandler(e) {
+	_gaq.push(['_trackEvent', 'Button', 'Cancel Print']);
 	window.close();
 	return false;
 }
 
 function templateHandler(e) {
+	_gaq.push(['_trackEvent', 'Button', 'Print Template']);
 	openTemplate();
 	return false;
 }

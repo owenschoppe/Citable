@@ -23,11 +23,13 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function printHandler(e) {
+	_gaq.push(['_trackEvent', 'Button', 'Download .bib']);
 	saveFile();
 	return false;
 }
 
 function cancelHandler(e) {
+	_gaq.push(['_trackEvent', 'Button', 'Cancel Export']);
 	window.close();
 	return false;
 }

@@ -132,6 +132,7 @@ citable.controller('menuController', function($scope, sharedProps){
    $scope.data = sharedProps.data;
 
    $scope.toggleMenu = function(event){
+    _gaq.push(['_trackEvent', 'Button', 'Toggle Menu']);
     event.preventDefault();
     if($scope.data.defaultDoc.title){
       $scope.data.menu = !$scope.data.menu;
@@ -272,11 +273,6 @@ citable.controller('CitationController', function($scope, sharedProps, $rootScop
 
   $scope.getPageInfo();
 
-  //Broadcast key events to the other controllers.
-  $scope.myEvent = function(e){
-    $rootScope.$broadcast('keyDown',{'event':e});
-  }
-
 });
 
 // Main Angular controller for app.
@@ -290,57 +286,16 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
   var bgPage = chrome.extension.getBackgroundPage();
 
-  //Catch key events passed from the citation controller.
-  $scope.$on('keyDown',function(event,args){
-    $scope.myEvent(args.event);
-  })
-
-  $scope.myEvent = function(e){
-    //showMsg('Key'+e.keyCode);
-    //TODO: do the clearFields alternate behavior.
-    console.log("Requesting",$scope.data.requesting);
-    /*if($scope.data.requesting){}  //Escapes all keyboard actions once a request has been made.
-    else {
-      if(e.keyCode == 13){
-          if (e.ctrlKey) { //Clears all fields on complete.
-            console.log("CTRL+RETURN pressed");
-            //$scope.amendDoc($('#destination').val(),function(){clearFields(true)}); 
-            $scope.saveNote(e,$scope.clearFields);
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-          }
-          if (e.altKey) { //Maintains the url and page title.
-            console.log("ALT+RETURN pressed");
-            //$scope.amendDoc($('#destination').val(),function(){clearFields(false)});
-            $scope.saveNote(e,$scope.closeWindow);
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-          }
-          if(e.shiftKey){
-            console.log("SHIFT+RETURN pressed");
-            return 13;
-          }
-          else {
-            console.log("RETURN pressed");
-            //Instead of submitting move to the next field.
-            //Doesn't work. TODO: make return act like tab. Use tab-index?
-            return 9;
-            //Check if the save input is focused and make the submit if so.
-          }
-      }
-    }*/
-  }
-
   // Bind ctrl+return
   keyboardManager.bind('ctrl+return', function(e) {
     $scope.saveNote(e,$scope.clearFields);
+    _gaq.push(['_trackEvent', 'Shortcut', 'CTRL RETURN']);
   });
 
   // Bind alt+return
   keyboardManager.bind('alt+return', function(e) {
     $scope.saveNote(e,$scope.closeWindow);
+    _gaq.push(['_trackEvent', 'Shortcut', 'ALT RETURN']);
   });
 
   //Displays message in butterBox with an optional class via status
@@ -444,11 +399,13 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
           //Don't automatically store this default. Instead continue to reset to the latest file until the user makes an explicit selection.
         } else {
           var defaultFound = false;
-          for(var doc in $scope.data.docs){
-              if($scope.data.defaultDoc.id == doc.id){
-                defaultFound = true;
-              }
+          for(var i in $scope.data.docs){
+            doc = $scope.data.docs[i];
+            //console.log($scope.data.defaultDoc.id, i, doc.id, $scope.data.defaultDoc.id == doc.id)
+            if($scope.data.defaultDoc.id == doc.id){
+              defaultFound = true;
             }
+          }
           console.log('Default Found',defaultFound);
           //Permanently redefine the default if the defaultDoc isn't in the doc list. By storing this we prevent ongoing mis-saves in a deleted doc.
           if (defaultFound == false) {
@@ -783,11 +740,14 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
     $scope.$apply();
   }
 
+  $scope.saveNoteButton = function(event, callback){
+    _gaq.push(['_trackEvent', 'Button', 'Save']);
+    $scope.saveNote(event, callback);
+  }
+
   $scope.saveNote = function(event,callback){
     console.log('Save Note: ', $scope.data);
-
-    try { event.preventDefault(); } catch(e){}
-
+    _gaq.push(['_trackEvent', 'Auto', 'Save Note']);
     var saveNoteSuccess = function(){
       console.log('SaveNote success', $scope.data, callback);
       showMsg('Note added!','success', 2000);
@@ -814,6 +774,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
   
   $scope.viewDoc = function(destination, url) {
     console.log('viewDoc', destination, url);
+    _gaq.push(['_trackEvent', 'Button', 'View Document']);
     //First looks for the url passed in from the DocList API since that address should be correct. 
     var tabUrl = url != null ? url : constructURL(destination);
     chrome.tabs.create({url: tabUrl});

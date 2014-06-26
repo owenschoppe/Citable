@@ -38,13 +38,25 @@
       callback();
     }*/
   }
+
+
+/////////////////////////////////////////////////////////
+chrome.runtime.sendMessage("ID of extension", "message", function(response) {
+    var lastError = chrome.runtime.lastError;
+    if (lastError) {
+        console.log('Caught Runtime Error Msg',lastError.message);
+        // 'Could not establish connection. Receiving end does not exist.'
+        return;
+    }
+    // Success, do something with response...
+});
       
 
 /////////////////////////////////////////////////////////
  // This function is called onload in the popup code
     function getPageInfo(callback) 
     { 
-        chrome.tabs.getSelected(function(tab){
+    	chrome.tabs.getSelected(function(tab){
 	        console.log('getPageInfo',tab);
 	        if ((tab.url.indexOf("chrome-devtools://") == -1) 
 	        	&& (tab.url.indexOf("chrome://") == -1) 
@@ -56,21 +68,36 @@
 	            callbacks.push(callback); 
 	            // Inject the content script into the current page        
 	    		//chrome.tabs.executeScript(null, { file: "content_script.js" }); 
+	    		
 	    		chrome.tabs.executeScript(null, { file: "jquery-1.7.2.min.js" }, function() {
-	        			chrome.tabs.executeScript(null, { file: "content_script.js" });
+	    				if (chrome.runtime.lastError) {
+				            console.log('Scripting error:',chrome.runtime.lastError.message);
+				            error(tab);
+				        }
+	        			chrome.tabs.executeScript(null, { file: "content_script.js" }, function(){
+	        				if (chrome.runtime.lastError) {
+					            console.log('Scripting error:',chrome.runtime.lastError.message);
+					            error(tab);
+					        }
+	        			});
 	    		});
+    	    	
 	    		//console.log('callbacks',callbacks);
 	    	} else {
 	    		console.log('getPageInfo error');
-	    		//If the content script injection fails (ie. we're in devtools or another protected Chrome page) do a generic callback.
-	    		var pageInfo = {
-			  	'Title' : tab.title.trim(),
-			  	//'Summary': getClipboard(),
-			  	'Url' : tab.url
-			  	};
-	    		callback(pageInfo);
+	    		error(tab);
 	    	}
     	});
+
+		error = function(tab){
+    		//If the content script injection fails (ie. we're in devtools or another protected Chrome page) do a generic callback.
+    		var pageInfo = {
+		  	'Title' : tab.title.trim(),
+		  	//'Summary': getClipboard(),
+		  	'Url' : tab.url
+		  	};
+    		callback(pageInfo);
+		}
     }; 
     
     chrome.extension.onConnect.addListener(function(port) {
@@ -110,6 +137,7 @@ function callPrintable(action, callback){
 	var printableId = null; //"jihmnnkhocjgfhnffpigaachefmnelfg"; //Live. //Intentionally broken since Printable is broken
 	// Make a simple request:
 	if(action == "print") {
+		_gaq.push(['_trackEvent', 'Button', 'Print Document']);
 		chrome.extension.sendRequest(printableId, {printDoc: true, key: docKey, name: docName}, function(response) {
 			console.log('response ',response);
 			if(response == undefined){
@@ -118,6 +146,7 @@ function callPrintable(action, callback){
 			callback(response);
 		});
 	} else if(action == "export") {
+		_gaq.push(['_trackEvent', 'Button', 'Export Document']);
 		chrome.extension.sendRequest(printableId, {exportDoc: true, key: docKey, name: docName}, function(response) {
 			console.log('response ',response);
 			if(response == undefined){
@@ -133,6 +162,7 @@ function callPrintable(action, callback){
 /////////////////////////////////////////////////////////
 var createDocument = function(data, fileName, parentFolder, callback){
 	console.log('createDocument',data,fileName,callback);
+	_gaq.push(['_trackEvent', 'Auto', 'Create Document']);
 	// JSON to CSV Converter
 	
 	//TODO: use "for(var i in o){console.log(i,o[i]);}" to traverse a single object instead of an array of objects. i=key o[1]=value
@@ -252,6 +282,7 @@ var createDocument = function(data, fileName, parentFolder, callback){
 /////////////////////////////////////////////////////////
 createFolder = function(title, callback) {
 console.log('gdocs.createFolder ', title);
+_gaq.push(['_trackEvent', 'Auto', 'Create Folder']);
 
 	var handleSuccess = function(response, xhr) {
 		console.log('Folder created: ', response, xhr);
@@ -320,6 +351,7 @@ function logout(access_token, callback) {
 //Runs completely in the background.
 //TODO: Citable successfully posts the note even if only one column (with incoming data) is present. This is ok, if we assume users don't want data if they delete a column, but it's problematic if we want to be fool-proof. Consider doing a forced header-update for all docs on a recurring basis.
 updateDocument = function(callback, docToUpdate) {
+	_gaq.push(['_trackEvent', 'Auto', 'Update Document']);
 	var privateDocs;
 	if (docToUpdate != null) {
 		privateDocs = [docToUpdate];
