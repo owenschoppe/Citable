@@ -14,29 +14,32 @@ body {
 	text-align:center;
 }
 #frame {
-	width:287px;
-	margin: 5px auto;
+	width:288px;
+	margin-top: 5px;
+	margin-left:auto;
+	margin-right: auto;
 	padding:0;
 	text-align:left;
+	display:block;
 }
 
 a {
  color: #4E7DC2;
  text-decoration: none;
 }
-a:hover {
-  color: #880000;
-  text-decoration: underline;
+a:hover, a:focus {
+  color: #07377F;
+  text-decoration: none;
 }
 a[disabled=disabled], a.disabled, a.disabled:hover {
-	color: #333;
+	color: #aaa;
 	text-decoration: none;
 	outline:none;
 	cursor:default;
 }
 .butterbox {
 	text-align:center;
-	margin-top: 10px;
+	margin-top: 15px;
     margin-bottom: 5px;
 }
 .pam { 
@@ -46,11 +49,11 @@ a[disabled=disabled], a.disabled, a.disabled:hover {
 .butter {
   color: #fff;
   margin:auto;
-  border-radius: 15px;
-  width:180px;
+  border-radius: 4px;
+  width:258px;
 }
 .error {
-  background-color: red;
+  background-color: #cc1001;
 }
 .success {
   /*background-color: #4C8EF9;*/
@@ -59,7 +62,6 @@ a[disabled=disabled], a.disabled, a.disabled:hover {
 .normal {
   background-color: #333333;
 }
-
 #citation {
   background-color: rgb(255,255,160); /*rgb(248,237,131)*/
   padding: 0px;
@@ -107,22 +109,25 @@ a[disabled=disabled], a.disabled, a.disabled:hover {
 		height: 24px;*/
 		margin:0;
 		/*margin-left: 3px;*/
-		background-image:-webkit-gradient(linear,left bottom,left top,color-stop(1,#fafafa),color-stop(0,#e5e5e5));
+		/*background-image:-webkit-gradient(linear,left bottom,left top,color-stop(1,#fafafa),color-stop(0,#e5e5e5));*/
 		border:1px solid #ccc;
 		overflow: hidden;
 		padding: 2px 6px 2px 6px;
 		white-space: nowrap;
 		text-decoration: none;
+		background-color: #f1f1f1;
+		/*outline: none;*/
 	}
 	.button:HOVER, .button:FOCUS{
-		background-image:-webkit-gradient(linear,left bottom,left top,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
-		/*border:1px solid #909090;*/
-		border:1px solid #CCC;
-		color:#000;
+		/*background-image:-webkit-gradient(linear,left bottom,left top,color-stop(0,#fefefe),color-stop(1,#e9e9e9));*/
+		background-color: #e8e8e8;
+		border:1px solid #909090;
+		/*border:1px solid #CCC;*/
+		color:#333;
 		text-decoration: none;
 	}
 	.button:ACTIVE{
-		background-image:-webkit-gradient(linear,left top,left bottom,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
+		/*background-image:-webkit-gradient(linear,left top,left bottom,color-stop(0,#fefefe),color-stop(1,#e9e9e9));*/
 		border:1px solid #4080fa;
 		color:#000;
 		text-decoration: none;
@@ -136,11 +141,14 @@ select {
   -webkit-padding-start: 2px;
   -webkit-user-select: none;
   /*background-image: url(img/select-arrow.png), -webkit-linear-gradient(#FAFAFA, #F4F4F4 40%, #E5E5E5);*/
-  background-image: url(img/select-arrow.png), -webkit-gradient(linear,left top,left bottom,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
+  background-image: url(img/select-arrow.svg);
+  /*, -webkit-gradient(linear,left top,left bottom,color-stop(0,#fefefe),color-stop(1,#e9e9e9));*/
   background-position: center right;
   background-repeat: no-repeat;
+  background-size: 11px 12px;
+  background-color: #f1f1f1;
   border: 1px solid #CCC;
-  color: #444;
+  color: #333;
   font-size: inherit;
   margin: 0;
   overflow: hidden;
@@ -151,14 +159,17 @@ select {
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
+  /*outline: none;*/
 }
 select:HOVER, select:FOCUS{
-	background-image:url(img/select-arrow.png), -webkit-gradient(linear,left bottom,left top,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
+	background-image:url(img/select-arrow.svg);
+	background-color: #e8e8e8;
 	border:1px solid #909090;
 	color:#000;
+	/*background-color: -webkit-gradient(linear,left bottom,left top,color-stop(0,#fefefe),color-stop(1,#e9e9e9));*/
 }
 select:ACTIVE{
-	background-image:url(img/select-arrow.png), -webkit-gradient(linear,left top,left bottom,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
+	/*background-image:url(img/select-arrow.svg), -webkit-gradient(linear,left top,left bottom,color-stop(0,#fefefe),color-stop(1,#e9e9e9));*/
 	border:1px solid #4080fa;
 	color:#000;
 }
@@ -212,7 +223,7 @@ select:ACTIVE{
   height: 20px;
 }
 .space{
-	margin-left:7px;
+	padding-left:7px;
 }
 .indent{
 	margin-left: 38px;
@@ -259,12 +270,12 @@ select:ACTIVE{
   display: block;
 }
 .new_doc_container {
-  width: 215px;
+  width: 211px;
   padding-top:4px;
 }
 .new_doc_container input[type='text'],textarea,input{ /*,#selection,#selection_box*/
   width: 100%;
-
+  padding-left: 4px;
   margin: 0;
 }
 .inset-20 {

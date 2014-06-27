@@ -41,7 +41,7 @@
 
 
 /////////////////////////////////////////////////////////
-chrome.runtime.sendMessage("ID of extension", "message", function(response) {
+/*chrome.runtime.sendMessage("ID of extension", "message", function(response) {
     var lastError = chrome.runtime.lastError;
     if (lastError) {
         console.log('Caught Runtime Error Msg',lastError.message);
@@ -49,7 +49,7 @@ chrome.runtime.sendMessage("ID of extension", "message", function(response) {
         return;
     }
     // Success, do something with response...
-});
+});*/
       
 
 /////////////////////////////////////////////////////////
@@ -69,12 +69,12 @@ chrome.runtime.sendMessage("ID of extension", "message", function(response) {
 	            // Inject the content script into the current page        
 	    		//chrome.tabs.executeScript(null, { file: "content_script.js" }); 
 	    		
-	    		chrome.tabs.executeScript(null, { file: "jquery-1.7.2.min.js" }, function() {
+	    		chrome.tabs.executeScript(null, { file: "js/jquery-1.7.2.min.js" }, function() {
 	    				if (chrome.runtime.lastError) {
 				            console.log('Scripting error:',chrome.runtime.lastError.message);
 				            error(tab);
 				        }
-	        			chrome.tabs.executeScript(null, { file: "content_script.js" }, function(){
+	        			chrome.tabs.executeScript(null, { file: "js/content_script.js" }, function(){
 	        				if (chrome.runtime.lastError) {
 					            console.log('Scripting error:',chrome.runtime.lastError.message);
 					            error(tab);
@@ -233,10 +233,17 @@ var createDocument = function(data, fileName, parentFolder, callback){
 		  //"parentLink": parentFolder.parents[0].parentLink,
 		  //"isRoot": false
 		}
+
+	/*var properties = {	
+	    'key': key,
+		'value': value,
+		'visibility': visibility
+	}*/
 	
 	var metadata = {
       'title': fileName,
       'mimeType': contentType,
+      //'properties': [properties],
       'parents': [parent]
     };
 
@@ -280,8 +287,8 @@ var createDocument = function(data, fileName, parentFolder, callback){
 };
 
 /////////////////////////////////////////////////////////
-createFolder = function(title, callback) {
-console.log('gdocs.createFolder ', title);
+var createFolder = function(title, properties, callback) {
+console.log('createFolder ', title);
 _gaq.push(['_trackEvent', 'Auto', 'Create Folder']);
 
 	var handleSuccess = function(response, xhr) {
@@ -293,20 +300,21 @@ _gaq.push(['_trackEvent', 'Auto', 'Create Folder']);
   //util.displayMsg('Creating folder...');
   console.log('Creating folder...');
   
-  var headers = {
-      'Authorization': 'Bearer ' + gdocs.accessToken,
-      'GData-Version': '3.0',
-      'Content-Type': 'application/json'
+	var headers = {
+		'Authorization': 'Bearer ' + gdocs.accessToken,
+		'GData-Version': '3.0',
+		'Content-Type': 'application/json'
     };
 
 	var parent = {
-		  "id": "root"
-		}
+		"id": "root"
+	}
 	
 	var metadata = {
-      'title': title,
-      'mimeType': "application/vnd.google-apps.folder",
-      'parents': [parent]
+		'title': title,
+		'mimeType': "application/vnd.google-apps.folder",
+		'parents': [parent],
+		'properties': properties
     };
 
 	//Sends the params to the background page to get delivered to gDocs.
@@ -347,16 +355,114 @@ function logout(access_token, callback) {
 	setIcon({'text': ''});
 };*/
 
+//Function that takes a doc object or an array of doc objects with id property and inserts the specified array of properties.
+// updateProperties($scope.data.docs, 'Citable', 'True', 'Public');
+var insertProperties = function(docs, properties, callback){
+	console.log('insertProperties ', docs, properties);
+	_gaq.push(['_trackEvent', 'Auto', 'updateProperties']); //When this goes to 0 in analytics, stop doing this on install. 
+   	
+  	var handleSuccess = function(response, xhr) {
+		console.log('Property added: ', response, xhr);
+
+		//If successful, this method returns a Properties resource in the response body.
+
+		if(callback){callback(response);}		
+	};
+   
+    var headers = {
+      'Authorization': 'Bearer ' + gdocs.accessToken,
+      'GData-Version': '3.0',
+      'Content-Type': 'application/json'
+    };
+	
+	/*var properties = [{
+        'key': key,
+	    'value': value,
+	    'visibility': visibility
+    }];*/    
+
+	var loopProperties = function(id){
+		for(var i in properties){
+			console.log('loopProperties',properties[i])
+			makeRequest(id,headers,properties[i]);
+		}
+	}
+
+	var makeRequest = function(id,headers,properties){
+		//Sends the params to the background page to get delivered to gDocs.
+		var url = 'https://www.googleapis.com/drive/v2/files/'+id+'/properties';
+
+		//Reference: GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_headers)
+		gdocs.makeRequest('POST', url, handleSuccess, JSON.stringify(properties), headers);
+
+	  	console.log('INSERT PROPERTIES:', url, headers);
+	}
+
+	if(typeof docs == 'array'){
+    	console.log('loop through docs');
+    	for(var i in docs){
+			loopProperties(docs[i].id);
+		}
+	} else {
+		console.log('one doc only');
+		loopProperties(docs.id);
+	}
+	
+}
+
+var renameFolder = function(folder, title, callback){
+	console.log('renameFolder ', folder, title);
+	_gaq.push(['_trackEvent', 'Auto', 'updateProperties']); //When this goes to 0 in analytics, stop doing this on install. 
+  
+	var id = folder.id;
+
+    var headers = {
+      'Authorization': 'Bearer ' + gdocs.accessToken,
+      'GData-Version': '3.0',
+      'Content-Type': 'application/json'
+    };
+	
+    var body = {
+    	'title': title
+    }
+
+    var params = {
+		'convert':'false'
+    };
+
+	var makeRequest = function(id,headers,properties){
+		//Sends the params to the background page to get delivered to gDocs.
+		var url = 'https://www.googleapis.com/drive/v2/files/'+id+'?'+Util.stringify(params);
+
+		//Reference: GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_headers)
+		gdocs.makeRequest('PUT', url, handleSuccess, JSON.stringify(properties), headers);
+
+	  	console.log('RENAME FOLDER:', url, headers);
+	}
+
+	var handleSuccess = function(response, xhr) {
+		console.log('Folder renamed: ', response, xhr);
+
+		//If successful, this method returns a Files resource in the response body.
+
+		if(callback){callback(response);}		
+	};
+
+	makeRequest(id,headers,body);
+}
+
+
 //Updates the document headers in all of the user's spreadsheets found in Citable_Documents.
 //Runs completely in the background.
 //TODO: Citable successfully posts the note even if only one column (with incoming data) is present. This is ok, if we assume users don't want data if they delete a column, but it's problematic if we want to be fool-proof. Consider doing a forced header-update for all docs on a recurring basis.
-updateDocument = function(callback, docToUpdate) {
+var updateDocument = function(callback, docToUpdate) {
 	_gaq.push(['_trackEvent', 'Auto', 'Update Document']);
 	var privateDocs;
 	if (docToUpdate != null) {
 		privateDocs = [docToUpdate];
 	}
 	else { 
+		//Docs is currently null since it is outside of the scope of angular. Consider revising. Today we have to pass in the complete doc list if we want to update everyting.
 		privateDocs = docs; //Copy the doclist into a private variable so that we can run in the background while the user can send notes to the doc of choice.
 	}
 	console.log('updateDocument ');

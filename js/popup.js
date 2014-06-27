@@ -97,7 +97,13 @@ function sharedProps() {
   props.butter = {'status':'', 'message':''};
   props.loading = true;
   props.requesting = false;
-  props.folderName = 'Citable_Documents';
+  props.oldFolderName = 'Citable_Documents';
+  props.folderName = 'Citable';
+  props.driveProperties = [{  
+    'key': 'Citable',
+    'value': 'true',
+    'visibility': 'PUBLIC'
+  }]; 
   /*props.defaultMeta = props.docs.filter(function(el){
       return el.id == props.defaultDoc;
     });*/
@@ -289,14 +295,22 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
   // Bind ctrl+return
   keyboardManager.bind('ctrl+return', function(e) {
-    $scope.saveNote(e,$scope.clearFields);
-    _gaq.push(['_trackEvent', 'Shortcut', 'CTRL RETURN']);
+    if($scope.controls.$valid){
+      $scope.saveNote(e,$scope.clearFields);
+      _gaq.push(['_trackEvent', 'Shortcut', 'CTRL RETURN']);
+    } else {
+      showMsg('Please add a title.','error',5000);
+    }
   });
 
   // Bind alt+return
   keyboardManager.bind('alt+return', function(e) {
-    $scope.saveNote(e,$scope.closeWindow);
-    _gaq.push(['_trackEvent', 'Shortcut', 'ALT RETURN']);
+    if($scope.controls.$valid){
+      $scope.saveNote(e,$scope.closeWindow);
+      _gaq.push(['_trackEvent', 'Shortcut', 'ALT RETURN']);
+    } else {
+      showMsg('Please add a title.','error',5000);
+    }
   });
 
   //Displays message in butterBox with an optional class via status
@@ -461,7 +475,8 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
     }
   };
 
-  $scope.fetchFolder = function(retry) {
+  $scope.fetchFolder = function(retry, opt_config) {
+    var oldFolderName = $scope.data.oldFolderName;
     var folderName = $scope.data.folderName;
 
     this.clearDocs();
@@ -473,25 +488,57 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
           resp.items.forEach(function(entry, i) {
             $scope.cats.push(entry);
           });
-          console.log('Folders',$scope.cats);
+          console.log('Folders',$scope.cats,bgPage.firstRun,$scope.cats[0].id,$scope.data.driveProperties);
+
+          //If this is the first run since an update, do some maintenance on the folder.
+          if(opt_config){
+            //Update the old folders properties.
+            bgPage.insertProperties($scope.cats[0],$scope.data.driveProperties, function(){
+              //Rename the folder.
+              bgPage.renameFolder($scope.cats[0],folderName,function(){
+                showMsg('Folder updated!','normal',1000);
+              });
+            });
+          } 
+
+          //Uses the folderId so it's name independent from here on out.
           //Get the files contained in the folder cats[0];
           $scope.fetchDocs(false, $scope.cats[0].id);
+
       } else {
-          showMsg('createFolder');
-          //No folders found, create the folder
-          bgPage.createFolder(folderName,successCallbackFolderId);
+          if(bgPage.firstRun == true){
+            showMsg('Updating folder.');
+            var config = {
+              params: {'alt': 'json', 'q': "mimeType contains 'folder' and title='"+oldFolderName+"' and trashed!=true"},
+              headers: {
+                'Authorization': 'Bearer ' + gdocs.accessToken
+              }
+            };
+            $scope.fetchFolder(false, config);
+          } else {
+            showMsg('Creating folder.');
+            //No folders found, check for the old folder or create the folder
+            bgPage.createFolder(folderName,$scope.data.driveProperties,successCallbackFolderId);
+          }
       }
+      
+      //Reset the variable so we don't do this again.
+      bgPage.firstRun = false;
+
     } 
     
 
     if (gdocs.accessToken) {
-      console.log('fetchFolder',gdocs.accessToken);
-      var config = {
-        params: {'alt': 'json', 'q': "mimeType contains 'folder' and title='"+folderName+"' and trashed!=true"},
-        headers: {
-          'Authorization': 'Bearer ' + gdocs.accessToken
-        }
-      };
+      console.log('fetchFolder',gdocs.accessToken, bgPage.firstRun);
+
+    
+    var config = opt_config ? opt_config : {
+      params: {'alt': 'json', 'q': "mimeType contains 'folder' and properties has { key='"+$scope.data.driveProperties[0].key+"' and value='"+$scope.data.driveProperties[0].value+"' and visibility='"+$scope.data.driveProperties[0].visibility+"' } and trashed!=true"},
+      headers: {
+        'Authorization': 'Bearer ' + gdocs.accessToken
+      }
+    };
+      
 
       $http.get(gdocs.DOCLIST_FEED, config).
         success(successCallbackFolderId).
