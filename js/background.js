@@ -359,7 +359,7 @@ function logout(access_token, callback) {
 // updateProperties($scope.data.docs, 'Citable', 'True', 'Public');
 var insertProperties = function(docs, properties, callback){
 	console.log('insertProperties ', docs, properties);
-	_gaq.push(['_trackEvent', 'Auto', 'updateProperties']); //When this goes to 0 in analytics, stop doing this on install. 
+	_gaq.push(['_trackEvent', 'Auto', 'Update Properties']); //When this goes to 0 in analytics, stop doing this on install. 
    	
   	var handleSuccess = function(response, xhr) {
 		console.log('Property added: ', response, xhr);
@@ -412,7 +412,7 @@ var insertProperties = function(docs, properties, callback){
 
 var renameFolder = function(folder, title, callback){
 	console.log('renameFolder ', folder, title);
-	_gaq.push(['_trackEvent', 'Auto', 'updateProperties']); //When this goes to 0 in analytics, stop doing this on install. 
+	_gaq.push(['_trackEvent', 'Auto', 'Rename Folder']); //When this goes to 0 in analytics, stop doing this on install. 
   
 	var id = folder.id;
 
@@ -456,15 +456,18 @@ var renameFolder = function(folder, title, callback){
 //Runs completely in the background.
 //TODO: Citable successfully posts the note even if only one column (with incoming data) is present. This is ok, if we assume users don't want data if they delete a column, but it's problematic if we want to be fool-proof. Consider doing a forced header-update for all docs on a recurring basis.
 var updateDocument = function(callback, docToUpdate) {
-	_gaq.push(['_trackEvent', 'Auto', 'Update Document']);
+	
 	var privateDocs;
 	if (docToUpdate != null) {
+		_gaq.push(['_trackEvent', 'Auto', 'Update Document', 'Single']);
 		privateDocs = [docToUpdate];
 	}
 	else { 
+		_gaq.push(['_trackEvent', 'Auto', 'Update Document', 'Multi', privateDocs.length]);
 		//Docs is currently null since it is outside of the scope of angular. Consider revising. Today we have to pass in the complete doc list if we want to update everyting.
 		privateDocs = docs; //Copy the doclist into a private variable so that we can run in the background while the user can send notes to the doc of choice.
 	}
+
 	console.log('updateDocument ');
 	var docId = '';
 	//var worksheetId = 'od6';
