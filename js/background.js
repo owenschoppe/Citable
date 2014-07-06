@@ -113,6 +113,21 @@
 		//if (info.selection.length > max_length)
 		  //info.selection = info.selection.substring(0, max_length);
 
+		if(info.values == 0 && info.message == "myCustomEvent"){
+			//Need to update functions to grab the doc id from the tab url and put it in the bgpage variables.
+				var docKey = tab.url.split("=")[1].split('#')[0].split('&')[0];	
+				console.log('Try printing',docKey);
+				//gdocs.printDocument();
+				//gdocs.printDocumentPage();
+				callPrintable('print');
+		} else if (info.values == 1 && info.message == "myCustomEvent") {
+				var docKey = tab.url.split("=")[1].split('#')[0].split('&')[0];
+				console.log('Try exporting',docKey);
+				//gdocs.exportDocument();
+				//gdocs.exportDocumentPage();
+				callPrintable('export');
+		}
+
 		//Updates the dummy url to the actual url of the tab.
 		  var pageInfo = {
 		  	'Title' : info.title?info.title.trim():"",
@@ -123,7 +138,7 @@
 
 		  var callback = callbacks[0];//callbacks.shift();
         // Call the callback function
-        callback(pageInfo); 
+        if(callback){ callback(pageInfo); }
 		  //executeMailto(tab.id, info.title, tab.url, info.selection);
 	  });
 	});
@@ -134,11 +149,11 @@ function callPrintable(action, callback){
 	console.log('callPrintable');
 	// The ID of the extension we want to talk to.
 	//var printableId = "bdhofmoocbkmplcojaemnjogcmefeido"; //Local, for testing.
-	var printableId = null; //"jihmnnkhocjgfhnffpigaachefmnelfg"; //Live. //Intentionally broken since Printable is broken
+	var printableId = "jihmnnkhocjgfhnffpigaachefmnelfg"; //Live. //Intentionally broken since Printable is broken
 	// Make a simple request:
 	if(action == "print") {
 		_gaq.push(['_trackEvent', 'Button', 'Print Document']);
-		chrome.extension.sendRequest(printableId, {printDoc: true, key: docKey, name: docName}, function(response) {
+		chrome.runtime.sendMessage(printableId, {printDoc: true, key: docKey, name: docName}, function(response) {
 			console.log('response ',response);
 			if(response == undefined){
 				chrome.tabs.create({ 'url' : 'view.html'}); //Disabled temporarily.
@@ -147,7 +162,7 @@ function callPrintable(action, callback){
 		});
 	} else if(action == "export") {
 		_gaq.push(['_trackEvent', 'Button', 'Export Document']);
-		chrome.extension.sendRequest(printableId, {exportDoc: true, key: docKey, name: docName}, function(response) {
+		chrome.runtime.sendMessage(printableId, {exportDoc: true, key: docKey, name: docName}, function(response) {
 			console.log('response ',response);
 			if(response == undefined){
 				chrome.tabs.create({ 'url' : 'export.html'});
