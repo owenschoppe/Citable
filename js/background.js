@@ -117,12 +117,14 @@
 			//Need to update functions to grab the doc id from the tab url and put it in the bgpage variables.
 				var docKey = tab.url.split("=")[1].split('#')[0].split('&')[0];	
 				console.log('Try printing',docKey);
+				_gaq.push(['_trackEvent', 'Button', 'Print From Sheet']);
 				//gdocs.printDocument();
 				//gdocs.printDocumentPage();
 				callPrintable('print');
 		} else if (info.values == 1 && info.message == "myCustomEvent") {
 				var docKey = tab.url.split("=")[1].split('#')[0].split('&')[0];
 				console.log('Try exporting',docKey);
+				_gaq.push(['_trackEvent', 'Button', 'Export From Sheet']);
 				//gdocs.exportDocument();
 				//gdocs.exportDocumentPage();
 				callPrintable('export');
@@ -158,7 +160,7 @@ function callPrintable(action, callback){
 			if(response == undefined){
 				chrome.tabs.create({ 'url' : 'view.html'}); //Disabled temporarily.
 			}
-			callback(response);
+			if(callback){ callback(response); }
 		});
 	} else if(action == "export") {
 		_gaq.push(['_trackEvent', 'Button', 'Export Document']);
@@ -167,13 +169,107 @@ function callPrintable(action, callback){
 			if(response == undefined){
 				chrome.tabs.create({ 'url' : 'export.html'});
 			}
-			callback(response);
+			if(callback){ callback(response); }
 		});
 	} else {
-		callback(null);
+		if(callback){ callback(null); }
 	}
 
 }
+
+
+processDocContent = function(response, xhr, callback) {
+    console.log('rows returned: ', xhr);
+    
+    //Clear row cache in bgPage. //TODO: clean this up so as to not leave a copy lying around. Maybe use localStorage?
+    row = [];
+    
+    var data = JSON.parse(response);
+    console.log('row data: ',data,Boolean(data.feed.entry));
+    if(data.feed.entry) {
+      
+      for (var i = 0, entry; entry = data.feed.entry[i]; ++i) {
+        console.log(i);
+        row.push(new Row(entry));
+        //console.log(entry);
+      }
+      console.log('rows: ', row);
+
+      chrome.storage.sync.get('defaultDoc', function(response){
+      	console.log("chrome.storage.sync.get('defaultDoc')",response);
+      	docName = response.defaultDoc.title;
+      });
+      if(callback) { callback(true); }
+    
+    } else {
+      console.log('No entries');
+      showMsg('Invalid file.',error,10000);
+      if(callback) { callback(false); }
+    }
+  };
+
+  Row = function(entry) {
+    this.title = (entry.gsx$title ? entry.gsx$title.$t : '');
+    this.url = (entry.gsx$url ? entry.gsx$url.$t : '');
+    this.summary = (entry.gsx$summary ? entry.gsx$summary.$t : '');
+    this.tags = (entry.gsx$tags ? entry.gsx$tags.$t : '');
+    this.author = (entry.gsx$author ? entry.gsx$author.$t : '');
+    this.date = (entry.gsx$date ? entry.gsx$date.$t : '');
+  };
+
+  String.prototype.toProperCase = function () {
+    return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+  };
+
+  getDocument = function(param, docId, callback){    
+    if(docId == ''){ return; }
+    else {
+      console.log('exportDocument');
+
+      var config = {
+        params: {
+            'alt': 'json'
+        },
+        headers: {
+          'Authorization': 'Bearer ' + gdocs.accessToken,
+          'GData-Version': '3.0',
+        }
+      };
+
+      var worksheetId = 'default';
+
+      var url = SPREAD_SCOPE +'/list/'+docId+'/'+worksheetId+'/private/full?'+Util.stringify(config.params);
+
+      //$scope.data.requesting = true; //Reset the variable.
+
+      handleSuccess = function(response,xhr){
+        console.log('Response',response,'XHR:',xhr);
+        if (xhr.status != 201 && xhr.status != 200) {
+			console.log('ERROR', xhr);
+			console.log('export error',status,data);
+            if(callback){ callback(null); }
+			return;
+		} else {
+	        processDocContent(response,xhr,function(success){
+	        	if(success){
+		            callPrintable(param,function(response){
+			            console.log(response);
+			            if(callback){ callback(response); }
+		            });
+		        } else {
+		        	if(callback){ callback(null); }
+		        }
+	        });
+	    }
+
+      }
+
+      gdocs.makeRequest('GET', url, handleSuccess, null, config.headers);
+
+    }
+  }
+
+
 /////////////////////////////////////////////////////////
 var createDocument = function(data, fileName, parentFolder, callback){
 	console.log('createDocument',data,fileName,callback);
