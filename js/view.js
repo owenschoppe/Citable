@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	
 	document.querySelector('#url1').addEventListener('change', onChangeHandler);
 	
-	document.querySelector('#tags2').addEventListener('change', onChangeHandler);
+	document.querySelector('#tags1').addEventListener('change', onChangeHandler);
 
 });
 
@@ -63,16 +63,36 @@ function onChangeHandler(e){
 	  //Global variables.
 	  var pages = 0;
 	  var notesPerPage = 6;
-	  var sumBool = true;
+	  /*var sumBool = true;
 	  var titleBool = true;
 	  var authorBool = true;
 	  var urlBool = true;
-	  var tagsBool = true;
+	  var tagsBool = true;*/
 	  var bgPage = chrome.extension.getBackgroundPage();
 	  
-      var rows = bgPage.row;
-      console.log(rows);
-      
+      var rows = [];
+      var docName = '';
+
+	//Pull the values from storage instead of relying on bgPage. Makes this page independent.
+	chrome.storage.local.get('row', function(response){
+	  	console.log("chrome.storage.sync.get('row')",response);
+	  	rows = response.row;
+	  	chrome.storage.local.get('defaultDoc', function(response){
+			console.log("chrome.storage.sync.get('defaultDoc')",response);
+			docName = response.defaultDoc.title;
+
+			//Start rendering after the content has loaded. Fix for async chrome.storage
+			renderNotes(makeSortable);
+
+			//Initialize the checkbox controls and layout.
+			var element = ['summary1', 'title1', 'author1', 'url1', 'tags1'];
+			for(var i=0; i<element.length; i++){
+				initCheck('elements', element[i]);
+			}
+			console.log(localStorage);
+		});
+	});
+	      
 //Renders the notes.
 renderNotes = function(callback){
 		var output = document.getElementById('output');
@@ -110,50 +130,49 @@ renderNotes = function(callback){
 		form.setAttribute('data-index',i);
 		div.className = "note_wrapper ui-state-default";
 		note.id = "note";
-        
-        if(sumBool) {
+        if(localStorage['summary1']) {
 			var Summary = document.createElement('div');
 			Summary.innerText = row['summary'];
 			//Summary.id = "summary";
-			Summary.className = "regular summary "+localStorage.font;
+			Summary.className = "regular summary "+localStorage.font+" "+(localStorage['summary1']==false?'hidden':'');
 			Summary.rows = "12";
 			Summary.readOnly = true;
 			form.appendChild(Summary);
         }
-        
-        if(titleBool) {
+        if(localStorage['title1']) {
 			var Title = document.createElement('div');
 			Title.innerText = row['title'];
 			//Title.id = "title";
-			Title.className = "bold title "+localStorage.font;
+			Title.className = "bold title "+localStorage.font+" "+(localStorage['title1']==false?'hidden':'');
+			console.log(localStorage['title1']==false,Title.className,localStorage['title1']);
 			//Title.contentEditable = "true";
 			Title.readOnly = true;
 			form.appendChild(Title);
         }
         
-        if(authorBool) {
+        if(localStorage['author1']) {
 			var Author = document.createElement('div');
 			Author.innerText = row['author'];
 			//Author.id = "author";
-			Author.className = "italic author fullWidth "+localStorage.font;
+			Author.className = "italic author fullWidth "+localStorage.font+" "+(localStorage['author1']==false?'hidden':'');
 			Author.readOnly = true;
 			form.appendChild(Author);
         }
         
-        if(urlBool) {
+        if(localStorage['url1']) {
 			var URL = document.createElement('div');
 			URL.innerText = row['url'];
 			//URL.id = "url";
-			URL.className = "italic url fullWidth "+localStorage.font;
+			URL.className = "italic url fullWidth "+localStorage.font+" "+(localStorage['url1']==false?'hidden':'');
 			URL.readOnly = true;
 			form.appendChild(URL);
         }
         
-        if(tagsBool) {
+        if(localStorage['tags1']) {
 			var Tags = document.createElement('div');
 			Tags.innerText = row['tags'];
 			//Tags.id = "tags";
-			Tags.className = "bold tags "+localStorage.font;
+			Tags.className = "bold tags "+localStorage.font+" "+(localStorage['tags1']==false?'hidden':'');
 			Tags.readOnly = true;
 			form.appendChild(Tags);
         }
@@ -207,7 +226,7 @@ renderNotes = function(callback){
 		  //if ($(this).text() != bgPage.docs[index].title) {
 		  var row = rows[index];
 		  if ($(this).text() != rows[index]['title']) {
-		  	console.log('old title: ',rows[index]['title'],' new title: ',$(this).text(),' original title: ',bgPage.row[index].title);
+		  	//console.log('old title: ',rows[index]['title'],' new title: ',$(this).text(),' original title: ',bgPage.row[index].title);
 			//bgPage.row[index].title = $(this).text(); //ok
 			
 //******create a new function to update the spreadsheet contents based on the changes*********
@@ -353,7 +372,8 @@ renderNotes = function(callback){
 		localStorage[elementName] = Boolean(document.getElementById(elementName).checked);
 		var classElement = String('.'+elementName.replace('1',''));
 		//console.log(classElement,elementName);
-		$(classElement).toggle(localStorage[elementName]=='true' ? true : false);	
+		$(classElement).toggleClass('hidden',localStorage[elementName]=='true' ? false : true);	
+		//console.log('element', elementName, $(classElement).get(0).className);
 		//console.log('changeElement ', formName, elementName, localStorage[elementName]=='true', localStorage[elementName]);
 		if(classElement == '.url'){ $('.author').toggleClass(function(){return 'fullWidth'},(localStorage[elementName]=='true'?false:true)); };//Toggle width 100%
 		if(classElement == '.author'){ $('.url').toggleClass(function(){return 'fullWidth'},(localStorage[elementName]=='true'?false:true)); };
@@ -370,6 +390,7 @@ renderNotes = function(callback){
 			}
 		} else {
 			console.log('No value ', localStorage[elementName]);
+			//Initialize localStorage with a value.
 			localStorage[elementName] = Boolean(true);
 			$('#'+elementName).prop("checked", true);
 		}
@@ -381,14 +402,9 @@ renderNotes = function(callback){
 		//Initialized the layout CSS for the radio controls.
 		initRadio(localStorage.orientation, 'landscape', 'orientation', 'pages', toggleCSS); //value, key, formName, elementName, callback
 		initRadio(localStorage.font, 'Droid', 'fonts', 'font', setFontIcon);
-		renderNotes(makeSortable);
+		//renderNotes(makeSortable);
 		
-		//Initialize the checkbox controls and layout.
-		var element = ['summary1', 'title1', 'author1', 'url1', 'tags1'];
-		for(var i=0; i<element.length; i++){
-			initCheck('elements', element[i]);
-		}
-		console.log(localStorage);
+		
 		
 		
 	}

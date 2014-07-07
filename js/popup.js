@@ -163,7 +163,7 @@ citable.controller('actionController', function($scope, $http, gdocs, sharedProp
     //This also makes the title and id available to the background page via chrome.storage.sync.get()
     $scope.storeDefault();
 
-    bgPage.getDocument(param, $scope.data.defaultDoc.id, function(response){
+    bgPage.getDocument(param, $scope.data.defaultDoc.id, true, function(response){
       if(response != null){
         //success
         showMsg(param.toProperCase()+' '+$scope.data.defaultDoc+'!'.title,'normal',5000);

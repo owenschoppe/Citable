@@ -120,14 +120,18 @@
 				_gaq.push(['_trackEvent', 'Button', 'Print From Sheet']);
 				//gdocs.printDocument();
 				//gdocs.printDocumentPage();
-				callPrintable('print');
+
+				getDocument('print', docKey, true, function(response){});
+				//callPrintable('print');
 		} else if (info.values == 1 && info.message == "myCustomEvent") {
 				var docKey = tab.url.split("=")[1].split('#')[0].split('&')[0];
 				console.log('Try exporting',docKey);
 				_gaq.push(['_trackEvent', 'Button', 'Export From Sheet']);
 				//gdocs.exportDocument();
 				//gdocs.exportDocumentPage();
-				callPrintable('export');
+				
+				getDocument('export', docKey, true, function(response){});
+				//callPrintable('export');
 		}
 
 		//Updates the dummy url to the actual url of the tab.
@@ -182,7 +186,7 @@ processDocContent = function(response, xhr, callback) {
     console.log('rows returned: ', xhr);
     
     //Clear row cache in bgPage. //TODO: clean this up so as to not leave a copy lying around. Maybe use localStorage?
-    row = [];
+    var row = [];
     
     var data = JSON.parse(response);
     console.log('row data: ',data,Boolean(data.feed.entry));
@@ -193,11 +197,23 @@ processDocContent = function(response, xhr, callback) {
         row.push(new Row(entry));
         //console.log(entry);
       }
-      console.log('rows: ', row);
+      console.log('row: ', row);
+
+      //Uses local storage to pass data to export and print. The only downside is we can only hold one document of data at a time so refreshing the old page gets the new data. TODO: move the request to the export/print page and store the results there. Pass in the info via a url param?
+
+      chrome.storage.local.set({'row':row}, function(response){
+      	chrome.storage.local.get('row', function(response){
+	      	console.log("chrome.storage.sync.get('row')",response);
+	    });
+      });
 
       chrome.storage.sync.get('defaultDoc', function(response){
       	console.log("chrome.storage.sync.get('defaultDoc')",response);
-      	docName = response.defaultDoc.title;
+      	//Keep the rows and defaultDoc info insync by storing in local at the same time.
+      	chrome.storage.local.set({'defaultDoc':response.defaultDoc}, function(response){
+      		console.log("chrome.storage.local.set({'defaultDoc'",response);
+      	});
+      	//docName = response.defaultDoc.title;
       });
       if(callback) { callback(true); }
     
@@ -221,7 +237,13 @@ processDocContent = function(response, xhr, callback) {
     return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
   };
 
-  getDocument = function(param, docId, callback){    
+  getDocument = function(param, docId, retry, callback){    
+    
+    /*chrome.storage.sync.get('defaultDoc', function(response){
+      	console.log("chrome.storage.sync.get('defaultDoc')",response);
+      	
+    	docId = response.defaultDoc.id;  	
+    });*/
     if(docId == ''){ return; }
     else {
       console.log('exportDocument');
@@ -245,10 +267,16 @@ processDocContent = function(response, xhr, callback) {
       handleSuccess = function(response,xhr){
         console.log('Response',response,'XHR:',xhr);
         if (xhr.status != 201 && xhr.status != 200) {
-			console.log('ERROR', xhr);
-			console.log('export error',status,data);
-            if(callback){ callback(null); }
-			return;
+			console.log('getDocument ERROR', xhr);
+			if(retry == true && xhr.status == 401){
+				//Try toggling the auth and running again.
+				toggleAuth(true,function(){
+					getDocument(param, docId, false, callback);
+				});
+			} else {
+				if(callback){ callback(null); }
+				return;
+			}
 		} else {
 	        processDocContent(response,xhr,function(success){
 	        	if(success){
