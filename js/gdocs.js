@@ -48,7 +48,7 @@ GDocs.prototype.auth = function(interactive, opt_callback) {
       if (token) {
         this.accessToken = token;
         console.log(token);
-        opt_callback && opt_callback();
+        opt_callback && opt_callback(token);
       }
     }.bind(this));
   } catch(e) {

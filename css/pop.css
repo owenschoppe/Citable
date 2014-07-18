@@ -263,6 +263,14 @@ select:ACTIVE{
 .addNoteContainer{
 
 }
+.authBtn {
+	width:150px;
+	margin-top:40px;
+}
+.auth {
+	padding-top: 30px;
+	padding-bottom: 30px;
+}
 #citation #addbookmark input, #citation #addbookmark textarea {
   background-color: transparent !important;
   border: none;
@@ -313,7 +321,20 @@ select:ACTIVE{
 .clear{
 	clear:both;
 }
-
+.page-title{
+	font-weight: thin;
+	margin-top: 20px;
+	margin-bottom: 10px;
+	font-size: 30px;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+	color: #444;
+}
+#citable img {
+	margin-right: 10px;
+vertical-align: -30%;
+}
 .star {
   margin-top: 1px;
   margin-right: 3px;

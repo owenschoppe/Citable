@@ -22,109 +22,115 @@
 <script type="text/javascript" src="js/popup.js"></script>
 </head>
 
-<body>
-<div id="frame">
-
-	<!--Note-->
-	<div class="note" ng-controller='CitationController' ng-class="{fade:data.menu}" ng-keyup="myEvent($event)">
-		<div id="citation">
-			<form id="addbookmark" name="citation" class="inset-20">
-				<!--Summary Field-->
-				<textarea id="summary" class="Droid input" name="summary" placeholder="Select some text or type a note" ng-model="data.citation.Summary" ng-disabled="data.menu"></textarea>
-				<!--Title Field-->
-				<input type="text" id="title" class="Droid input" name="title" value="" placeholder="Enter a title" ng-model="data.citation.Title" ng-disabled="data.menu"/>
-				<!--Author Field-->
-				<input type="text" id="author" class="Droid input" name="author" value="" placeholder="Enter an author" ng-model="data.citation.Author" ng-disabled="data.menu"/>
-				<!--Url Field-->
-				<input type="text" id="url" class="Droid input" name="url" value="" placeholder="URL" ng-model="data.citation.Url" ng-disabled="data.menu"/>
-				<!--Tags Field-->
-				<input type="text" id="tags" class="Droid input" name="tags" value="" placeholder="Enter some tags" ng-model="data.citation.Tags" ng-disabled="data.menu"/>
-
-				<!--Hack the citation validation by having a hidden required input with the date value. This would cause the form to be invalid if missing. Or we could require the url, or some other field... -->
-			</form>		
-		</div>
-		<div id="shadow"></div>
-	</div> 
-
-	<!--Controls-->
-	<div class="controls" ng-controller="DocsController" ng-keyup="myEvent($event)">
-	    <form name="controls" novalidate>
-	    	<div>
-		    	<!--Label-->
-				<label for="selection" class="space lg" ng-class="{fade:data.menu}">Save note in</label>
-
-				<span class="addNoteLabel lg" ng-class="{fade:data.menu}">alt+return</span>
-			</div>
-			
-			<div id="selection_box" class="clear">
-				
-				<!--Document Selector and Loading Module-->
-				<div id="selection" name="selection" class="">
-
-					<!--Loading-->
-					<div data-ng-show="data.loading">
-						<span class="docName">{{data.defaultDoc.title}}</span>
-						<img id="loading" class="docName" src="css/img/loading.gif"/>
-					</div>
-
-					<!--Document Selector-->
-					<select class="Droid destination" name="destination" ng-model="data.defaultDoc" ng-change="storeDefault()" data-ng-show="!data.loading" ng-options="doc.title for doc in data.docs track by doc.id" sel-focus="!data.defaultDoc.id">
-						<option value="" ng-disabled="data.menu">Create New Document...</option>
-					</select>
-
-					<!--New Doc Title Input-->
-					<div class="new_doc_container" ng-hide="data.defaultDoc.id || data.loading" ng-class="{'error':ng-dirty&&ng-invalid}">
-						  <input type="text" class="" name="docTitle" placeholder="Enter a document title" ng-model="data.newDoc" ng-show="!data.defaultDoc.id" shown-validation sel-focus="data.defaultDoc.id" required> <!--ng-required="{{!data.defaultDoc.id?true:false}}" -->
-					</div>
-
-				</div>
-
-				<!--Save Button-->
-				<div class="right relative addNoteContainer">
-					<!--<a class="button Droid addNote right" ng-click="saveNote($event)" ng-disabled="data.menu || data.requesting || controls.$invalid" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" href>Save</a>-->
-					<input type="submit" ng-disabled="data.menu || data.requesting || controls.$invalid" class="button Droid addNote right" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" value="Save" ng-click="controls.$valid && focused && saveNoteButton($event,closeWindow)" ng-focus="focused = true" ng-blur="focused = false"/>
-					
-					<!--works-->
-					<!--
-					<a ng-disabled="data.menu || data.requesting || controls.$invalid" class="button Droid addNote right" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" ng-click="controls.$valid && saveNote($event)" href>Save</a>
-					-->
-					
-				</div>
-
-			</div>
-			
-			<!--Actions Menu-->
-			<div id="action_box" class="clear" ng-controller="actionController">
-
-				<div class="controls controlBar" ng-hide="!data.defaultDoc.title">
-
-					<!--View Doc-->
-					<a id="viewDoc" class="action  space" ng-click="viewDoc(data.defaultDoc.id,data.defaultDoc.alternateLink)" href>view document</a>
-					
-					<div class="" ng-show="data.menu">
-					
-						<div class="divider"></div>
-						<!--Print Doc-->
-						<div class="item"><a id="printDoc" class="action space" ng-click="getDocument('print')" href>print on stickies</a></div>
-						
-						<div class="divider"></div>
-						<!--Export Doc-->
-						<div class="item"><a id="exportDoc" class="action space" ng-click="getDocument('export')" href>export citations</a></div>
-					</div>
-				</div>
-
-				<div ng-controller="menuController" class="center menu_box">
-					<!--Menu Button-->
-					<a name="menu" class="Droid menu" ng-click="toggleMenu($event)" ng-hide="!data.defaultDoc.title" ng-class="{fade:!data.defaultDoc.title, closed:!data.menu, open:data.menu}" tabindex="{{!data.defaultDoc.title?'-1':$index}}" href>
-					</a>
-				</div>
-
-			</div>
-		</form>
+<body>	
+<div class="" ng-controller='authController'>
+	<div class="auth" ng-hide="data.auth">
+		<div id="citable" class="page-title"><img src="icon48.png"/>Citable</div>	
+		<div class="button center authBtn" ng-click='getAuth()'>Sign In with Google</div>
 	</div>
-	
-</div>
+	<div id="frame" ng-show="data.auth">
 
+		<!--Note-->
+		<div class="note" ng-controller='CitationController' ng-class="{fade:data.menu}" ng-keyup="myEvent($event)">
+			<div id="citation">
+				<form id="addbookmark" name="citation" class="inset-20">
+					<!--Summary Field-->
+					<textarea id="summary" class="Droid input" name="summary" placeholder="Select some text or type a note" ng-model="data.citation.Summary" ng-disabled="data.menu"></textarea>
+					<!--Title Field-->
+					<input type="text" id="title" class="Droid input" name="title" value="" placeholder="Enter a title" ng-model="data.citation.Title" ng-disabled="data.menu"/>
+					<!--Author Field-->
+					<input type="text" id="author" class="Droid input" name="author" value="" placeholder="Enter an author" ng-model="data.citation.Author" ng-disabled="data.menu"/>
+					<!--Url Field-->
+					<input type="text" id="url" class="Droid input" name="url" value="" placeholder="URL" ng-model="data.citation.Url" ng-disabled="data.menu"/>
+					<!--Tags Field-->
+					<input type="text" id="tags" class="Droid input" name="tags" value="" placeholder="Enter some tags" ng-model="data.citation.Tags" ng-disabled="data.menu"/>
+
+					<!--Hack the citation validation by having a hidden required input with the date value. This would cause the form to be invalid if missing. Or we could require the url, or some other field... -->
+				</form>		
+			</div>
+			<div id="shadow"></div>
+		</div> 
+
+		<!--Controls-->
+		<div class="controls" ng-controller="DocsController" ng-keyup="myEvent($event)">
+		    <form name="controls" novalidate>
+		    	<div>
+			    	<!--Label-->
+					<label for="selection" class="space lg" ng-class="{fade:data.menu}">Save note in</label>
+
+					<span class="addNoteLabel lg" ng-class="{fade:data.menu}">alt+return</span>
+				</div>
+				
+				<div id="selection_box" class="clear">
+					
+					<!--Document Selector and Loading Module-->
+					<div id="selection" name="selection" class="">
+
+						<!--Loading-->
+						<div data-ng-show="data.loading">
+							<span class="docName">{{data.defaultDoc.title}}</span>
+							<img id="loading" class="docName" src="css/img/loading.gif"/>
+						</div>
+
+						<!--Document Selector-->
+						<select class="Droid destination" name="destination" ng-model="data.defaultDoc" ng-change="storeDefault()" data-ng-show="!data.loading" ng-options="doc.title for doc in data.docs track by doc.id" sel-focus="!data.defaultDoc.id">
+							<option value="" ng-disabled="data.menu">Create New Document...</option>
+						</select>
+
+						<!--New Doc Title Input-->
+						<div class="new_doc_container" ng-hide="data.defaultDoc.id || data.loading" ng-class="{'error':ng-dirty&&ng-invalid}">
+							  <input type="text" class="" name="docTitle" placeholder="Enter a document title" ng-model="data.newDoc" ng-show="!data.defaultDoc.id" shown-validation sel-focus="data.defaultDoc.id" required> <!--ng-required="{{!data.defaultDoc.id?true:false}}" -->
+						</div>
+
+					</div>
+
+					<!--Save Button-->
+					<div class="right relative addNoteContainer">
+						<!--<a class="button Droid addNote right" ng-click="saveNote($event)" ng-disabled="data.menu || data.requesting || controls.$invalid" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" href>Save</a>-->
+						<input type="submit" ng-disabled="data.menu || data.requesting || controls.$invalid" class="button Droid addNote right" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" value="Save" ng-click="controls.$valid && focused && saveNoteButton($event,closeWindow)" ng-focus="focused = true" ng-blur="focused = false"/>
+						
+						<!--works-->
+						<!--
+						<a ng-disabled="data.menu || data.requesting || controls.$invalid" class="button Droid addNote right" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" ng-click="controls.$valid && saveNote($event)" href>Save</a>
+						-->
+						
+					</div>
+
+				</div>
+				
+				<!--Actions Menu-->
+				<div id="action_box" class="clear" ng-controller="actionController">
+
+					<div class="controls controlBar" ng-hide="!data.defaultDoc.title">
+
+						<!--View Doc-->
+						<a id="viewDoc" class="action  space" ng-click="viewDoc(data.defaultDoc.id,data.defaultDoc.alternateLink)" href>view document</a>
+						
+						<div class="" ng-show="data.menu">
+						
+							<div class="divider"></div>
+							<!--Print Doc-->
+							<div class="item"><a id="printDoc" class="action space" ng-click="getDocument('print')" href>print on stickies</a></div>
+							
+							<div class="divider"></div>
+							<!--Export Doc-->
+							<div class="item"><a id="exportDoc" class="action space" ng-click="getDocument('export')" href>export citations</a></div>
+						</div>
+					</div>
+
+					<div ng-controller="menuController" class="center menu_box">
+						<!--Menu Button-->
+						<a name="menu" class="Droid menu" ng-click="toggleMenu($event)" ng-hide="!data.defaultDoc.title" ng-class="{fade:!data.defaultDoc.title, closed:!data.menu, open:data.menu}" tabindex="{{!data.defaultDoc.title?'-1':$index}}" href>
+						</a>
+					</div>
+
+				</div>
+			</form>
+		</div>
+	<!--Frame-->
+	</div>
+<!--Auth Controller-->	
+</div>
 <div class="butterbox" ng-controller="butterController" box-butter></div>
 </body>
 </html>

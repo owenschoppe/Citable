@@ -104,6 +104,7 @@ function sharedProps() {
     'value': 'true',
     'visibility': 'PUBLIC'
   }]; 
+  props.auth = false;
   /*props.defaultMeta = props.docs.filter(function(el){
       return el.id == props.defaultDoc;
     });*/
@@ -114,6 +115,68 @@ function sharedProps() {
   };
 
 }
+
+citable.controller('authController', function($scope, sharedProps){
+  $scope.data = sharedProps.data;
+
+  var bgPage = chrome.extension.getBackgroundPage();
+
+  $scope.getAuth = function(){
+    console.log('getAuth');
+    //Run toggleAuth when the constructor is called to kick everything off.
+    //stored in backgroundpage for persistance and universal access within the app.
+      bgPage.toggleAuth(true,function(token){
+          if(token){
+            $scope.data.auth = true;
+            $scope.fetchFolder(false);
+            console.log('getAuth callback',token);
+          } else {
+            $scope.data.auth = false;
+            console.log('getAuth callback else',token);
+            showMsg('Authorization Failed.','error');
+          }
+        });
+  }
+
+  //TODO: either make this function listen to a message object in shared props singleton so any controller can access it. Or make it a service. Or move make the DocsController the super parent controller.
+  //Displays message in butterBox with an optional class via status
+  //Valid statuses: error, normal, success
+  //Pushes everything to the $timeout event queue to force redrawing.
+  showMsg = function(message,status,delay){
+    $timeout(function(){
+      status = status!=null ? status.trim().toLowerCase() : 'normal'; //Normalize the status parameter.
+      message = message!=null?message.toString():''; //Normalize the message.
+      console.log('showMsg',message,status, Date.now());
+      
+      //TODO: Not working... consider making this a directive a la http://www.bennadel.com/blog/2548-don-t-forget-to-cancel-timeout-timers-in-your-destroy-events-in-angularjs.htm
+      $timeout.cancel(clearMsg);
+
+      $scope.data.butter.status = status;
+      $scope.data.butter.message = message;
+      //$scope.$apply(); //Fixes the occasional issue where the butter doesn't update.
+      
+      if(delay > 0) { //By allowing persisent messages we can avoid ever having messages cleared prematurely.
+        //Clears the message after a set interval, but if a new message comes in before the clear completes then the message may be cleared prematurely.
+        var clearMsg = $timeout(function(){
+          $scope.data.butter.status = '';
+          $scope.data.butter.message = '';
+          //TODO: Add fadout animation using ngAnimage and $animate?
+        },delay);
+
+         //Callbacks using $timeout promises
+        clearMsg.then(
+          function(){
+            console.log( "clearMsg resolved", Date.now() );
+          },
+          function(){
+            console.log( "clearMsg canceled", Date.now() );
+          }
+        );
+      }
+    },0);
+  }
+
+});
 
 //A controller to let us reorganize the html.
 //Technically, not necessary since both the controller scope and directive are possible within DocsController, but it's cleaner.
@@ -481,8 +544,15 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
                 gdocs.auth.bind(gdocs, true, 
                     $scope.fetchDocs.bind($scope, false)));
           } else {
-            console.log('fetchFolder error',status);
-            showMsg(status,'error');
+            console.log('fetchFolder error',status, headers);
+            if(status == 0){
+              showMsg('Offline','error');
+              //$scope.data.loading = false;
+              //return false;
+            } else {
+              showMsg(status,'error');
+            }
+            
           }
         });
     }
@@ -790,10 +860,19 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
   //Run toggleAuth when the constructor is called to kick everything off.
   //stored in backgroundpage for persistance and universal access within the app.
-  bgPage.toggleAuth(true,function(){
+  //If it fails, show auth button. If it succeeds, then get the docs.
+  /*bgPage.toggleAuth(true,function(){
     $scope.fetchFolder(false);
+  });*/
+  bgPage.toggleAuth(false,function(token){
+    if(token){
+      $scope.data.auth = true;
+      $scope.fetchFolder(false);
+    } else {
+      $scope.data.auth = false;
+      //showMsg('Authorization Failed.','error');
+    }
   });
-
   
 });
 
