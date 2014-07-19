@@ -26,7 +26,7 @@
 <div class="" ng-controller='authController'>
 	<div class="auth" ng-hide="data.auth">
 		<div id="citable" class="page-title"><img src="icon48.png"/>Citable</div>	
-		<div class="button center authBtn" ng-click='getAuth()'>Sign In with Google</div>
+		<div class="button center authBtn" ng-class="{fade:!data.online}" ng-disabled="!data.online" ng-click='data.online&&getAuth()'>Sign In with Google</div>
 	</div>
 	<div id="frame" ng-show="data.auth">
 
@@ -67,7 +67,7 @@
 					<div id="selection" name="selection" class="">
 
 						<!--Loading-->
-						<div data-ng-show="data.loading">
+						<div data-ng-show="data.loading && data.online">
 							<span class="docName">{{data.defaultDoc.title}}</span>
 							<img id="loading" class="docName" src="css/img/loading.gif"/>
 						</div>

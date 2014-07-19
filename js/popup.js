@@ -74,6 +74,23 @@ citable.factory('gdocs', function() {
   return gdocs;
 });
 
+citable.factory('onLine', ['sharedProps', '$window', '$rootScope', function(sharedProps, $window, $rootScope) {
+  console.log('onLine constructor');
+  function updateOnlineStatus(event) {
+    //var condition = $window.navigator.onLine ? "online" : "offline";
+    //Update the property.
+    sharedProps.data.online = $window.navigator.onLine;
+    //Force angular to update references property.
+    $rootScope.$digest();
+    //console.log(condition,sharedProps.data.online);
+  }
+
+  $window.addEventListener('online',  updateOnlineStatus);
+  $window.addEventListener('offline', updateOnlineStatus);
+  //Update the property on init.
+  sharedProps.data.online = $window.navigator.onLine;
+}]);
+
 //factory
 citable.factory('sharedProps', sharedProps);
 
@@ -105,6 +122,7 @@ function sharedProps() {
     'visibility': 'PUBLIC'
   }]; 
   props.auth = false;
+  props.online = false;
   /*props.defaultMeta = props.docs.filter(function(el){
       return el.id == props.defaultDoc;
     });*/
@@ -116,7 +134,7 @@ function sharedProps() {
 
 }
 
-citable.controller('authController', function($scope, sharedProps){
+citable.controller('authController', function($scope, sharedProps, onLine){
   $scope.data = sharedProps.data;
 
   var bgPage = chrome.extension.getBackgroundPage();
