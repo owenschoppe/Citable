@@ -131,10 +131,82 @@ function sharedProps() {
     //public variable to expose private variable
     data: props
   };
+};
 
-}
+//---------------//
+//Message Service//
+//---------------//
+citable.factory('msgService', ['$rootScope','$timeout','sharedProps', function($rootScope, $timeout, sharedProps){
 
-citable.controller('authController', function($scope, sharedProps, onLine){
+  //Message object singleton.
+  var butter = {
+    message: '',
+    status: ''
+  };
+  
+  //Public API for the queue object.
+  var queueMsg = function(msg,status,delay){
+      queue.add_function( function(callback){ showMsg(msg,status,delay,callback) } );
+  };
+  
+  //Public API to queue generic functions.
+  var queueFn = function(fn){
+    queue.add_function( fn );
+  };
+  
+  //Private instance of the Queue object.
+  var queue = new Queue();
+  
+  //Update the message object, 'butter'.
+  var showMsg = function(message,status,delay,callback){
+    
+    $timeout(function(){
+      var defaultDelay = 1500;
+      status = status!=null&&status!='' ? status.trim().toLowerCase() : 'normal'; //Normalize the status parameter.
+      message = message!=null&&message!='' ? message.toString():''; //Normalize the message.
+      console.log('showMsg',message,status,delay,callback, Date.now());
+
+      butter.status = status;
+      butter.message = message;
+
+      if(delay > 0) { 
+        delay = delay > defaultDelay ? delay : defaultDelay; //Enforces minimum time on messages.
+        console.log('Submit clearMsg $timeout', Date.now() );
+        //By allowing persisent messages we can avoid ever having messages cleared prematurely.
+        var clearMsg = $timeout(function(){
+          butter.status = '';
+          butter.message = '';
+          //TODO: Add fadout animation using ngAnimage and $animate?
+          callback && callback();
+        },delay);
+
+         //Callbacks using $timeout promises
+        clearMsg.then(
+          function(){
+            console.log( "clearMsg resolved", Date.now() );
+          },
+          function(){
+            console.log( "clearMsg canceled", Date.now() );
+          }
+        );
+      } else {
+        //Resets the queue without clearing persistant messages. The next message will still replace it after the defaultDelay.
+        $timeout(function(){
+          callback && callback();
+        },defaultDelay);
+      }
+
+    },0);
+  };
+  return {
+    //Public API for private functions.
+    butter: butter,  //For displaying the messages
+    queue: queueMsg, //For queueing messages
+    queueFn: queueFn //For queueing any function
+  };
+}]);
+
+citable.controller('authController', function($scope, sharedProps, onLine, msgService){
   $scope.data = sharedProps.data;
 
   var bgPage = chrome.extension.getBackgroundPage();
@@ -149,61 +221,26 @@ citable.controller('authController', function($scope, sharedProps, onLine){
             $scope.fetchFolder(false);
             console.log('getAuth callback',token);
           } else {
+            //We never reach this code because the popup closes when the auth flow launches.
             $scope.data.auth = false;
             console.log('getAuth callback else',token);
-            showMsg('Authorization Failed.','error');
+            msgService.queue('Authorization Failed.','error');
           }
         });
   }
-
-  //TODO: either make this function listen to a message object in shared props singleton so any controller can access it. Or make it a service. Or move make the DocsController the super parent controller.
-  //Displays message in butterBox with an optional class via status
-  //Valid statuses: error, normal, success
-  //Pushes everything to the $timeout event queue to force redrawing.
-  showMsg = function(message,status,delay){
-    $timeout(function(){
-      status = status!=null ? status.trim().toLowerCase() : 'normal'; //Normalize the status parameter.
-      message = message!=null?message.toString():''; //Normalize the message.
-      console.log('showMsg',message,status, Date.now());
-      
-      //TODO: Not working... consider making this a directive a la http://www.bennadel.com/blog/2548-don-t-forget-to-cancel-timeout-timers-in-your-destroy-events-in-angularjs.htm
-      $timeout.cancel(clearMsg);
-
-      $scope.data.butter.status = status;
-      $scope.data.butter.message = message;
-      //$scope.$apply(); //Fixes the occasional issue where the butter doesn't update.
-      
-      if(delay > 0) { //By allowing persisent messages we can avoid ever having messages cleared prematurely.
-        //Clears the message after a set interval, but if a new message comes in before the clear completes then the message may be cleared prematurely.
-        var clearMsg = $timeout(function(){
-          $scope.data.butter.status = '';
-          $scope.data.butter.message = '';
-          //TODO: Add fadout animation using ngAnimage and $animate?
-        },delay);
-
-         //Callbacks using $timeout promises
-        clearMsg.then(
-          function(){
-            console.log( "clearMsg resolved", Date.now() );
-          },
-          function(){
-            console.log( "clearMsg canceled", Date.now() );
-          }
-        );
-      }
-    },0);
-  }
-
 });
 
 //A controller to let us reorganize the html.
 //Technically, not necessary since both the controller scope and directive are possible within DocsController, but it's cleaner.
 //The fix for the rendering was to use ng-bind instead of {{}} to update the message.
-citable.controller('butterController', function($scope, sharedProps){
+//ng-bind watches the input variable and updates when it changes.
+citable.controller('butterController', function($scope, sharedProps, msgService){
   $scope.data = sharedProps.data;
+  $scope.butter = msgService.butter;
 
+  //Updates the butter class to match the status stored in the singleton.
   $scope.butterClass = function(){
-    var status = $scope.data.butter.status;
+    var status = $scope.butter.status;
     status = status || 'normal';
     console.log('butter '+status);
     return 'butter pam '+status;
@@ -211,9 +248,10 @@ citable.controller('butterController', function($scope, sharedProps){
 
 }).directive('boxButter', function() {
   return {
-    template: '<div ng-class="butterClass()" ng-bind="data.butter.message" ng-show="data.butter.message"></div>'
+    template: '<div ng-class="butterClass()" ng-bind="butter.message" ng-show="butter.message"></div>'
   };
 });
+
 
 citable.controller('menuController', function($scope, sharedProps){
    $scope.data = sharedProps.data;
@@ -227,7 +265,7 @@ citable.controller('menuController', function($scope, sharedProps){
   }
 });
 
-citable.controller('actionController', function($scope, $http, gdocs, sharedProps){
+citable.controller('actionController', function($scope, $http, gdocs, sharedProps, msgService){
   console.log('SCOPE on Init',$scope.data);
 
   $scope.data = sharedProps.data;
@@ -247,11 +285,11 @@ citable.controller('actionController', function($scope, $http, gdocs, sharedProp
     bgPage.getDocument(param, $scope.data.defaultDoc.id, true, function(response){
       if(response != null){
         //success
-        showMsg(param.toProperCase()+' '+$scope.data.defaultDoc+'!'.title,'normal',5000);
+        msgService.queue(param.toProperCase()+' '+$scope.data.defaultDoc+'!'.title,'normal',5000);
         $scope.closeWindow();
       } else {
         //failure
-        showMsg(status+"Couldn't get document.",'error',10000);
+        msgService.queue(status+"Couldn't get document.",'error');
       }
       $scope.data.requesting = false; //Reset the variable.
     });
@@ -297,7 +335,7 @@ citable.controller('CitationController', function($scope, sharedProps, $rootScop
 
 // Main Angular controller for app.
 //function DocsController($scope, $http, gdocs) { //Use this if not using closure.
-citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sharedProps, keyboardManager){
+citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sharedProps, keyboardManager, msgService){
   $scope.data = sharedProps.data; //shared 2-way data binding to factory object
   //$scope.docs = $scope.data.docs; //Alias the docs prop for easy access. DOES NOT WORK
   $scope.cats = []; //Shared cats within controller
@@ -312,7 +350,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
       $scope.saveNote(e,$scope.clearFields);
       _gaq.push(['_trackEvent', 'Shortcut', 'CTRL RETURN']);
     } else {
-      showMsg('Please add a title.','error',5000);
+      msgService.queue('Please add a title.','error',5000);
     }
   });
 
@@ -322,13 +360,24 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
       $scope.saveNote(e,$scope.closeWindow);
       _gaq.push(['_trackEvent', 'Shortcut', 'ALT RETURN']);
     } else {
-      showMsg('Please add a title.','error',5000);
+      msgService.queue('Please add a title.','error',5000);
+    }
+  });
+
+  $scope.$watch('data.online', function(newValue,oldValue){
+    console.log('data.online',$scope.data.online);
+    if(!$scope.data.online){ 
+      msgService.queue('Offline','error'); 
+    } else if ($scope.data.online && oldValue === false) { 
+      msgService.queue('Online','normal',1500); 
+      //TODO: trigger get folder (& start the function queue of queued requests);
     }
   });
 
   //Displays message in butterBox with an optional class via status
   //Valid statuses: error, normal, success
   //Pushes everything to the $timeout event queue to force redrawing.
+  /*
   showMsg = function(message,status,delay){
     $timeout(function(){
       status = status!=null ? status.trim().toLowerCase() : 'normal'; //Normalize the status parameter.
@@ -361,7 +410,8 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
         );
       }
     },0);
-  }  
+  } 
+  */ 
 
   //Retreive and update the defaultDoc based on local storage
   storageSuccess = function(items) {
@@ -386,7 +436,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
     if(!resp.items.length){
       console.log('No docs in list.',$scope);
-      showMsg('Welcome to Citable!','normal',2000)
+      msgService.queue('Welcome to Citable!','normal',2000)
       //No docs in doc list, create new document.
 
       $scope.data.defaultDoc = {
@@ -416,7 +466,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
             }
         });
         console.log('Documents List',$scope.data.docs,$scope.data.defaultDoc);
-        //showMsg('Got Docs!','success',2000);
+        //msgService.queue('Got Docs!','success',2000);
 
         //We have docs, so reset the defaultDoc if it isn't set already.
         //TODO: check if document is in the list of docs. If not reset the default.
@@ -482,7 +532,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
                 gdocs.auth.bind(gdocs, true, 
                     $scope.fetchDocs.bind($scope, false)));
           } else {
-            showMsg(status,'error');
+            msgService.queue(status,'error');
           }
         });
     }
@@ -509,7 +559,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
             bgPage.insertProperties($scope.cats[0],$scope.data.driveProperties, function(){
               //Rename the folder.
               bgPage.renameFolder($scope.cats[0],folderName,function(){
-                showMsg('Folder updated!','normal',1000);
+                msgService.queue('Folder updated!','normal',1000);
               });
             });
           } 
@@ -520,7 +570,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
       } else {
           if(bgPage.firstRun == true){
-            showMsg('Updating folder.');
+            msgService.queue('Updating folder.');
             var config = {
               params: {'alt': 'json', 'q': "mimeType contains 'folder' and title='"+oldFolderName+"' and trashed!=true"},
               headers: {
@@ -529,7 +579,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
             };
             $scope.fetchFolder(false, config);
           } else {
-            showMsg('Creating folder.');
+            msgService.queue('Creating folder.');
             //No folders found, check for the old folder or create the folder
             bgPage.createFolder(folderName,$scope.data.driveProperties,successCallbackFolderId);
           }
@@ -564,11 +614,11 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
           } else {
             console.log('fetchFolder error',status, headers);
             if(status == 0){
-              showMsg('Offline','error');
+              msgService.queue('Offline','error');
               //$scope.data.loading = false;
               //return false;
             } else {
-              showMsg(status,'error');
+              msgService.queue(status,'error');
             }
             
           }
@@ -584,10 +634,10 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
     //In the new scheme, new doc selected and no default on init are indistinguishable... this might be ok.
     if((destination === null || destination.id == '')){ // && $scope.data.newDoc //Manual validation... icky.
       console.log('bgPage.createDocument');
-      showMsg('Creating New Spreadsheet.');
+      msgService.queue('Creating New Spreadsheet.');
       bgPage.createDocument($scope.data.citation,$scope.data.newDoc.trim(),$scope.cats[0],function(response){
         console.log(response.title+' created!',response,callback); //Works.
-        showMsg(response.title+' created!','normal',3000); //Works.
+        msgService.queue(response.title+' created!','normal',3000); //Works.
         
         //Cleanup the new doc creation process.
         $scope.data.newDoc = '';
@@ -617,24 +667,24 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
         console.log('AMEND ERROR', resp);
         //gdocs.handleError(xhr, resp);
         //util.hideMsg();
-        showMsg('Error'+status,'error');
+        msgService.queue('Error'+status,'error');
         /*if(status == 400 || status == 500) { 
           console.log('Try updating headers: ',$scope.data.defaultDoc);
           //Try updating the column headers to fix faulty docs.
           //The second param is an optional doc so we don't update the whole list. We take the index of :selected and use just that doc from the docs array.
           bgPage.updateDocument(function(){
-            showMsg('Headers Updated!');
+            msgService.queue('Headers Updated!');
             $scope.saveNote();
           }, $scope.data.defaultDoc);        
-          showMsg('Updating Headers...');
+          msgService.queue('Updating Headers...');
         }; 
         return;*/
       } else {
         /*bgPage.updateDocument(function(){
-            showMsg('Headers Updated!');
+            msgService.queue('Headers Updated!');
             //$scope.saveNote();
           }, $scope.data.defaultDoc);
-        showMsg('Updating Headers...');*/
+        msgService.queue('Updating Headers...');*/
       
         requestFailureCount = 0;
         
@@ -645,7 +695,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
     };
     
     if (gdocs.accessToken) {
-      showMsg('Adding note...');
+      msgService.queue('Adding note...');
 
       var data = constructCitation();
 
@@ -684,20 +734,20 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
                 } else {
                   $scope.data.requesting = false; //Reset the variable.
                   //Don't close the window.
-                  showMsg(error+' Check your document columns.','error',10000);
+                  msgService.queue(error+' Check your document columns.','error');
 
                   //Exit the amend sequence and throw the error.
                   //$scope.saveNote.saveNoteFailure(error); //Not a function within this scope...
                 }
               }, $scope.data.defaultDoc);            
               
-              showMsg('Updating Headers...');
+              msgService.queue('Updating Headers...');
 
             } else {
               console.log('amend note error',status,data);
               //$scope.saveNote.saveNoteFailure(status);
               $scope.data.requesting = false; //Reset the variable.
-              showMsg(status+' Problem with the citation.','error',10000);
+              msgService.queue(status+' Problem with the citation.','error');
             }
           });
           //
@@ -760,7 +810,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
   $scope.updateHeaderSuccess = function(callback){
     console.log('updateHeaderSuccess',callback);
-    showMsg('Headers Updated!');
+    msgService.queue('Headers Updated!');
     $scope.amendDoc(false, $scope.data.defaultDoc, callback); //Resubmit the add note request, without the retry flag.
   }
 
@@ -818,7 +868,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
     _gaq.push(['_trackEvent', 'Auto', 'Save Note']);
     var saveNoteSuccess = function(){
       console.log('SaveNote success', $scope.data, callback);
-      showMsg('Note added!','success', 2000);
+      msgService.queue('Note added!','success', 2000);
       $scope.data.requesting = false; //Reset the variable.
       
       //Remove citation from queue/log.
@@ -832,7 +882,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
     //TODO: should I push errors in the amend process to this function or just handle them individually?
     var saveNoteFailure = function(error){
       console.log('SaveNote failure', $scope.data);
-      showMsg('Opps '.concat(error,' , retry?'),'error');
+      msgService.queue('Opps '.concat(error,' , retry?'),'error');
       $scope.data.requesting = false; //Reset the variable.
       //Don't close the window.
     }
@@ -888,7 +938,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
       $scope.fetchFolder(false);
     } else {
       $scope.data.auth = false;
-      //showMsg('Authorization Failed.','error');
+      //msgService.queue('Authorization Failed.','error');
     }
   });
   
