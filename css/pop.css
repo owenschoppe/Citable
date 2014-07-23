@@ -263,9 +263,46 @@ select:ACTIVE{
 .addNoteContainer{
 
 }
-.authBtn {
-	width:150px;
+.authControl {
 	margin-top:40px;
+}
+.authBtn {
+	width: 140px;
+	height: 35px;
+	background-color: #6199DF;
+	border-radius: 5px;
+	display: inline-block;
+	color:#ffffff;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	padding-left: 35px;
+    padding-right: 35px;
+}
+.authBtn[disabled=disabled], .authBtn[disabled=disabled]:HOVER, .authBtn[disabled=disabled]:FOCUS, .authBtn[disabled=disabled]:ACTIVE {
+	background-color:#cccccc;
+	color:#aaaaaa;
+	box-shadow: inset 0px 0px 0px;
+}
+.authBtn:HOVER, .authBtn:FOCUS {
+	box-shadow: inset 0px -2px 0px #3e77bf;
+	background-color: #639ce3;
+	color:#ffffff;
+	cursor: hand;
+}
+.authBtn:ACTIVE {
+	box-shadow: inset 0px 2px 0px #386cad;
+	background-color: #4889da;
+	color:#ffffff;
+}
+.btnText {
+	display: inline-block;
+	position: relative;
+ 	top: 50%;
+  	transform: translateY(-50%);
+  	font-size: 14px;
+    font-weight: 600;
+    /* Use the Roboto font that is loaded in the <head> */
+    font-family: 'Roboto',arial,sans-serif;
 }
 .auth {
 	padding-top: 30px;

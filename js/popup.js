@@ -23,10 +23,11 @@ function onError(e) {
   console.log(e);
 }
 
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 //Original
 var citable = angular.module('gDriveApp', []);
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 citable.directive('shownValidation', function() {
   return {
     require: '^form',
@@ -51,6 +52,7 @@ citable.directive('shownValidation', function() {
   };
 });
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 citable.directive('selFocus', function($timeout) {
   return function(scope, element, attrs) {
      //Watches the referenced model from the context of the element with the attached directive.
@@ -63,6 +65,7 @@ citable.directive('selFocus', function($timeout) {
   };    
 });
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 //Creates a service called gdocs
 citable.factory('gdocs', function() {
   console.log('run GDocs constructor');
@@ -74,6 +77,7 @@ citable.factory('gdocs', function() {
   return gdocs;
 });
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 citable.factory('onLine', ['sharedProps', '$window', '$rootScope', function(sharedProps, $window, $rootScope) {
   console.log('onLine constructor');
   function updateOnlineStatus(event) {
@@ -92,6 +96,7 @@ citable.factory('onLine', ['sharedProps', '$window', '$rootScope', function(shar
 }]);
 
 //factory
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 citable.factory('sharedProps', sharedProps);
 
 //factory constructor
@@ -136,6 +141,7 @@ function sharedProps() {
 //---------------//
 //Message Service//
 //---------------//
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 citable.factory('msgService', ['$rootScope','$timeout','sharedProps', function($rootScope, $timeout, sharedProps){
 
   //Message object singleton.
@@ -206,30 +212,53 @@ citable.factory('msgService', ['$rootScope','$timeout','sharedProps', function($
   };
 }]);
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 citable.controller('authController', function($scope, sharedProps, onLine, msgService){
   $scope.data = sharedProps.data;
 
   var bgPage = chrome.extension.getBackgroundPage();
 
+  //Toggle auth on button press.
   $scope.getAuth = function(){
     console.log('getAuth');
-    //Run toggleAuth when the constructor is called to kick everything off.
     //stored in backgroundpage for persistance and universal access within the app.
-      bgPage.toggleAuth(true,function(token){
-          if(token){
-            $scope.data.auth = true;
-            $scope.fetchFolder(false);
-            console.log('getAuth callback',token);
-          } else {
-            //We never reach this code because the popup closes when the auth flow launches.
-            $scope.data.auth = false;
-            console.log('getAuth callback else',token);
-            msgService.queue('Authorization Failed.','error');
-          }
-        });
+    bgPage.toggleAuth(true,function(token){
+      console.log('getAuth callback',token);
+      if(token){
+        $scope.data.auth = true;
+        console.log('$scope.data.auth',$scope.data.auth );
+      } else {
+        //We never reach this code because the popup closes when the auth flow launches.
+        $scope.data.auth = false;
+        console.log('getAuth callback else',token);
+        msgService.queue('Authorization Failed.','error');
+      }
+      $scope.$digest();
+    });
   }
+
+  //Watch online and do a soft check (non-interactive) for auth everytime we go online.
+  $scope.$watch('data.online', function(newValue,oldValue){
+    console.log('$scope.$watch(data.online)',$scope.data.online);
+    if($scope.data.online){
+      //Kick things off on init.
+      bgPage.toggleAuth(false,function(token){
+        if(token){
+          $scope.data.auth = true;
+          //$scope.fetchFolder(false);
+        } else {
+          $scope.data.auth = false;
+          //msgService.queue('Authorization Failed.','error');
+        }
+        $scope.$digest();
+      });
+    }
+  });
+
 });
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 //A controller to let us reorganize the html.
 //Technically, not necessary since both the controller scope and directive are possible within DocsController, but it's cleaner.
 //The fix for the rendering was to use ng-bind instead of {{}} to update the message.
@@ -253,6 +282,7 @@ citable.controller('butterController', function($scope, sharedProps, msgService)
 });
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 citable.controller('menuController', function($scope, sharedProps){
    $scope.data = sharedProps.data;
 
@@ -265,6 +295,8 @@ citable.controller('menuController', function($scope, sharedProps){
   }
 });
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 citable.controller('actionController', function($scope, $http, gdocs, sharedProps, msgService){
   console.log('SCOPE on Init',$scope.data);
 
@@ -296,9 +328,8 @@ citable.controller('actionController', function($scope, $http, gdocs, sharedProp
   }
 });
 
-//gDriveApp.service('gdocs', GDocs);
-//gDriveApp.controller('DocsController', ['$scope', '$http', DocsController]);
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 citable.controller('CitationController', function($scope, sharedProps, $rootScope){
   
   var bgPage = chrome.extension.getBackgroundPage();
@@ -333,6 +364,8 @@ citable.controller('CitationController', function($scope, sharedProps, $rootScop
 
 });
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main Angular controller for app.
 //function DocsController($scope, $http, gdocs) { //Use this if not using closure.
 citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sharedProps, keyboardManager, msgService){
@@ -346,7 +379,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
   // Bind ctrl+return
   keyboardManager.bind('ctrl+return', function(e) {
-    if($scope.controls.$valid){
+    if($scope.controls.$valid && $scope.data.online){
       $scope.saveNote(e,$scope.clearFields);
       _gaq.push(['_trackEvent', 'Shortcut', 'CTRL RETURN']);
     } else {
@@ -356,7 +389,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
   // Bind alt+return
   keyboardManager.bind('alt+return', function(e) {
-    if($scope.controls.$valid){
+    if($scope.controls.$valid && $scope.data.online){
       $scope.saveNote(e,$scope.closeWindow);
       _gaq.push(['_trackEvent', 'Shortcut', 'ALT RETURN']);
     } else {
@@ -364,54 +397,26 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
     }
   });
 
+  //Watch the value of data.online for changes and run the function if so.
   $scope.$watch('data.online', function(newValue,oldValue){
-    console.log('data.online',$scope.data.online);
+    console.log('$scope.$watch(data.online)',$scope.data.online);
     if(!$scope.data.online){ 
       msgService.queue('Offline','error'); 
     } else if ($scope.data.online && oldValue === false) { 
       msgService.queue('Online','normal',1500); 
-      //TODO: trigger get folder (& start the function queue of queued requests);
+      $scope.data.auth && $scope.fetchFolder(false);
+      //TODO: check $scope.data.docs or some other variable to insure that we don't already have the select menu loaded.
     }
   });
 
-  //Displays message in butterBox with an optional class via status
-  //Valid statuses: error, normal, success
-  //Pushes everything to the $timeout event queue to force redrawing.
-  /*
-  showMsg = function(message,status,delay){
-    $timeout(function(){
-      status = status!=null ? status.trim().toLowerCase() : 'normal'; //Normalize the status parameter.
-      message = message!=null?message.toString():''; //Normalize the message.
-      console.log('showMsg',message,status, Date.now());
-      
-      //TODO: Not working... consider making this a directive a la http://www.bennadel.com/blog/2548-don-t-forget-to-cancel-timeout-timers-in-your-destroy-events-in-angularjs.htm
-      $timeout.cancel(clearMsg);
+  //Watch the value of data.auth for changes and run fetchFolder() if online too.
+  $scope.$watch('data.auth', function(newValue,oldValue){
+    console.log('$scope.$watch(data.auth)',newValue);
+    if($scope.data.auth){
+      $scope.data.online && $scope.fetchFolder(false);
+    }
+  });
 
-      $scope.data.butter.status = status;
-      $scope.data.butter.message = message;
-      //$scope.$apply(); //Fixes the occasional issue where the butter doesn't update.
-      
-      if(delay > 0) { //By allowing persisent messages we can avoid ever having messages cleared prematurely.
-        //Clears the message after a set interval, but if a new message comes in before the clear completes then the message may be cleared prematurely.
-        var clearMsg = $timeout(function(){
-          $scope.data.butter.status = '';
-          $scope.data.butter.message = '';
-          //TODO: Add fadout animation using ngAnimage and $animate?
-        },delay);
-
-         //Callbacks using $timeout promises
-        clearMsg.then(
-          function(){
-            console.log( "clearMsg resolved", Date.now() );
-          },
-          function(){
-            console.log( "clearMsg canceled", Date.now() );
-          }
-        );
-      }
-    },0);
-  } 
-  */ 
 
   //Retreive and update the defaultDoc based on local storage
   storageSuccess = function(items) {
@@ -932,18 +937,20 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
   /*bgPage.toggleAuth(true,function(){
     $scope.fetchFolder(false);
   });*/
-  bgPage.toggleAuth(false,function(token){
+  /*bgPage.toggleAuth(false,function(token){
     if(token){
       $scope.data.auth = true;
-      $scope.fetchFolder(false);
+      //$scope.fetchFolder(false);
     } else {
       $scope.data.auth = false;
       //msgService.queue('Authorization Failed.','error');
     }
-  });
+  });*/
   
 });
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 // This service was based on OpenJS library available in BSD License
 // http://www.openjs.com/scripts/events/keyboard_shortcuts/index.php
 citable.factory('keyboardManager', ['$window', '$timeout', function ($window, $timeout) {
