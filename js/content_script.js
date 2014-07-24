@@ -120,26 +120,27 @@ var getAuthor = function(){
 
 var getTime = function(){
 	var timeEl = document.getElementsByClassName('ytp-time-current');
-	if(timeEl) {
+	if(timeEl.length) {
 		//TODO: loop through all the found elements to find the one with a value.??
-		console.log('tags',timeEl[0].innerHTML);
+		console.log('YT tags',timeEl);
 		return timeEl[0].innerHTML;
 	} else {
-		return null;
+		timeEl = document.querySelectorAll(".timecode .box");
+		if(timeEl.length) {
+			//TODO: loop through all the found elements to find the one with a value.??
+			console.log('Vimeo tags',timeEl);
+			return timeEl[0].innerHTML; //getAttribute('aria-valuetext')
+		} else {
+			return null;
+		}
 	}
 
-}
+};
 
 // Object to hold information about the current page
 var author;
 var summary;
 var tags;
-
-try {
-	tags = getTime();
-} catch(e){
-	console.log(e);
-}
 
 try {
 	author = getAuthor();
@@ -152,6 +153,13 @@ try {
 } catch(e){
 	console.log(e);
 }
+
+try {
+	tags = getTime();
+} catch(e){
+	console.log(e);
+}
+
 var pageInfo = {
 	"title": document.title,
 	"url": 'test',
