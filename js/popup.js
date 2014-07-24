@@ -243,6 +243,8 @@ citable.controller('authController', function($scope, sharedProps, onLine, msgSe
       if(token){
         $scope.data.auth = true;
         console.log('$scope.data.auth',$scope.data.auth );
+
+      //!!! We never reach this.... since auth doesn't return if it fails.
       } else {
         //We never reach this code because the popup closes when the auth flow launches.
         $scope.data.auth = false;
@@ -255,16 +257,22 @@ citable.controller('authController', function($scope, sharedProps, onLine, msgSe
 
   //Watch online and do a soft check (non-interactive) for auth everytime we go online.
   $scope.$watch('data.online', function(newValue,oldValue){
-    console.log('$scope.$watch(data.online)',$scope.data.online);
+    console.log('$scope.$watch(data.online) authCtrl',$scope.data.online);
+    $scope.data.loading = false;
     if($scope.data.online){
       //Kick things off on init.
       bgPage.toggleAuth(false,function(token){
+        console.log('getAuth init callback',token);
         if(token){
+          //We got auth, so update the flag to trigger fetchFolder() watcher.
           $scope.data.auth = true;
-          //$scope.fetchFolder(false);
+
+        //!!! We never reach this.... since auth doesn't return if it fails.
         } else {
+          //We failed to get auth.
+          //Pause loading and show the button.
+          $scope.data.loading = false;
           $scope.data.auth = false;
-          //msgService.queue('Authorization Failed.','error');
         }
         $scope.$digest();
       });
@@ -439,7 +447,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
   //Watch the value of data.online for changes and run the function if so.
   $scope.$watch('data.online', function(newValue,oldValue){
-    console.log('$scope.$watch(data.online)',$scope.data.online);
+    console.log('$scope.$watch(data.online) docCtrl',$scope.data.online);
     if(!$scope.data.online){ 
       msgService.queue('Offline','error'); 
     } else if ($scope.data.online && oldValue === false) { 
@@ -451,7 +459,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
   //Watch the value of data.auth for changes and run fetchFolder() if online too.
   $scope.$watch('data.auth', function(newValue,oldValue){
-    console.log('$scope.$watch(data.auth)',newValue);
+    console.log('$scope.$watch(data.auth) docCtrl',newValue);
     if($scope.data.auth){
       $scope.data.online && $scope.fetchFolder(false);
     }
@@ -588,6 +596,8 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
   $scope.fetchFolder = function(retry, opt_config) {
     var oldFolderName = $scope.data.oldFolderName;
     var folderName = $scope.data.folderName;
+
+    $scope.data.loading = true;
 
     this.clearDocs();
 

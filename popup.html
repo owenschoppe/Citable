@@ -51,10 +51,10 @@
 		</div> 
 
 		<!--Auth-->
-		<div class="auth" ng-hide="data.auth">
+		<div class="auth" ng-hide="data.auth||data.loading">
 			<!--<div id="citable" class="page-title"><img src="icon48.png"/>Citable</div>-->	
 			<div class="">
-				<a class="center authBtn" ng-class="{fade:!data.online,active:getAuthFlow}" ng-disabled="!data.online" ng-click='data.online&&getAuth()' tabindex="{{data.auth?'-1':1}}" href><span class="btnText">Sign In with Google</span></a>
+				<a class="center authBtn" ng-class="{fade:!data.online,active:getAuthFlow}" ng-disabled="!data.online" ng-click='data.online&&getAuth()' tabindex="{{data.auth?'-1':1}}" href><span class="btnText">Sign in with Google</span></a>
 			</div>
 		</div>
 
