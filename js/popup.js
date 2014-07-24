@@ -131,9 +131,22 @@ function sharedProps() {
   /*props.defaultMeta = props.docs.filter(function(el){
       return el.id == props.defaultDoc;
     });*/
+  
+
+  //Function that creates a tabindex for all elements that call it. 
+  var elArray = []
+  props.getIndex = function(el){
+    var index = elArray.indexOf(el);
+    if(index>-1){
+      return index+1;
+    } else {
+      elArray.push(el);
+      return elArray.length();
+    }
+  }
 
   return {
-    //public variable to expose private variable
+    //public variables to expose private variables
     data: props
   };
 };
@@ -215,14 +228,17 @@ citable.factory('msgService', ['$rootScope','$timeout','sharedProps', function($
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 citable.controller('authController', function($scope, sharedProps, onLine, msgService){
   $scope.data = sharedProps.data;
+  $scope.getAuthFlow = false;
 
   var bgPage = chrome.extension.getBackgroundPage();
 
   //Toggle auth on button press.
   $scope.getAuth = function(){
+    $scope.getAuthFlow = true;
     console.log('getAuth');
     //stored in backgroundpage for persistance and universal access within the app.
     bgPage.toggleAuth(true,function(token){
+      $scope.getAuthFlow = false;
       console.log('getAuth callback',token);
       if(token){
         $scope.data.auth = true;
@@ -342,6 +358,7 @@ citable.controller('CitationController', function($scope, sharedProps, $rootScop
   }
 
   $scope.setCitation = function(pageInfo){
+    //General loop for passing pageInfo values to the sharedProps object.
     for( var i in pageInfo ){
       $scope.data.citation[i] = pageInfo[i];
     }
@@ -358,9 +375,20 @@ citable.controller('CitationController', function($scope, sharedProps, $rootScop
     $scope.data.citation.Date = currDate();
 
     console.log('setCitation',pageInfo,$scope.data.citation);
+    $scope.$digest();
   }
 
+  //Dumb startup
   $scope.getPageInfo();
+
+  //We don't need to be online to set the citation, so this runs as soon as we have auth.
+  //Watch the value of data.auth for changes and run fetchFolder() if online too.
+  /*$scope.$watch('data.auth', function(newValue,oldValue){
+    console.log('$scope.$watch(data.auth)',newValue);
+    if($scope.data.auth){
+      $scope.getPageInfo();
+    }
+  });*/
 
 });
 
@@ -378,24 +406,36 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
   var bgPage = chrome.extension.getBackgroundPage();
 
   // Bind ctrl+return
+  // Save the note but don't close the popup
   keyboardManager.bind('ctrl+return', function(e) {
-    if($scope.controls.$valid && $scope.data.online){
-      $scope.saveNote(e,$scope.clearFields);
-      _gaq.push(['_trackEvent', 'Shortcut', 'CTRL RETURN']);
-    } else {
-      msgService.queue('Please add a title.','error',5000);
+    if($scope.data.online){
+      if($scope.controls.$valid){
+        $scope.saveNote(e,function(){
+          $scope.clearFields();
+        });
+        _gaq.push(['_trackEvent', 'Shortcut', 'CTRL RETURN']);
+      } else {
+        msgService.queue('Please add a title.','error',5000);
+      }
     }
   });
 
   // Bind alt+return
+  // Save the note and close the popup
   keyboardManager.bind('alt+return', function(e) {
-    if($scope.controls.$valid && $scope.data.online){
-      $scope.saveNote(e,$scope.closeWindow);
-      _gaq.push(['_trackEvent', 'Shortcut', 'ALT RETURN']);
-    } else {
-      msgService.queue('Please add a title.','error',5000);
+    if($scope.data.online){
+      if($scope.controls.$valid){
+        $scope.saveNote(e,$scope.closeWindow);
+        _gaq.push(['_trackEvent', 'Shortcut', 'ALT RETURN']);
+      } else {
+        msgService.queue('Please add a title.','error',5000);
+      }
     }
   });
+
+  ///////////
+  //Startup//
+  ///////////
 
   //Watch the value of data.online for changes and run the function if so.
   $scope.$watch('data.online', function(newValue,oldValue){
@@ -416,6 +456,8 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
       $scope.data.online && $scope.fetchFolder(false);
     }
   });
+
+  ///////////
 
 
   //Retreive and update the defaultDoc based on local storage

@@ -131,6 +131,7 @@ a[disabled=disabled], a.disabled, a.disabled:hover {
 		border:1px solid #4080fa;
 		color:#000;
 		text-decoration: none;
+		outline:none;
 	}
 	
 select {
@@ -288,8 +289,9 @@ select:ACTIVE{
 	background-color: #639ce3;
 	color:#ffffff;
 	cursor: hand;
+	outline:none;
 }
-.authBtn:ACTIVE {
+.authBtn:ACTIVE, .authBtn.active {
 	box-shadow: inset 0px 2px 0px #386cad;
 	background-color: #4889da;
 	color:#ffffff;
@@ -305,8 +307,8 @@ select:ACTIVE{
     font-family: 'Roboto',arial,sans-serif;
 }
 .auth {
-	padding-top: 30px;
-	padding-bottom: 30px;
+	padding-top: 22px;
+	padding-bottom: 21px;
 }
 #citation #addbookmark input, #citation #addbookmark textarea {
   background-color: transparent !important;

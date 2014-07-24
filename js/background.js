@@ -139,7 +139,8 @@
 		  	'Title' : info.title?info.title.trim():"",
 		  	'Url' : tab.url,
 		  	'Summary' : info.summary?info.summary.trim():"",
-		  	'Author' : info.authorName?info.authorName.trim():""
+		  	'Author' : info.authorName?info.authorName.trim():"",
+		  	'Tags' : info.tags?info.tags.trim():"",
 		  	};
 
 		  var callback = callbacks[0];//callbacks.shift();

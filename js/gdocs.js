@@ -52,7 +52,8 @@ GDocs.prototype.auth = function(interactive, opt_callback) {
       }
     }.bind(this));
   } catch(e) {
-    console.log(e);
+    console.log('Authorization Error',e);
+    opt_callback && opt_callback();
   }
 };
 
