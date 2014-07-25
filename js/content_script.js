@@ -26,7 +26,7 @@ var getSelectedText = function(){
   // Function: finds selected text in document d and frames and subframes of d
   // @return the selected text or null
   function g(d){
-    var t;
+    var t = '';
     try{t = f(d);}catch(e){console.log('ERROR: ',e);};
     if ((!t || t == '') && d){
       var docs = [];
@@ -118,29 +118,83 @@ var getAuthor = function(){
 	//return author.replace(r,' ').trim();
 }
 
-var getTime = function(){
-	var timeEl = document.getElementsByClassName('ytp-time-current');
-	if(timeEl.length) {
-		//TODO: loop through all the found elements to find the one with a value.??
-		console.log('YT tags',timeEl);
-		return timeEl[0].innerHTML;
-	} else {
-		timeEl = document.querySelectorAll(".timecode .box");
+/*var getTime = function(){
+
+		var re1='.*?';	// Non-greedy match on filler
+		var re2='\\d';	// Uninteresting: d
+		var re3='(\\d)';	// Any Single Digit 1
+		var re4='(:)';	// Any Single Character 1
+		var re5='(\\d)';	// Any Single Digit 2
+		var time = new RegExp(re1+re2+re3+re4+re5,["i"]);
+
+		var re6='(<[^>]+>)';	// Tag 1
+		var tag = new RegExp(re1,["i"]);
+
+		//Get all elements that match any of the time elements for all the major video players: Vimeo, YouTube, video.js, jwplayer, mediaelement.js, sublime, 
+		var timeEl = document.querySelectorAll(".timecode .box, .ytp-time-current, v.js-current-time-display, .jwelapsed, .mejs-currenttime, .sublimevideo-View.sublimevideo-Label");
 		if(timeEl.length) {
 			//TODO: loop through all the found elements to find the one with a value.??
 			console.log('Vimeo tags',timeEl);
 			return timeEl[0].innerHTML; //getAttribute('aria-valuetext')
+			//var elText = null;
+
+			//Loop through the found elements searching for a time string.
+			for(var el in timeEl){
+				var text = el.innerHTML;
+				
+				var m = time.exec(text);
+				if (m != null)
+				{
+					//If we found a time, then set the text to the time. //Should we bail at this point?
+					//elText = text;
+					return text;
+				} else {
+					//If the child has children then add them to the search array.
+					if (el.hasChildNodes()) {
+						timeEl.push(el.childNodes);
+					}
+				}
+			}
+			//return elText;
 		} else {
 			return null;
 		}
-	}
+	//}
 
-};
+};*/
 
 // Object to hold information about the current page
 var author;
 var summary;
 var tags;
+
+//Works for Vimeo, YouTube, HTML5 video, video.js, mediaelement.js, sublime
+videoTime = function(){
+	var videos = document.getElementsByTagName('video');
+	var time = null;
+	//console.log("videos:",videos);
+	for(var i=0; i<videos.length; i++){
+		//console.log("video:",videos[i],videos[i].currentTime);
+		//videos[i].addEventListener("timeupdate",updateTags,false);
+		if(videos[i].currentTime > 0){
+			time = videos[i].currentTime;
+		}
+	}
+	/*var updateTags = function(e){
+		//Since we may have multiple videos calling tags, how do we handle conflicts?
+		console.log('current time:',e);
+		tags = e.target.currentTime();
+	};*/
+	var totalSec = Math.round(time);
+	var hours = parseInt( totalSec / 3600 ) % 24;
+	var minutes = parseInt( totalSec / 60 ) % 60;
+	var seconds = totalSec % 60;
+	var result = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds  < 10 ? "0" + seconds : seconds);
+	
+	return time>0?result:null;
+}
+
+//videoTime();
 
 try {
 	author = getAuthor();
@@ -155,7 +209,8 @@ try {
 }
 
 try {
-	tags = getTime();
+	//tags = getTime();
+	tags = videoTime();
 } catch(e){
 	console.log(e);
 }

@@ -111,7 +111,8 @@ function sharedProps() {
     'Date':'',
     'Author':'',
     'Summary':'',
-    'Tags':''
+    'Tags':'',
+    'fresh':false
   };
   props.menu = false;
   props.docs = [];
@@ -366,6 +367,9 @@ citable.controller('CitationController', function($scope, sharedProps, $rootScop
   }
 
   $scope.setCitation = function(pageInfo){
+    //Reset the flag
+      $scope.data.citation.fresh = true;
+
     //General loop for passing pageInfo values to the sharedProps object.
     for( var i in pageInfo ){
       $scope.data.citation[i] = pageInfo[i];
@@ -387,16 +391,19 @@ citable.controller('CitationController', function($scope, sharedProps, $rootScop
   }
 
   //Dumb startup
-  $scope.getPageInfo();
+  //$scope.getPageInfo();
 
-  //We don't need to be online to set the citation, so this runs as soon as we have auth.
-  //Watch the value of data.auth for changes and run fetchFolder() if online too.
-  /*$scope.$watch('data.auth', function(newValue,oldValue){
-    console.log('$scope.$watch(data.auth)',newValue);
-    if($scope.data.auth){
+  //Watcher to update the note data if it gets stale.
+  //Lets us set the stale flag on ctrl-return and trigger a refresh for video logging. 
+  //Still grabs the selection, so clearing the field doesn't work. 
+  //Ok since you shouldn't make a selection if you are going to use this feature.
+  $scope.$watch('data.citation.fresh', function(newValue,oldValue){
+    console.log('$scope.$watch(data.citation.fresh) citationCtrl',$scope.data.citation.fresh);
+    if (!$scope.data.citation.fresh) { 
+      //Update the note
       $scope.getPageInfo();
     }
-  });*/
+  });
 
 });
 
@@ -419,7 +426,9 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
     if($scope.data.online){
       if($scope.controls.$valid){
         $scope.saveNote(e,function(){
-          $scope.clearFields();
+          $scope.data.citation.fresh = false;
+          //TODO: Since we're refreshing the note, we can't clear the field. Maybe do it on fresh?
+          //$scope.clearFields();
         });
         _gaq.push(['_trackEvent', 'Shortcut', 'CTRL RETURN']);
       } else {
