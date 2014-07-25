@@ -112,7 +112,8 @@ function sharedProps() {
     'Author':'',
     'Summary':'',
     'Tags':'',
-    'fresh':false
+    'fresh':false,
+    'callback': null
   };
   props.menu = false;
   props.docs = [];
@@ -386,6 +387,14 @@ citable.controller('CitationController', function($scope, sharedProps, $rootScop
 
     $scope.data.citation.Date = currDate();
 
+    //Super simple function queue, should I implement a full queue?
+    if($scope.data.citation.callback){
+      //Run it.
+      $scope.data.citation.callback();
+      //Clear it out.
+      $scope.data.citation.callback = null;
+    }
+
     console.log('setCitation',pageInfo,$scope.data.citation);
     $scope.$digest();
   }
@@ -427,6 +436,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
       if($scope.controls.$valid){
         $scope.saveNote(e,function(){
           $scope.data.citation.fresh = false;
+          $scope.data.citation.callback = $scope.clearFields;
           //TODO: Since we're refreshing the note, we can't clear the field. Maybe do it on fresh?
           //$scope.clearFields();
         });

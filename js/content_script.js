@@ -127,7 +127,7 @@ var tags;
 videoTime = function(){
 	var videos = document.getElementsByTagName('video');
 	var time = null;
-	//console.log("videos:",videos);
+	console.log("videos:",videos);
 	for(var i=0; i<videos.length; i++){
 		//console.log("video:",videos[i],videos[i].currentTime);
 		//videos[i].addEventListener("timeupdate",updateTags,false);
@@ -135,7 +135,7 @@ videoTime = function(){
 			time = videos[i].currentTime;
 		}
 	}
-
+	console.log("video time:",time);
 	var totalSec = Math.round(time);
 	var hours = parseInt( totalSec / 3600 ) % 24;
 	var minutes = parseInt( totalSec / 60 ) % 60;
