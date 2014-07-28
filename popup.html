@@ -66,13 +66,13 @@
 			    	<!--Label-->
 					<label for="selection" class="space lg" ng-class="{fade:data.menu}">save note in</label>
 
-					<span class="addNoteLabel lg" ng-class="{fade:data.menu}">alt+return</span>
+					<span class="addNoteLabel lg right-space" ng-class="{fade:data.menu}">alt+return</span>
 				</div>
 				
 				<div id="selection_box" class="clear">
 					
 					<!--Document Selector and Loading Module-->
-					<div id="selection" name="selection" class="">
+					<div id="selection" name="selection" class="space">
 
 						<!--Loading-->
 						<div data-ng-show="data.loading && data.online">
@@ -93,7 +93,7 @@
 					</div>
 
 					<!--Save Button-->
-					<div class="right relative addNoteContainer">
+					<div class="right relative addNoteContainer right-space">
 						<!--<a class="button Droid addNote right" ng-click="saveNote($event)" ng-disabled="data.menu || data.requesting || controls.$invalid" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" href>Save</a>-->
 						<input type="submit" ng-disabled="data.menu || data.requesting || controls.$invalid || !data.online" class="button Droid addNote right" ng-class="{fade:data.menu||!data.online}" tabindex="{{data.menu || data.requesting?'-1':$index}}" value="Save" ng-click="controls.$valid && focused && data.online && saveNoteButton($event,closeWindow)" ng-focus="focused = true" ng-blur="focused = false"/>
 						

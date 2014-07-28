@@ -216,7 +216,6 @@ select:ACTIVE{
 	border-top:1px #ddd solid;
 	clear: both;
 	position: relative;
-	left:-20px;
 }
 #selection_box{
   padding-top: 4px;
@@ -225,6 +224,9 @@ select:ACTIVE{
 }
 .space{
 	padding-left:7px;
+}
+.right-space {
+	padding-right:7px;
 }
 .indent{
 	margin-left: 38px;
@@ -243,7 +245,7 @@ select:ACTIVE{
 	margin-top:2px;
 }
 .destination{
-  width:220px;
+  width:205px;
   height: 20px;
   border: #ccc 1px solid;
 }

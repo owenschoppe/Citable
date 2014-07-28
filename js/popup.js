@@ -260,22 +260,20 @@ citable.controller('authController', function($scope, sharedProps, onLine, msgSe
   //Watch online and do a soft check (non-interactive) for auth everytime we go online.
   $scope.$watch('data.online', function(newValue,oldValue){
     console.log('$scope.$watch(data.online) authCtrl',$scope.data.online);
-    $scope.data.loading = false;
+    //$scope.data.loading = false;
     if($scope.data.online){
       //Kick things off on init.
       bgPage.toggleAuth(false,function(token){
-        console.log('getAuth init callback',token);
         if(token){
           //We got auth, so update the flag to trigger fetchFolder() watcher.
+          console.log('getAuth init Succeed',token);
           $scope.data.auth = true;
-
-        //!!! We never reach this.... since auth doesn't return if it fails.
         } else {
-          //We failed to get auth.
-          //Pause loading and show the button.
-          $scope.data.loading = false;
+          //We failed to get auth. Pause loading and show the button.
+          console.log('getAuth init Fail',token);
           $scope.data.auth = false;
         }
+        $scope.data.loading = false;
         $scope.$digest();
       });
     }
