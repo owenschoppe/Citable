@@ -145,7 +145,7 @@ Util.sortByTitle = function(a, b) {
 Util.parseForHTML = function(content) {
         //regular expression to find characters not accepted in XML.
           var rx= /(<)|(>)|(&)|(")|(')/g; 
-        if(content == null){return null;}
+        if(content == null){return '';}
         var content = content.replace(rx, function(m){
           switch(m)
           {
@@ -205,3 +205,24 @@ function removeInvalidCharacters(node) {
         }
     }
 }
+
+// JSON to CSV Converter  
+//TODO: use "for(var i in o){console.log(i,o[i]);}" to traverse a single object instead of an array of objects. i=key o[1]=value
+// Accepts an object array in the form of [{a:1,b:2},{a:3,b:4},...] -> "a,b \r\n 1,2 \r\n 3,4"
+  Util.JSONToCSV = function (objArray) {
+        console.log('JSON objArray:',objArray);
+        var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray; //Insures that the incoming param is an object array.
+        //var header = array.length > 1 ? array[0] : array;
+        var str = Object.keys(array[0]) + '\r\n'; //Uses the first object in the array to get the column headers.
+        for (var i = 0; i < array.length; i++) {
+            var line = '';
+            for (var index in array[i]) {
+                if (line != '') line += ',';
+                console.log('line',i,array[i][index],line);
+                line += '"'+Util.parseForHTML(array[i][index])+'"'; //Add the HTML parsed value of the citation to the CSV line.
+            }
+            str += line + '\r\n';
+        }
+        console.log('CSV data:',str);
+        return str;
+    }

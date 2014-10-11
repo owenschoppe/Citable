@@ -111,7 +111,9 @@ function sharedProps() {
     'Date':'',
     'Author':'',
     'Summary':'',
-    'Tags':'',
+    'Tags':''
+  };
+  props.citationMeta = {
     'fresh':false,
     'callback': null
   };
@@ -367,7 +369,7 @@ citable.controller('CitationController', function($scope, sharedProps, $rootScop
 
   $scope.setCitation = function(pageInfo){
     //Reset the flag
-      $scope.data.citation.fresh = true;
+      $scope.data.citationMeta.fresh = true;
 
     //General loop for passing pageInfo values to the sharedProps object.
     for( var i in pageInfo ){
@@ -386,11 +388,11 @@ citable.controller('CitationController', function($scope, sharedProps, $rootScop
     $scope.data.citation.Date = currDate();
 
     //Super simple function queue, should I implement a full queue?
-    if($scope.data.citation.callback){
+    if($scope.data.citationMeta.callback){
       //Run it.
-      $scope.data.citation.callback();
+      $scope.data.citationMeta.callback();
       //Clear it out.
-      $scope.data.citation.callback = null;
+      $scope.data.citationMeta.callback = null;
     }
 
     console.log('setCitation',pageInfo,$scope.data.citation);
@@ -404,9 +406,9 @@ citable.controller('CitationController', function($scope, sharedProps, $rootScop
   //Lets us set the stale flag on ctrl-return and trigger a refresh for video logging. 
   //Still grabs the selection, so clearing the field doesn't work. 
   //Ok since you shouldn't make a selection if you are going to use this feature.
-  $scope.$watch('data.citation.fresh', function(newValue,oldValue){
-    console.log('$scope.$watch(data.citation.fresh) citationCtrl',$scope.data.citation.fresh);
-    if (!$scope.data.citation.fresh) { 
+  $scope.$watch('data.citationMeta.fresh', function(newValue,oldValue){
+    console.log('$scope.$watch(data.citationMeta.fresh) citationCtrl',$scope.data.citationMeta.fresh);
+    if (!$scope.data.citationMeta.fresh) { 
       //Update the note
       $scope.getPageInfo();
     }
@@ -433,8 +435,8 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
     if($scope.data.online){
       if($scope.controls.$valid){
         $scope.saveNote(e,function(){
-          $scope.data.citation.fresh = false;
-          $scope.data.citation.callback = $scope.clearFields;
+          $scope.data.citationMeta.fresh = false;
+          $scope.data.citationMeta.callback = $scope.clearFields;
           //TODO: Since we're refreshing the note, we can't clear the field. Maybe do it on fresh?
           //$scope.clearFields();
         });
@@ -583,13 +585,17 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
   };
 
   $scope.fetchDocs = function(retry, folderId) {
-    this.clearDocs();
+    //Probably unnecessary since we just did it in the fetchFolder step.
+    //this.clearDocs();
 
+
+    //Query had to be restructured to use the full mimeType instead of using the contains logic. Evidently the new sheets don't store the mimeType as a string or it's being abstracted somehow resulting in only old sheets appearing.
+    //"mimeType contains 'sheet' and '"+ 
     if (gdocs.accessToken) {
       var config = {
         params: {
             'alt': 'json', 
-            'q': "mimeType contains 'spreadsheet' and '"+folderId+"' in parents and trashed!=true"
+            'q': "mimeType = 'application/vnd.google-apps.spreadsheet' and '"+folderId+"' in parents and trashed!=true" 
         },
         headers: {
           'Authorization': 'Bearer ' + gdocs.accessToken
@@ -616,6 +622,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
     $scope.data.loading = true;
 
+    //Clear doc list from the select menu
     this.clearDocs();
 
     function successCallbackFolderId(resp, status, headers, config, statusText){
@@ -640,13 +647,14 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
           //Uses the folderId so it's name independent from here on out.
           //Get the files contained in the folder cats[0];
+          //TODO: recursively check all found folders to insure we get everything. (Might result in duplicates)
           $scope.fetchDocs(false, $scope.cats[0].id);
 
       } else {
           if(bgPage.firstRun == true){
             msgService.queue('Updating folder.');
             var config = {
-              params: {'alt': 'json', 'q': "mimeType contains 'folder' and title='"+oldFolderName+"' and trashed!=true"},
+              params: {'alt': 'json', 'q': "mimeType = 'application/vnd.google-apps.folder' and title='"+oldFolderName+"' and trashed!=true"},
               headers: {
                 'Authorization': 'Bearer ' + gdocs.accessToken
               }
@@ -668,7 +676,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
     if (gdocs.accessToken) {
       console.log('fetchFolder',gdocs.accessToken, bgPage.firstRun);
 
-    
+    //query: is a folder, properties contains Citable=true, is visible to PUBLIC, and isn't in the trash.
     var config = opt_config ? opt_config : {
       params: {'alt': 'json', 'q': "mimeType contains 'folder' and properties has { key='"+$scope.data.driveProperties[0].key+"' and value='"+$scope.data.driveProperties[0].value+"' and visibility='"+$scope.data.driveProperties[0].visibility+"' } and trashed!=true"},
       headers: {
