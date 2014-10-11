@@ -734,7 +734,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
       });
     } /*else if(destination == null && localStorage['defaultDoc']){ //If the doc menu isn't loaded yet, then try using the default doc.
             gdocs.amendDocHandler(localStorage['defaultDoc'], callback);   
-        //TODO: create error in amendDocHandler to catch sending note to a document that doesn't exist.
+        //TODO: create error in amendDocHandler to catch sending note to a document that doesn't exist. Catches it with a check header error.
     }*/ else{
       console.log('destination: ',destination.id,destination.title);
       amendDocHandler(retry, destination.id, callback); //Call the handler passing in the formatted values.
