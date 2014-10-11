@@ -678,7 +678,7 @@ citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sh
 
     //query: is a folder, properties contains Citable=true, is visible to PUBLIC, and isn't in the trash.
     var config = opt_config ? opt_config : {
-      params: {'alt': 'json', 'q': "mimeType contains 'folder' and properties has { key='"+$scope.data.driveProperties[0].key+"' and value='"+$scope.data.driveProperties[0].value+"' and visibility='"+$scope.data.driveProperties[0].visibility+"' } and trashed!=true"},
+      params: {'alt': 'json', 'q': "mimeType = 'application/vnd.google-apps.folder' and properties has { key='"+$scope.data.driveProperties[0].key+"' and value='"+$scope.data.driveProperties[0].value+"' and visibility='"+$scope.data.driveProperties[0].visibility+"' } and trashed!=true"},
       headers: {
         'Authorization': 'Bearer ' + gdocs.accessToken
       }
