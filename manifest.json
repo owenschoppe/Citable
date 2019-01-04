@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Citable",
   "short_name": "Citable",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "minimum_chrome_version": "29",
   "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDAWST4CzoIlg0pwYOZ4tMGhZj8h+tAfyLmLrmAFNfdfGJz/CJ3LbJlOse8NoLtL+chV+DuhGiStLepn6tzXYe+L8JUHov/ztDeOArzUjmNeG2UpSX8kU8hcGhtnqvlWmto+0OgJytgVYMKnbo2zolI3s+UKfwP1S6D5T0KoyKWowIDAQAB",
   "description": "Save citable quotes and notes from the web into Google spreadsheets.",
