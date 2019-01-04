@@ -26,7 +26,7 @@ var getSelectedText = function(){
   // Function: finds selected text in document d and frames and subframes of d
   // @return the selected text or null
   function g(d){
-    var t;
+    var t = '';
     try{t = f(d);}catch(e){console.log('ERROR: ',e);};
     if ((!t || t == '') && d){
       var docs = [];
@@ -119,14 +119,56 @@ var getAuthor = function(){
 }
 
 // Object to hold information about the current page
-var author = getAuthor();
-var summary = getSelectedText();
+var author;
+var summary;
+var tags;
+
+//Works for Vimeo, YouTube, HTML5 video, video.js, mediaelement.js, sublime
+videoTime = function(){
+	var videos = document.getElementsByTagName('video');
+	var time = null;
+	console.log("videos:",videos);
+	for(var i=0; i<videos.length; i++){
+		//console.log("video:",videos[i],videos[i].currentTime);
+		//videos[i].addEventListener("timeupdate",updateTags,false);
+		if(videos[i].currentTime > 0){
+			time = videos[i].currentTime;
+		}
+	}
+	console.log("video time:",time);
+	var totalSec = Math.round(time);
+	var hours = parseInt( totalSec / 3600 ) % 24;
+	var minutes = parseInt( totalSec / 60 ) % 60;
+	var seconds = totalSec % 60;
+	var result = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds  < 10 ? "0" + seconds : seconds);
+	
+	return time>0?result:null;
+}
+
+try {
+	author = getAuthor();
+} catch(e) {
+	console.log(e);
+}
+
+try {
+	summary = getSelectedText();
+} catch(e){
+	console.log(e);
+}
+
+try {
+	tags = videoTime();
+} catch(e){
+	console.log(e);
+}
 
 var pageInfo = {
 	"title": document.title,
 	"url": 'test',
 	"summary": summary,
-	"authorName": author
+	"authorName": author,
+	"tags": tags,
 };
 
 console.log('page info: ', pageInfo);

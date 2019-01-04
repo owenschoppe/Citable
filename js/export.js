@@ -11,9 +11,24 @@
 var str = '';
 var util = {};
 var bgPage = chrome.extension.getBackgroundPage();
-var rows = bgPage.row;
-var docName = bgPage.docName;
+var rows = [];
+var docName = [];
 var content = '';
+
+//Currently export only loads if the background page succeeds in retrieving the document content. Maybe the page should load regardless and then the content is loaded. TODO.
+
+//Pull the values from storage instead of relying on bgPage. Makes this page independent.
+chrome.storage.local.get('row', function(response){
+  	console.log("chrome.storage.sync.get('row')",response);
+  	rows = response.row;
+  	chrome.storage.local.get('defaultDoc', function(response){
+		console.log("chrome.storage.sync.get('defaultDoc')",response);
+		docName = response.defaultDoc.title;
+
+		//Start export after the content has loaded. Fix for async chrome.storage
+		makeFile();
+	});
+});
 
 ////////////////////////////////////////////////////////////////////////////////
 //Listeners
@@ -23,18 +38,20 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function printHandler(e) {
+	_gaq.push(['_trackEvent', 'Button', 'Download .bib']);
 	saveFile();
 	return false;
 }
 
 function cancelHandler(e) {
+	_gaq.push(['_trackEvent', 'Button', 'Cancel Export']);
 	window.close();
 	return false;
 }
 
-window.onload = function(){
+/*window.onload = function(){
 	makeFile();
-}
+}*/
 
 ////////////////////////////////////////////////////////////////////////////////
 //Error handler
@@ -90,13 +107,15 @@ util.displayError = function(msg) {
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 function saveFile() {
-	var bb = new window.WebKitBlobBuilder(); 
+	/*var bb = new window.WebKitBlobBuilder(); 
 	// Note: window.WebKitBlobBuilder in Chrome 12.
     //var content = doExport();
-    bb.append(content.toString());
-    saveAs(bb.getBlob("text/plain"), docName+".bib"); //Uses FileSave.js
+    bb.append(content.toString());*/
+    
+    var blob = new Blob([content.toString()]);
+
+    saveAs(blob, docName+".bib"); //Uses FileSave.js
     //Is FileSave.js a future compatible option?
-    //renderDoc(content);
 }
 
 function renderDoc(bibtex){

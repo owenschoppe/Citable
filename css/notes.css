@@ -39,6 +39,7 @@
   margin-top:1px;
   overflow: hidden;
   text-overflow: ellipsis;
+  clear: both;
 }
 .handwritten {
 	font-family: 'hand-font', Arial, Sans-Serif;
@@ -83,7 +84,13 @@
 	padding:0px;
 }
 
+.fade {
+  opacity: .25;
+}
 
+.hidden {
+  display:none;
+}
 
 /*.left{
 	float: left;

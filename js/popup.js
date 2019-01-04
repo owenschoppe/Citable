@@ -1,1376 +1,1256 @@
-//TODO: Add quote field.
-//TODO: Migrate the whole system to store only the resourceId and not split(':') every time.
-
-/////////////////////////////////////////////////////////////////////////
-//Previously an inline script in popup.html
-//Does it still work?
-
-var pageURL;
-    	
-		function onPrintPage(o)
-		{
-			//Code executed on callback.
-			gdocs.closeWindow();
-		}
-	    // This callback function is called when the content script has been 
-	    // injected and returned its results
-	    function onPageInfo(o) 
-	    { 
-	        if(o){
-				console.log('onPageInfo callback', o);
-				document.getElementById("title").value = o.title ? o.title : ''; 
-				document.getElementById("author").value = o.authorName ? o.authorName: '';
-				document.getElementById("url").value = o.url ? o.url: '';
-				document.getElementById("summary").innerText = o.summary ? o.summary : ''; 
-	        }
-	    } 
-/////////////////////////////////////////////////////////////////////////
-//Replaces onClick="" in popup.html 	    
-document.addEventListener('DOMContentLoaded', function () {
-  document.querySelector('#addNote').addEventListener('click', addNoteHandler);
-  document.querySelector('#viewDoc').addEventListener('click', viewDocHandler);
-  document.querySelector('#printDoc').addEventListener('click', printDocHandler);
-  document.querySelector('#exportDoc').addEventListener('click', exportDocHandler);
-  document.querySelector('#menu').addEventListener('click', menuHandler);
-});
-
-function addNoteHandler(e) {
-	gdocs.amendDoc($('#destination').val(),function(){gdocs.closeWindow()});
-	return false;
-}
-
-function viewDocHandler(e){
-	gdocs.viewDoc($('#destination').val());
-	return false;
-}
-
-function printDocHandler(e){
-	gdocs.printDocument($('#destination').val());
-	return false;
-}
-
-function exportDocHandler(e){
-	gdocs.exportDocument($('#destination').val());
-	return false;
-}
-
-function onChangeHandler(e){
-	gdocs.changeAction(this.form,this.value,$('select option:selected').html());
-}
-
-function menuHandler(e){
-	toggleMenu();
-	return false;
-}
-/////////////////////////////////////////////////////////////////////////
-
-//noop for performance?
-//console.log=function(){};
-
-// Protected namespaces.
-var util = {};
-var gdocs = {};
-
-var bgPage = chrome.extension.getBackgroundPage();
-var pollIntervalMax = 1000 * 60 * 60;  // 1 hour
-var requestFailureCount = 0;  // used for exponential backoff
-var requestTimeout = 1000 * 2;  // 5 seconds
-
-var order = ['summary','title','author','url','tags','destination','doc_title','addNote']; //the tab order for select fields
-
-var folders = ['Citable_Documents','Citation_Tool_Documents'];
-
-//fades the print button
-$("#print").mouseover(function() {
-$(this).fadeTo(0,1);
-}).mouseout(function(){
-$(this).fadeTo(0,0.55);
-});
-
-var DEFAULT_MIMETYPES = {
-  'atom': 'application/atom+xml',
-  'document': 'text/plain',
-  'spreadsheet': 'text/csv',
-  'presentation': 'text/plain',
-  'pdf': 'application/pdf'
-};
-
-var original_onclick;
-var original_index;
-function toggleMenu() {
-	//$('.note').slideToggle(200);
-	console.log($('.note').css("opacity"));
-	if($('.note').css("opacity") < 1){ 
-		$('.note').fadeTo(200,1);
-		$('.input').prop('disabled', false);
-		console.log(original_onclick);
-		$('#addNote').attr('onclick',original_onclick);
-		$('#addNote').attr('tabindex',original_index);
-		$('#addNote').removeClass('button_disabled');
-		$("#destination option[value='new']").attr("disabled",false);
-	} else { 
-		$('.note').fadeTo(200,.25); 
-		$('.input').prop('disabled', true);
-		original_onclick = $('#addNote').attr('onclick');
-		original_index = $('#addNote').attr('tabindex');
-		$('#addNote').removeAttr('onclick');
-		$('#addNote').removeAttr('tabindex');
-		$('#addNote').addClass('button_disabled');
-		$("#destination option[value='new']").attr("disabled","disabled");
-	}
-	$('.menu').slideToggle(200);	
-	switchFocus('destination'); //Focus on the destination field.
-}
-
-
-/*****************
-Shows the title form if the selector is on new.
-*******************/
-var original_menu;
-gdocs.changeAction = function(aForm, aValue, aLabel){
-console.log('gdocs.changeAction');
-	if(aValue == 'new'){
-		$('#new_doc_container').fadeIn(200);
-		switchFocus('doc_title');
-		//$('#controlBar').hide(); 
-		//$('.controls').hide(); 
-		$('.controls').fadeTo(200,.25); 
-		original_menu = $('#menu').attr('onclick');
-		$('#menu').removeAttr('onclick');
-		$('#menu').addClass('disabled');
-		$('.action').addClass('disabled');
-		$('.controls').attr('disabled');
-		//$('#selection').addClass('indent');
-		//$('#selection').removeClass('space');
-	} else {
-		$('#new_doc_container').fadeOut(200);
-		//$('#controlBar').show();
-		//$('.controls').show();
-		$('.controls').fadeTo(200,1);
-		$('#menu').attr('onclick',original_menu);
-		$('#menu').removeClass('disabled');
-		$('.action').removeClass('disabled');
-		$('.controls').prop('disabled', false);
-		//$('#selection').removeClass('indent');
-		//$('#selection').addClass('space');
-		
-		//Update the defaultDoc.
-		var parts = $('#destination').val().split(':');
-		localStorage['defaultDoc'] = parts[1]; 
-		localStorage['defaultDocName'] = aLabel; 
-	}
-	
-	return;
-}
-
-//an event listener to submit the form if ctrl+enter or alt+enter are pressed
-var myCustomKey = 13; // return/enter
-document.documentElement.addEventListener('keydown', keyboardNavigation, false); 
-
-function keyboardNavigation(e) {
-	console.log("Key event: ",e.which);
-
-	var active = document.activeElement;
-	var i = jQuery.inArray(active.id, order);
-	
-		  switch(e.which) { 
-			 case myCustomKey: 
-				if (e.ctrlKey) { //Clears all fields on complete.
-					console.log("CTRL+RETURN pressed");
-					gdocs.amendDoc($('#destination').val(),function(){clearFields(true)}); 
-				}
-				if (e.altKey) { //Maintains the url and page title.
-					console.log("ALT+RETURN pressed");
-					gdocs.amendDoc($('#destination').val(),function(){clearFields(false)});
-				}
-				if(e.shiftKey){
-					return 13;
-				}
-				if (active.id == 'addNote') {
-					gdocs.amendDoc($('#destination').val(),function(){gdocs.closeWindow()});
-				}
-				console.log("destination value: ", $('#destination').val() == 'new' );
-				console.log("doc_title visible? ", $('#new_doc_container').is(":visible"));
-				if(active.id == 'destination'){
-					if($('#new_doc_container').is(":visible") || $('#destination').val() == 'new'){
-						//console.log("Visible!", $('#new_doc_container').is(":visible"));
-						switchFocus(order[i+1]);
-					} else {
-						//console.log("Hidden!", $('#new_doc_container').is(":visible"));
-						switchFocus(order[i+2]);
-					}
-				} 
-				else if ( i >= 0 && i < order.length-1) { //TODO: Make sure the active.id was found in the tab order array.
-					switchFocus(order[i+1]);
-				}
-			break; 
-		  } 
-}
-
-//Closes the popup window.
-gdocs.closeWindow = function() {
-	console.log('gdocs.closeWindow');
-	window.close();
-}
-
-//Clears form fields.
-function clearFields(clearAllFields) {
-console.log('clearFields ', clearAllFields);
-	document.getElementById("tags").value = ''; 
-	document.getElementById("summary").value = '';
-	if(clearAllFields == true){
-		document.getElementById("title").value = ''; 
-		document.getElementById("url").value = '';
-		document.getElementById("author").value = '';
-	}
-	switchFocus(order[0]);
-}
-
-//Sets the tab order based on the array of IDs passed into function.
-function setTabOrder(order){
-	console.log('Set tab order');
-	var len=order.length;
-	for(var i=0; i<len; i++) {
-		var field = order[i];
-		document.getElementById(field).tabIndex=i+1;
-	}
-}
-
-//Switches focus to the fieldId passed in.
-function switchFocus(nextFieldId){
-	console.log('Shift focus to ',nextFieldId);
-	document.getElementById(nextFieldId).focus();
-}
-
-// Persistent click handler for star icons.
-$('#doc_type').change(function() {
-  if ($(this).val() === 'presentation') {
-    $('#doc_content').attr('disabled', 'true')
-                     .attr('placeholder', 'N/A for presentations');
-  } else {
-    $('#doc_content').removeAttr('disabled')
-                     .attr('placeholder', 'Enter document content');
-  }
-});
-
-// Persistent click handler for changing the title of a document.
-$('[contenteditable="true"]').live('blur', function(index) {
-  var index = $(this).parent().parent().attr('data-index');
-  // Only make the XHR if the user chose a new title.
-  if ($(this).text() != bgPage.docs[index].title) {
-    bgPage.docs[index].title = $(this).text();
-    gdocs.updateDoc(bgPage.docs[index]);
-  }
-});
-
-// Persistent click handler for changing the title of a document.
-$('[texteditable="true"]').live('blur', function(index) {
-  var index = $(this).parent().parent().attr('data-index');
-  // Only make the XHR if the user chose a new title.
-  if ($(this).text() != bgPage.docs[index].title) {
-    bgPage.docs[index].title = $(this).text();
-    gdocs.updateDoc(bgPage.docs[index]);
-  }
-});
-
-// Persistent click handler for star icons.
-$('.star').live('click', function() {
-  $(this).toggleClass('selected');
-
-  var index = $(this).parent().attr('data-index');
-  bgPage.docs[index].starred = $(this).hasClass('selected');
-  gdocs.updateDoc(bgPage.docs[index]);
-});
-
-String.prototype.truncate = function(){
-    var re = this.match(/^.{0,22}[\S]*/);
-    var l = re[0].length;
-    var re = re[0].replace(/\s$/,'');
-    if(l < this.length)
-        re = re + "&hellip;";
-	else re = this.substr(0,22)+(this.length>23?"&hellip;":'');
-    return re;
-}
-
 /*
- * Class to compartmentalize properties of a Google document.
- * @param {Object} entry A JSON representation of a DocList atom entry.
- * @constructor
- */
-gdocs.GoogleDoc = function(entry) {
-  this.entry = entry;
-  this.title = entry.title.$t;
-  this.resourceId = entry.gd$resourceId.$t;
-  this.type = gdocs.getCategory(
-    entry.category, 'http://schemas.google.com/g/2005#kind');
-  this.starred = gdocs.getCategory(
-    entry.category, 'http://schemas.google.com/g/2005/labels',
-    'http://schemas.google.com/g/2005/labels#starred') ? true : false;
-  this.link = {
-    'alternate': gdocs.getLink(entry.link, 'alternate').href
+Copyright 2012 Google Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Author: Eric Bidelman (ericbidelman@chromium.org)
+*/
+
+//Begin closure
+(function(){
+
+function onError(e) {
+  console.log(e);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//Original
+var citable = angular.module('gDriveApp', []);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+citable.directive('shownValidation', function() {
+  return {
+    require: '^form',
+    restrict: 'A',
+    link: function(scope, element, attrs,form) {
+      var control;
+      
+      scope.$watch(attrs.ngShow,function(value){
+        if (!control){
+          control = form[element.attr("name")];
+        }
+        if (value == true){
+          form.$addControl(control);
+          angular.forEach(control.$error, function(validity, validationToken) {
+     form.$setValidity(validationToken, !validity, control);
+  });
+        }else{
+           form.$removeControl(control);
+        }
+      });
+    }
   };
-  this.contentSrc = entry.content.src;
-};
+});
 
-//Row prototype object. 
-//Added conditinals to all of the elements to prevent failure if a user deletes a header from the spreadsheet.
-gdocs.Row = function(entry) {
-  this.title = (entry.gsx$title ? entry.gsx$title.$t : '');
-  this.url = (entry.gsx$url ? entry.gsx$url.$t : '');
-  this.summary = (entry.gsx$summary ? entry.gsx$summary.$t : '');
-  this.tags = (entry.gsx$tags ? entry.gsx$tags.$t : '');
-  this.author = (entry.gsx$author ? entry.gsx$author.$t : '');
-  this.date = (entry.gsx$date ? entry.gsx$date.$t : '');
-};
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+citable.directive('selFocus', function($timeout) {
+  return function(scope, element, attrs) {
+     //Watches the referenced model from the context of the element with the attached directive.
+    scope.$watch(attrs.selFocus, 
+      function (newValue) { 
+        //Checks the current value of the model/selector to set focus.
+        console.log('selFocus', newValue, !newValue, element.focus());
+        $timeout(function(){!newValue && element.focus();},0); 
+      },true);
+  };    
+});
 
-gdocs.Category = function(entry) {
-  this.entry = entry;
-  this.resourceId = entry.gd$resourceId.$t;
-};
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//Creates a service called gdocs
+citable.factory('gdocs', function() {
+  console.log('run GDocs constructor');
+  //var gdocs = new GDocs();
 
+  var bgPage = chrome.extension.getBackgroundPage();
+  var gdocs = bgPage.gdocs;
 
-/**
- * Sets up a future poll for the user's document list.
- */
-util.scheduleRequest = function() {
-  var exponent = Math.pow(2, requestFailureCount);
-  var delay = Math.min(bgPage.pollIntervalMin * exponent,
-                       pollIntervalMax);
-  delay = Math.round(delay);
+  return gdocs;
+});
 
-  if (bgPage.oauth.hasToken()) {
-    var req = bgPage.window.setTimeout(function() {
-      gdocs.getDocumentList(); //Get the first folder, no callback.
-      util.scheduleRequest();
-    }, delay);
-    bgPage.requests.push(req);
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+citable.factory('onLine', ['sharedProps', '$window', '$rootScope', function(sharedProps, $window, $rootScope) {
+  console.log('onLine constructor');
+  function updateOnlineStatus(event) {
+    //var condition = $window.navigator.onLine ? "online" : "offline";
+    //Update the property.
+    sharedProps.data.online = $window.navigator.onLine;
+    //Force angular to update references property.
+    $rootScope.$digest();
+    //console.log(condition,sharedProps.data.online);
   }
-};
 
-/**
- * Urlencodes a JSON object of key/value query parameters.
- * @param {Object} parameters Key value pairs representing URL parameters.
- * @return {string} query parameters concatenated together.
- */
-util.stringify = function(parameters) {
-  var params = [];
-  for(var p in parameters) {
-    params.push(encodeURIComponent(p) + '=' +
-                encodeURIComponent(parameters[p]));
-  }
-  return params.join('&');
-};
+  $window.addEventListener('online',  updateOnlineStatus);
+  $window.addEventListener('offline', updateOnlineStatus);
+  //Update the property on init.
+  sharedProps.data.online = $window.navigator.onLine;
+}]);
 
-/**
- * Creates a JSON object of key/value pairs
- * @param {string} paramStr A string of Url query parmeters.
- *    For example: max-results=5&startindex=2&showfolders=true
- * @return {Object} The query parameters as key/value pairs.
- */
-util.unstringify = function(paramStr) {
-  var parts = paramStr.split('&');
+//factory
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+citable.factory('sharedProps', sharedProps);
 
-  var params = {};
-  for (var i = 0, pair; pair = parts[i]; ++i) {
-    var param = pair.split('=');
-    params[decodeURIComponent(param[0])] = decodeURIComponent(param[1]);
-  }
-  return params;
-};
+//factory constructor
+function sharedProps() {
+  //private variable
+  var props = {};
+  //set init values 
+  //ORDER: 'Title','Url','Date','Author','Summary','Tags'
+  props.citation = {
+    'Title':'',
+    'Url':'',
+    'Date':'',
+    'Author':'',
+    'Summary':'',
+    'Tags':''
+  };
+  props.citationMeta = {
+    'fresh':false,
+    'callback': null
+  };
+  props.menu = false;
+  props.docs = [];
+  props.defaultDoc = '';
+  props.butter = {'status':'', 'message':''};
+  props.loading = true;
+  props.requesting = false;
+  props.oldFolderName = 'Citable_Documents';
+  props.folderName = 'Citable';
+  props.driveProperties = [{  
+    'key': 'Citable',
+    'value': 'true',
+    'visibility': 'PUBLIC'
+  }]; 
+  props.auth = false;
+  props.online = false;
+  /*props.defaultMeta = props.docs.filter(function(el){
+      return el.id == props.defaultDoc;
+    });*/
+  
 
-/**
- * Utility for displaying a message to the user.
- * @param {string} msg The message.
- */
-util.displayMsg = function(msg) {
-  $('#butter').removeClass('error').text(msg).show();
-};
-
-/**
- * Utility for removing any messages currently showing to the user.
- */
-util.hideMsg = function() {
-  $('#butter').fadeOut(1500);
-};
-
-/**
- * Utility for displaying an error to the user.
- * @param {string} msg The message.
- */
-util.displayError = function(msg) {
-  util.displayMsg(msg);
-  $('#butter').addClass('error');
-};
-
-/**
- * A generic error handler for failed XHR requests.
- * @param {XMLHttpRequest} xhr The xhr request that failed.
- * @param {string} textStatus The server's returned status.
- */
-gdocs.handleError = function(xhr, textStatus) {
-  //util.hideMsg();
-  if(xhr.status != 0){
-  	util.displayError(xhr.status, ' ', xhr.statusText);
-  } else {
-  	util.displayError("No internet connection.");
-  }
-  ++requestFailureCount;
-};
-
-/**
- * Returns the correct atom link corresponding to the 'rel' value passed in.
- * @param {Array<Object>} links A list of atom link objects.
- * @param {string} rel The rel value of the link to return. For example: 'next'.
- * @return {string|null} The appropriate link for the 'rel' passed in, or null
- *     if one is not found.
- */
-gdocs.getLink = function(links, rel) {
-  for (var i = 0, link; link = links[i]; ++i) {
-    if (link.rel === rel) {
-      return link;
+  //Function that creates a tabindex for all elements that call it. 
+  var elArray = []
+  props.getIndex = function(el){
+    var index = elArray.indexOf(el);
+    if(index>-1){
+      return index+1;
+    } else {
+      elArray.push(el);
+      return elArray.length();
     }
   }
-  return null;
+
+  return {
+    //public variables to expose private variables
+    data: props
+  };
 };
 
-/**
- * Returns the correct atom category corresponding to the scheme/term passed in.
- * @param {Array<Object>} categories A list of atom category objects.
- * @param {string} scheme The category's scheme to look up.
- * @param {opt_term?} An optional term value for the category to look up.
- * @return {string|null} The appropriate category, or null if one is not found.
- */
-gdocs.getCategory = function(categories, scheme, opt_term) {
-  for (var i = 0, cat; cat = categories[i]; ++i) {
-    if (opt_term) {
-      if (cat.scheme === scheme && opt_term === cat.term) {
-        return cat;
+//---------------//
+//Message Service//
+//---------------//
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+citable.factory('msgService', ['$rootScope','$timeout','sharedProps', function($rootScope, $timeout, sharedProps){
+
+  //Message object singleton.
+  var butter = {
+    message: '',
+    status: ''
+  };
+  
+  //Public API for the queue object.
+  var queueMsg = function(msg,status,delay){
+      queue.add_function( function(callback){ showMsg(msg,status,delay,callback) } );
+  };
+  
+  //Public API to queue generic functions.
+  var queueFn = function(fn){
+    queue.add_function( fn );
+  };
+  
+  //Private instance of the Queue object.
+  var queue = new Queue();
+  
+  //Update the message object, 'butter'.
+  var showMsg = function(message,status,delay,callback){
+    
+    $timeout(function(){
+      var defaultDelay = 1500;
+      status = status!=null&&status!='' ? status.trim().toLowerCase() : 'normal'; //Normalize the status parameter.
+      message = message!=null&&message!='' ? message.toString():''; //Normalize the message.
+      console.log('showMsg',message,status,delay,callback, Date.now());
+
+      butter.status = status;
+      butter.message = message;
+
+      if(delay > 0) { 
+        delay = delay > defaultDelay ? delay : defaultDelay; //Enforces minimum time on messages.
+        console.log('Submit clearMsg $timeout', Date.now() );
+        //By allowing persisent messages we can avoid ever having messages cleared prematurely.
+        var clearMsg = $timeout(function(){
+          butter.status = '';
+          butter.message = '';
+          //TODO: Add fadout animation using ngAnimage and $animate?
+          callback && callback();
+        },delay);
+
+         //Callbacks using $timeout promises
+        clearMsg.then(
+          function(){
+            console.log( "clearMsg resolved", Date.now() );
+          },
+          function(){
+            console.log( "clearMsg canceled", Date.now() );
+          }
+        );
+      } else {
+        //Resets the queue without clearing persistant messages. The next message will still replace it after the defaultDelay.
+        $timeout(function(){
+          callback && callback();
+        },defaultDelay);
       }
-    } else if (cat.scheme === scheme) {
-      return cat;
-    }
-  }
-  return null;
-};
 
-
-
-/**
- * A helper for constructing the raw Atom xml send in the body of an HTTP post.
- * @param {XMLHttpRequest} xhr The xhr request that failed.
- * @param {string} docTitle A title for the document.
- * @param {string} docType The type of document to create.
- *     (eg. 'document', 'spreadsheet', etc.)
- * @param {boolean?} opt_starred Whether the document should be starred.
- * @return {string} The Atom xml as a string.
- */
-gdocs.constructAtomXml_ = function(docTitle, docType, opt_starred) {
-  var starred = opt_starred || null;
-
-  var starCat = ['<category scheme="http://schemas.google.com/g/2005/labels" ',
-                 'term="http://schemas.google.com/g/2005/labels#starred" ',
-                 'label="starred"/>'].join('');
-
-				//if starred then starCat else ''
-  var atom = ["<?xml version='1.0' encoding='UTF-8'?>", 
-              '<entry xmlns="http://www.w3.org/2005/Atom">',
-              '<category scheme="http://schemas.google.com/g/2005#kind"', 
-              ' term="http://schemas.google.com/docs/2007#', docType, '"/>',
-              starred ? starCat : '', 
-              '<title>', docTitle, '</title>',
-              '</entry>'].join('');
-  return atom;
-};
-
-/**
- * A helper for constructing the body of a mime-mutlipart HTTP request.
- * @param {string} title A title for the new document.
- * @param {string} docType The type of document to create.
- *     (eg. 'document', 'spreadsheet', etc.)
- * @param {string} body The body of the HTTP request.
- * @param {string} contentType The Content-Type of the (non-Atom) portion of the
- *     http body.
- * @param {boolean?} opt_starred Whether the document should be starred.
- * @return {string} The Atom xml as a string.
- */
-gdocs.constructContentBody_ = function(title, docType, body, contentType,
-                                       opt_starred) {
-  var body = ['--END_OF_PART\r\n',
-              'Content-Type: application/atom+xml;\r\n\r\n',
-              gdocs.constructAtomXml_(title, docType, opt_starred), '\r\n',
-              '--END_OF_PART\r\n',
-              'Content-Type: ', contentType, '\r\n\r\n',
-              body, '\r\n',
-              '--END_OF_PART--\r\n'].join('');
-  return body;
-};
-
-
-
-/**
- * Creates a new document in Google Docs.
- */
-gdocs.createDoc = function(callback) {
-console.log('gdocs.createDoc');
-  var title = $.trim($('#doc_title').val());
-  console.log('new doc title: ', title);
-  if (!title) {
-    util.displayError('Please provide a title.');
-    switchFocus('doc_title');
-    return;
-  }
-  	
-  content = 'Title,Url,Date,Author,Summary,Tags'; 
-  
-  var starred = $('#doc_starred').is(':checked');
-  var docType = 'spreadsheet';
-
-  util.displayMsg('Creating document..');
-
-  var handleSuccess = function(resp, xhr) {
-  	console.log(resp, xhr);
-  	if (xhr.status != 201) {
-		console.log('ERROR', xhr);
-		gdocs.handleError(xhr, resp);
-		return;
-	} else {
-		bgPage.docs.splice(0, 0, new gdocs.GoogleDoc(JSON.parse(resp).entry));
-	
-		//Reset the doc creator.
-		$('#new_doc_container').hide();
-		$('#controlBar').show();
-		$('#doc_title').val('');
-		$('#doc_content').val('');
-		util.displayMsg('Document created!');
-		util.hideMsg();
-	
-		requestFailureCount = 0;
-  		
-  		//Update default doc on create. This is redundant but a useful check for edge cases.
-	    localStorage['defaultDoc'] = bgPage.docs[0].resourceId.split(':')[1];
-	    localStorage['defaultDocName'] = bgPage.docs[0].title; //If it is a new doc then the title will be 
-  		
-  		gdocs.renderDocSelect( function(){gdocs.amendDoc(bgPage.docs[0].resourceId,function(){ gdocs.moveDoc( callback, bgPage.docs[0].resourceId ) }) });
-  	}
+    },0);
   };
-
-  var params = {
-    'method': 'POST',
-    'headers': {
-      'GData-Version': '3.0',
-      'Content-Type': 'multipart/related; boundary=END_OF_PART',
-    },
-    'parameters': {'alt': 'json'},
-    
-    //Calls constructContentBody to construct the body of the request.
-    //Adds the results to params as json.
-    'body': gdocs.constructContentBody_(title, docType, content,
-                                        DEFAULT_MIMETYPES[docType], starred)
+  return {
+    //Public API for private functions.
+    butter: butter,  //For displaying the messages
+    queue: queueMsg, //For queueing messages
+    queueFn: queueFn //For queueing any function
   };
+}]);
 
-  //Modifies params to account for presentation type quirks.
-  //Presentation can only be created from binary content. Instead, create a blank presentation.
-  /*if (docType === 'presentation') {
-    params['headers']['Content-Type'] = DEFAULT_MIMETYPES['atom'];
-    params['body'] = gdocs.constructAtomXml_(title, docType, starred);
-  }*/
-  util.displayMsg($('#butter').text() + '.');
-  
-  //Sends the params to the background page to get delivered to gDocs.
-  bgPage.oauth.sendSignedRequest(bgPage.DOCLIST_FEED, handleSuccess, params);
-  console.log(bgPage.DOCLIST_FEED, params);
-};
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+citable.controller('authController', function($scope, sharedProps, onLine, msgService){
+  $scope.data = sharedProps.data;
+  $scope.getAuthFlow = false;
 
+  var bgPage = chrome.extension.getBackgroundPage();
 
+  //Toggle auth on button press.
+  $scope.getAuth = function(){
+    $scope.getAuthFlow = true;
+    console.log('getAuth');
+    //stored in backgroundpage for persistance and universal access within the app.
+    bgPage.toggleAuth(true,function(token){
+      $scope.getAuthFlow = false;
+      console.log('getAuth callback',token);
+      if(token){
+        $scope.data.auth = true;
+        console.log('$scope.data.auth',$scope.data.auth );
 
-////////////////////////////////////////////////////////////
-//Moves document to the citation folder
-////////////////////////////////////////////////////////
-gdocs.constructMoveManyBody_ = function(docs) { //pass in the docs list
-console.log('gdocs.constructMoveManyBody');
-  var atom = ["<?xml version='1.0' encoding='UTF-8'?>"]
-  for( var i, docId; docId = docs[i].resourceId; i++){
-	  atom += ["<entry xmlns='http://www.w3.org/2005/Atom'>",
-	  "<id>https://docs.google.com/feeds/default/private/full/", docId ,"</id>",
-	  "</entry>"].join('');
-	}
-  return atom;
-};
-
-gdocs.constructMoveBody_ = function(docId) {
-  var atom = ["<?xml version='1.0' encoding='UTF-8'?>",
-  		      "<entry xmlns='http://www.w3.org/2005/Atom'>",
-              "<id>https://docs.google.com/feeds/default/private/full/", docId ,"</id>",
-              "</entry>"].join('');
-  return atom;
-};
-
-///////////////////////////////////////////////////////
-gdocs.moveDoc = function(callback, docId) {
-console.log('gdocs.moveDoc');
-	
-  //util.displayMsg('Moving to folder...');
-  
-  var i = 0;
-  
-  var handleSuccess = function(response, xhr) {
-		console.log('moveDoc handleSuccess: ', xhr);
-		
-		if (xhr.status != 201) {
-			console.log('ERROR', xhr);
-			gdocs.handleError(xhr, response);
-			if (xhr.status == 404) {
-				gdocs.createFolder(0,move);
-			} else {
-				//Try again?
-				return;
-			}
-		} else {
-			//util.displayMsg('Folder added!');
-			util.hideMsg();
-			requestFailureCount = 0;
-			++i; //Increment to the next document.
-			if(!docId && i < bgPage.docs.length) { //Don't move th next if we have an override id, otherwise, move next.
-				move(); //Call move() to move the next doc.
-			} else { 
-				console.log('gdocs.moveDoc handleSuccess -> CALLBACK');
-				callback(); //End of the array, callback.
-			}
-		}
-		
-  };
-  
-	var move = function() {
-		url = bgPage.DOCLIST_FEED + bgPage.cat[0].resourceId + '/contents';
-		
-		id = docId ? docId : bgPage.docs[i].resourceId; //If an override id is provided then use that, otherwise move all documents in doclist.
-
-		var params = {
-		'method': 'POST',
-		'headers': {
-		  'GData-Version': '3.0',
-		  'Content-Type': 'application/atom+xml',
-			},
-			'parameters': {'alt': 'json'},
-			'body': gdocs.constructMoveBody_(id)
-			};
-		
-		//Sends the params to the background page to get delivered to gDocs.
-		bgPage.oauth.sendSignedRequest(url, handleSuccess, params);
-		console.log('Move to:', url, params);
-	};
-	
-	if(bgPage.docs.length) { move() }; //Call move() for the first time, if there are docs to move.
-
-}
-
-
-
-//////////////////////////////////////////////////////////////////////////////////
-//Creates the row POST to ammend the given document
-//////////////////////////////////////////////////////////////////////////////////
-
-gdocs.constructSpreadAtomXml_ = function(entryTitle, entryUrl, entrySummary, entryTags, entryAuthor) {
-  
-  var d = new Date();
-  var curr_date = d.getDate();
-  var curr_month = d.getMonth() + 1; //months are zero based
-  var curr_year = d.getFullYear();
-  var dd = curr_year + '/' + curr_month + '/' + curr_date;
-  
-  var atom = ["<?xml version='1.0' encoding='UTF-8'?>",
-  		      '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gsx="http://schemas.google.com/spreadsheets/2006/extended">',//'--END_OF_PART\r\n',
-              '<gsx:title>',entryTitle,'</gsx:title>',//'--END_OF_PART\r\n',
-              '<gsx:url>',entryUrl,'</gsx:url>',//'--END_OF_PART\r\n',
-              '<gsx:summary>',entrySummary,'</gsx:summary>',//'--END_OF_PART\r\n',
-              '<gsx:tags>',entryTags,'</gsx:tags>',
-              '<gsx:date>',dd,'</gsx:date>',
-              '<gsx:author>',entryAuthor,'</gsx:author>',
-              '</entry>'].join('');
-  return atom;
-};
-
-gdocs.parseForHTML = function(content) {
-	//regular expression to find characters not accepted in XML.
-    var rx= /(<)|(>)|(&)|(")|(')/g; 
-	
-	var content = content.replace(rx, function(m){
-		switch(m)
-		{
-		case '<':
-		  return '&lt;';
-		  break;
-		case '>':
-		  return '&gt;';
-		  break;
-		case '&':
-		  return '&amp;';
-		  break;
-		case '"':
-		  return '&quot;';
-		  break;
-		case '\'':
-		  return '&apos;';
-		  break;
-		default:
-		  return m;
-		  break;
-		}
-	});
-	return content;
-}
-
-gdocs.constructSpreadBody_ = function(entryTitle, entryUrl, entrySummary, entryTags, entryAuthor) {            
-	
-	entryTitle = gdocs.parseForHTML(entryTitle);
-	entrySummary = gdocs.parseForHTML(entrySummary);
-	entryUrl = gdocs.parseForHTML(entryUrl);
-	entryTags = gdocs.parseForHTML(entryTags);
-	entryAuthor = gdocs.parseForHTML(entryAuthor);
-          
-  var body = [
-  gdocs.constructSpreadAtomXml_(entryTitle, entryUrl, entrySummary, entryTags, entryAuthor), '\r\n',
-  ].join('');
-  
-  return body;
-};
-
-
-gdocs.amendDoc = function(destination, callback) {
-console.log('gdocs.amendDoc..');
-  if(destination == 'new'){
-	  title = $.trim($('#doc_title').val());
-	  gdocs.createDoc(callback);
-	  return;
-  } else if(destination == null && localStorage['defaultDoc']){ //If the doc menu isn't loaded yet, then try using the default doc.
-  	  	  gdocs.amendDocHandler(localStorage['defaultDoc'], callback);	 
-			//TODO: create error in amendDocHandler to catch sending note to a document that doesn't exist.
-  } else{
-	  var parts = destination.split(':');
-	  console.log('destination: ',parts[1],title);
-	  gdocs.amendDocHandler(parts[1], callback);
-  }
-}
-
-gdocs.amendDocHandler = function(docId, callback) {
-  
-  var summary = $('#summary').val();
-  var title = $('#title').val();
-  var url = $('#url').val();
-  var tags = $('#tags').val();
-  var author = $('#author').val();
-    
-  util.displayMsg('Adding citable..');
-
-  var handleSuccess = function(resp, xhr) {
-  	console.log('gdocs.amendDoc handleSuccess');
-  	util.displayMsg($('#butter').text() + '.');
-    if (xhr.status != 201) {
-			console.log('ERROR', xhr);
-			gdocs.handleError(xhr, resp);
-			return;
-	} else {
-		util.displayMsg('Citable added!');
-		util.hideMsg();
-	
-		requestFailureCount = 0;
-		
-		console.log('Ammend: ', resp, xhr);
-		
-		callback();
-	}
-  };
-  
-  util.displayMsg($('#butter').text() + '.');
-  
-  var params = {
-    'method': 'POST',
-    'headers': {
-      'GData-Version': '3.0',
-      'Content-Type': 'application/atom+xml'
-    },
-
-    'body': gdocs.constructSpreadBody_(title, url, summary, tags, author)
-    
-  };
-  
-  var worksheetId = 'od6';
-
-  var url = bgPage.SPREAD_SCOPE +'/list/'+docId+'/'+worksheetId+'/private/full';
-
-  //sends the params to the background page to get delivered to gDocs
-  bgPage.oauth.sendSignedRequest(url, handleSuccess, params);
-  console.log('Citation: ', url, params);
-};
-
-
-
-/**
- * Updates a document's metadata (title, starred, etc.).
- * @param {gdocs.GoogleDoc} googleDocObj An object containing the document to
- *     update.
- */
-gdocs.updateDoc = function(googleDocObj) {
-  var handleSuccess = function(resp) {
-    requestFailureCount = 0;
-  };
-
-  var params = {
-    'method': 'PUT', //use put for modifying a file
-    'headers': {
-      'GData-Version': '3.0',
-      'Content-Type': 'application/atom+xml',
-      'If-Match': '*'
-    },
-    'body': gdocs.constructAtomXml_(googleDocObj.title, googleDocObj.type,
-                                    googleDocObj.starred)
-  };
-
-  //Gets the url to the document in question.
-  var url = bgPage.DOCLIST_FEED + googleDocObj.resourceId;
-  
-  bgPage.oauth.sendSignedRequest(url, handleSuccess, params);
-};
-
-/**
- * Deletes a document from the user's document list.
- * @param {integer} index An index intro the background page's docs array.
- */
-gdocs.deleteDoc = function(index) {
-  var handleSuccess = function(resp, xhr) {
-    //util.displayMsg('Document trashed!');
-    //util.hideMsg();
-    requestFailureCount = 0;
-    bgPage.docs.splice(index, 1);
+      //!!! We never reach this.... since auth doesn't return if it fails.
+      } else {
+        //We never reach this code because the popup closes when the auth flow launches.
+        $scope.data.auth = false;
+        console.log('getAuth callback else',token);
+        msgService.queue('Authorization Failed.','error');
+      }
+      $scope.$digest();
+    });
   }
 
-  var params = {
-    'method': 'DELETE',
-    'headers': {
-      'GData-Version': '3.0',
-      'If-Match': '*'
+  //Watch online and do a soft check (non-interactive) for auth everytime we go online.
+  $scope.$watch('data.online', function(newValue,oldValue){
+    console.log('$scope.$watch(data.online) authCtrl',$scope.data.online);
+    //$scope.data.loading = false;
+    if($scope.data.online){
+      //Kick things off on init.
+      bgPage.toggleAuth(false,function(token){
+        if(token){
+          //We got auth, so update the flag to trigger fetchFolder() watcher.
+          console.log('getAuth init Succeed',token);
+          $scope.data.auth = true;
+        } else {
+          //We failed to get auth. Pause loading and show the button.
+          console.log('getAuth init Fail',token);
+          $scope.data.auth = false;
+        }
+        $scope.data.loading = false;
+        $scope.$digest();
+      });
     }
-  };
+  });
 
-  $('#output li').eq(index).fadeOut('slow');
-
-  bgPage.oauth.sendSignedRequest(
-      bgPage.DOCLIST_FEED + bgPage.docs[index].resourceId,
-      handleSuccess, params);
-};
-
-
-
-gdocs.renderDocSelect = function(callback) {
-console.log('gdocs.renderDocSelect');
-	//util.displayMsg('Documents found!');
-	util.hideMsg();
-	var found = false; //Variable to track whether the default doc is in the list.
-	var html = [];
-	if(bgPage.docs.length) {
-		//html.push('<option selected value="',bgPage.docs[0].resourceId,'">',bgPage.docs[0].title.truncate(),'</option>'); //Have the first document be selected.
-		var docKey;
-		var selected;
-		
-		for (var i = 0, doc; doc = bgPage.docs[i]; ++i) {
-			docKey = doc.resourceId.slice(12);
-			//selected = i==0?'selected':'';
-			selected = docKey==localStorage['defaultDoc']?'selected':'';
-			found = selected=='selected'?true:found;
-			html.push('<option ',selected,' value="',doc.resourceId,'">',doc.title.truncate(),'</option>');
-		}
-				
-		//On the first run after update, update all documents in the background.
-		//Conditional on bgPage.docs.length to fire only after successfully retrieving doc list.
-		if(bgPage.firstRun == true){ //Check for flag.
-		console.log('bgPage.firstRun ',bgPage.firstRun);
-		//bgPage.firstRun = false; //Moved to update callback to bgPage.updateDocumentCallback.
-		bgPage.updateDocument(bgPage.updateDocumentCallback); //Intitiate update.
-		}
-		
-	}
-	
-	$('#selection').html('<select id="destination" class="Droid" name="destination"><option value="new">Create New Document</option>' + html.join('') + '</select>');
-	
-	console.log('!found');
-	if(!found){
-		//If no default doc was found then select the first option after new.
-		if($('select option').length>1){
-			$('select option').get(1).selected = true; //Select the second item.
-		}
-	}
-
-//gdocs.changeAction(this.form, null); //TODO what does this do???? It was part of a stable build.
-
-	setTabOrder(order); //Resets the tab order to include this selection menu and the addNote button.
-	
-	//Edit: 7/22 to fix switch focus after typing.
-	//switchFocus(order[0]); //On refresh switches focus to the summary field.
-	
-	document.querySelector('#destination').addEventListener('change', onChangeHandler);
-	
-	//Initialize defaultDoc
-	if(!localStorage['defaultDoc'] || !found){ 
-		console.log('default doc in renderSelect: ',localStorage['defaultDocName'], found);
-		var parts = $('#destination').val().split(':');
-		localStorage['defaultDoc'] = parts[1];
-		
-		localStorage['defaultDocName'] = $('select option:selected').html();
-	}
-	
-	console.log('callback');
-	setTimeout(function(){if(callback){ callback() };},10);
-}
-
-
-
-/**
- * Fetches the user's document list.
- * @param {string?} opt_url A url to query the doclist API with. If omitted,
- *     the main doclist feed uri is used.
- */
-gdocs.getDocumentList = function(opt_url, callback) {
-	console.log('gdocs.getDocumentList');
-	//util.displayMsg('Fetching your docs..');
-  
-	var handleSuccess = function(response, xhr) {
-		console.log('gdocs.getDocumentList handleSuccess', xhr);
-		//util.displayMsg($('#butter').text() + '.');
-		if (xhr.status != 200) {
-			gdocs.handleError(xhr, response);
-			callback(xhr.status); //Return the error to the calling function.
-			return;
-		} else {
-			requestFailureCount = 0;
-		}
-		
-		var data = JSON.parse(response);
-		
-		console.log('Doc list data. Should have entries. ', data);
-		  
-		if(data.feed.entry) {
-			console.log('process feed');
-			for (var i = 0, entry; entry = data.feed.entry[i]; ++i) {
-				bgPage.docs.push(new gdocs.GoogleDoc(entry));
-			}
-			
-			var nextLink = gdocs.getLink(data.feed.link, 'next');
-			if (nextLink) {
-				gdocs.getDocumentList(nextLink.href); // Fetch next page of results.
-			} else {
-				console.log("render doc list");
-				gdocs.renderDocSelect(callback); //Pass callback to renderDocSelect, to callback directly from there.
-			}
-		} else {
-			console.log("create new document");
-			util.displayMsg('No documents found.');
-			util.hideMsg();
-			gdocs.renderDocSelect(function() {
-				gdocs.changeAction(this.form,'new');
-			}); //Open the field to create a new doc after creating the new folder.
-		}
-		
-		if(callback){ callback() }; //Callback with null.
-	};
-	
-  var changeAction = function() {
-		gdocs.changeAction(this.form,'new'); 
-  };
-  
-  var url = opt_url || null; //Set the url if one was passed in.
-
-  var params = {
-    'headers': {
-      'GData-Version': '3.0'
-    },
-    'parameters': {
-	  'alt': 'json',
-	  'showfolders': 'true'
-	}
-  };
-
-  if (!url) {
-	//If no url was passed in set the url to first folder in bgPage.cat.
-    url = bgPage.DOCLIST_FEED + bgPage.cat[0].resourceId + '/contents';
-    
-  } else {
-    //util.displayMsg($('#butter').text() + '.');
-
-	bgPage.docs = []; // Clear document list. We're doing a refresh.
-
-	/*params['parameters'] = {
-      'alt': 'json',
-      'showfolders': 'true'
-    };*/
-
-    var parts = url.split('?');
-    if (parts.length > 1) {
-      url = parts[0]; // Extract base URI. Params are passed in separately.
-      params['parameters'] = util.unstringify(parts[1]);
-    }
-  }
-
-  bgPage.oauth.sendSignedRequest(url, handleSuccess, params);
-};
-
-////////////////////////////////////////////////////
-////////////////////////////////////////////////////
-/*gdocs.processDocContent = function(response, xhr) {
-	console.log('rows returned: ', xhr);
-  
-  	bgPage.row = [];
-  
-	if (xhr.status != 200) {
-		gdocs.handleError(xhr, response);
-		return;
-	} else {
-		requestFailureCount = 0;
-	}
-	
-	var data = JSON.parse(response);
-	//console.log('row data: ',data,Boolean(data.feed.entry));
-	if(data.feed.entry) {
-		
-		for (var i = 0, entry; entry = data.feed.entry[i]; ++i) {
-			console.log(i);
-			bgPage.row.push(new gdocs.Row(entry));
-			//console.log(entry);
-		}
-		console.log('rows: ', bgPage.row);
-		bgPage.printDocumentPage(onPrintPage);
-	
-	} else {
-		console.log('No entries');
-		util.displayError('Invalid file.');
-		util.hideMsg();
-	}
-};*/
-
-gdocs.processDocContent = function(response, xhr, callback) {
-	console.log('rows returned: ', xhr);
-  
-  	bgPage.row = [];
-  
-	if (xhr.status != 200) {
-		gdocs.handleError(xhr, response);
-		return;
-	} else {
-		requestFailureCount = 0;
-	}
-	
-	var data = JSON.parse(response);
-	//console.log('row data: ',data,Boolean(data.feed.entry));
-	if(data.feed.entry) {
-		
-		for (var i = 0, entry; entry = data.feed.entry[i]; ++i) {
-			console.log(i);
-			bgPage.row.push(new gdocs.Row(entry));
-			//console.log(entry);
-		}
-		console.log('rows: ', bgPage.row);
-		callback();
-	
-	} else {
-		console.log('No entries');
-		util.displayError('Invalid file.');
-		util.hideMsg();
-	}
-};
-
-
-////////////////////////////////////////////////////
-gdocs.printDocument = function(destination) {
-	if(destination == 'new'){ 
-		return; 
-	} else if(destination == null && localStorage['defaultDoc']){ 
-	//If the doc menu isn't loaded yet, then try using the default doc.
-  	  	  bgPage.docKey = localStorage['defaultDoc'];	
-  	  	  bgPage.docName = localStorage['defaultDocName']; 
-    } else {
-		bgPage.docName = bgPage.docs[$("select option").index($("select option:selected"))-1].title;
-		var parts = destination.split(':');
-		bgPage.docKey = parts[1];
-	}
-	console.log('gdocs.printDocument');
-	var worksheetId = 'od6';
-    var url = bgPage.SPREAD_SCOPE +'/list/'+bgPage.docKey+'/'+worksheetId+'/private/full'; //good
-    
-    var params = {
-    'headers': {
-      'GData-Version': '3.0'
-    },
-   'parameters': {
-      'alt': 'json',
-    }
-    };
-    bgPage.oauth.sendSignedRequest(url, function(response, xhr){gdocs.processDocContent(response,xhr,function(){bgPage.printDocumentPage(onPrintPage)} )}, params);
-};
-
-gdocs.exportDocument = function(destination){
-	if(destination == 'new'){ return; }
-	else if(destination == null && localStorage['defaultDoc']){ 
-	//If the doc menu isn't loaded yet, then try using the default doc.
-  	  	  bgPage.docKey = localStorage['defaultDoc'];	
-  	  	  bgPage.docName = localStorage['defaultDocName']; 
-    } else {
-		bgPage.docName = bgPage.docs[$("select option").index($("select option:selected"))-1].title;
-		var parts = destination.split(':');
-		bgPage.docKey = parts[1];
-	}
-	console.log('gdocs.exportDocument');
-	var worksheetId = 'od6';
-    var url = bgPage.SPREAD_SCOPE +'/list/'+bgPage.docKey+'/'+worksheetId+'/private/full'; //good
-    
-    var params = {
-    'headers': {
-      'GData-Version': '3.0'
-    },
-   'parameters': {
-      'alt': 'json',
-    }
-    };
-    
-	//bgPage.exportDocument(onPrintPage);
-	bgPage.oauth.sendSignedRequest(url, function(response, xhr){gdocs.processDocContent(response,xhr,function(){bgPage.exportDocument(onPrintPage)} )}, params);
-}
-
-gdocs.viewDoc = function(destination) {
-	if(destination == 'new'){ return; }
-	var parts = destination.split(':');
-	var tabUrl = 'https://docs.google.com/spreadsheet/ccc?key='+parts[1];
-	chrome.tabs.create({url: tabUrl});
-	window.close();
-}
-
-
-
-gdocs.constructFolderBody_ = function(title) {
-  var atom = ["<?xml version='1.0' encoding='UTF-8'?>",
-  		      "<entry xmlns='http://www.w3.org/2005/Atom'>",
-              "<category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/docs/2007#folder' />",
-              "<title type='text'>Citable_Documents</title>",
-              "</entry>"].join('');
-  return atom;
-};
-
-gdocs.createFolder = function(title, callback) {
-console.log('gdocs.createFolder ', title);
-  
-	var handleSuccess = function(response, xhr) {
-		console.log('category returned: ', xhr);
-		
-		if (xhr.status != 201) {
-			console.log('ERROR', xhr);
-			gdocs.handleError(xhr, response);
-			return;
-		} else {
-			//util.displayMsg('Folder added!');
-			//util.hideMsg();
-			requestFailureCount = 0;
-		}
-		
-		bgPage.cat.splice(0, bgPage.cat.length, new gdocs.Category(JSON.parse(response).entry)); //Resets the cat list to have only the new folder id.
-		var parts = bgPage.cat[0].resourceId.split(':');
-		var resourceId = parts[1];
-		console.log('category: ', resourceId, ' : ', bgPage.cat[0]);
-				
-		callback(resourceId);
-		
-	}; 
-  	
-  //util.displayMsg('Creating folder...');
-  console.log('Creating folder...');
-  
-  var params = {
-    'method': 'POST',
-    'headers': {
-      'GData-Version': '3.0',
-      'Content-Type': 'application/atom+xml',
-    },
-    'parameters': {'alt': 'json'},
-    'body': gdocs.constructFolderBody_(folders[title])
-  };
-
-  //Sends the params to the background page to get delivered to gDocs.
-  bgPage.oauth.sendSignedRequest(bgPage.DOCLIST_FEED, handleSuccess, params);
-  console.log('FOLDER:', bgPage.DOCLIST_FEED, params);
-};
-
-
-////////////////////////////////////////////////////////////
-//Searches for the specific category passed in through title
-////////////////////////////////////////////////////////////
-
-gdocs.getFolder = function(title, callback) {
-console.log('gdocs.getFolder');
-
-  var params = {
-    'headers': {
-      'GData-Version': '3.0'
-    }
-  };
-	
-	var handleSuccess = function(response, xhr) {
-		console.log('getFolder handleSuccess: ', xhr);
-		
-		if (xhr.status != 200) {
-			gdocs.handleError(xhr, response);
-			return;
-		} else {
-			requestFailureCount = 0;
-		}
-		
-		var data = JSON.parse(response);
-		
-		console.log(data);
-		
-		if(data.feed.entry) {
-			console.log('parse folders');
-			for (var i = 0, entry; entry = data.feed.entry[i]; ++i) {
-				bgPage.cat.push(new gdocs.Category(entry));
-			}
-			console.log('folder Id: ', bgPage.cat[bgPage.cat.length-1].resourceId);
-			callback(bgPage.cat[bgPage.cat.length-1].resourceId);
-  		} else {
-  			callback(null);
-  		}
-  		util.hideMsg();
-	}
-
-    //util.displayMsg('Fetching your docs');
-
-    url = bgPage.DOCLIST_FEED; //+ '?title=%22PR+Citation_Tool_Documents%22'; //retrieves the citations folder
-    params['parameters'] = {
-      'alt': 'json',
-      'title': folders[title],
-      'showfolders': 'true',
-      'title-exact': 'true'
-    };
-    
-  bgPage.oauth.sendSignedRequest(url, handleSuccess, params);
-};
-
-/////////////////////////////////////////////////////////////
-
-gdocs.updateFolders = function(callback) {
-	console.log('gdocs.updateFolders');
-	
-	var createFolderCallback = function(id) {
-		console.log('gdocs.updateFolders createFolderCallback', id);
-		gdocs.getFolder(1, getFolderCallback); //Check for the old folder.
-	}
-	
-	var getFolderCallback = function(id) {
-		console.log('gdocs.updateFolders getFolderCallback', id);
-		if( id == null ){
-			url = bgPage.DOCLIST_FEED + bgPage.cat[0].resourceId + '/contents';
-			gdocs.getDocumentList(url, gdocs.start.getDocumentListCallback); //??? Fix the callback
-		} else {
-			url = bgPage.DOCLIST_FEED + id + '/contents'; //id should be stored in bgPage.cat[1] for reference. Consider moving this to getDocumentList() and pass in the folder[] interger.
-			gdocs.getDocumentList(url, getDocListCallback);
-		}
-	}
-	
-	var getDocListCallback = function(e) {
-		console.log('gdocs.updateFolders getDocListCallback', e);
-		gdocs.moveDoc(moveDocCallback); //If no error is returned, then move the docs.
-	}
-	
-	var moveDocCallback = function() {
-		console.log('gdocs.updateFolders moveDocCallback');
-		bgPage.docs = []; //Clear docs list.
-		callback();
-	}
-
-	gdocs.createFolder(0,createFolderCallback);
-}
-
-gdocs.start = function() {
-	console.log('gdocs.start');
-	
-	var getFolderCallback = function(id) {
-		console.log('gdocs.start getFolderCallback ', id);
-		if ( id == null ) {
-			gdocs.updateFolders(updateFoldersCallback);
-		} else {
-			setTimeout(function(){
-				url = bgPage.DOCLIST_FEED + id + '/contents';
-				gdocs.getDocumentList(url, getDocumentListCallback);
-			});
-			console.log('append docName: ',localStorage['defaultDocName']);
-		}
-	}
-	
-	var getDocumentListCallback = function(e) {
-		console.log('gdocs.start getDocumentListCallback ', e);
-		
-		if(e) { gdocs.getFolder(0, getFolderCallback); } //If the getDocumentList function can't find the documents, then the id is for a folder that doesn't exist and we need to get the new id.
-		//End of Start.
-	}
-	
-	var updateFoldersCallback = function() {
-		console.log('gdocs.start updateFoldersCallback');
-		gdocs.getDocumentList(); //Get the first folder, no callback.
-	}
-	
-	
-	//TODO: Do we need to check for the new folder every time, or can we speed this up?
-	/*if (bgPage.cat[0]) {
-		console.log('bgPage.cat[0] has id');
-		url = bgPage.DOCLIST_FEED + bgPage.cat[0].resourceId + '/contents';
-		gdocs.getDocumentList(url, getDocumentListCallback); 
-	} else {*/
-		
-		
-		console.log('bgPage.cat[0] does not have id');
-		setTimeout(function(){ gdocs.getFolder(0, getFolderCallback); });
-		
-		if(localStorage['defaultDocName']){ //TODO:update to not show anything when the doc is deleted...
-			console.log('default doc status in .start',localStorage['defaultDocName']);
-			$('#selection').append('<div id="docName">'+localStorage['defaultDocName']+'</div>'); 
-		}
-	//}
-}
-
-///////////////////////////////////////////////////////////////
-// Refreshes the user's document list.
-///////////////////////////////////////////////////////////////
-
-gdocs.refreshDocs = function() {
-  console.log('refreshing docs');
-  bgPage.clearPendingRequests();
-  gdocs.getDocumentList(); //Get the first folder, no callback.
-  util.scheduleRequest();
-};
-
-
-/////////////////////////////////////
-//Important for the doclist features.
-////////////////////////////////////
-bgPage.oauth.authorize(function() {
-  util.scheduleRequest();  
 });
 
 
-  // Call the getPageInfo function in the background page, passing in our onPageInfo function as the callback.
-        //var bg = chrome.extension.getBackgroundPage();
-        if (bgPage.oauth.hasToken()) {
-        	
-        	window.onload = function() 
-        	{ 
-            	console.log('page loaded');
-            //var bg = chrome.extension.getBackgroundPage();
-            	//Load variables into fields.
-            	//onPageInfo(bgPage.fieldData);
-            	//bgpage.callbacks = [];
-				bgPage.getPageInfo(onPageInfo);
-				
-				switchFocus(order[0]); //Switches focus to the summary field.
-				
-            	gdocs.start();
-            }
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//A controller to let us reorganize the html.
+//Technically, not necessary since both the controller scope and directive are possible within DocsController, but it's cleaner.
+//The fix for the rendering was to use ng-bind instead of {{}} to update the message.
+//ng-bind watches the input variable and updates when it changes.
+citable.controller('butterController', function($scope, sharedProps, msgService){
+  $scope.data = sharedProps.data;
+  $scope.butter = msgService.butter;
 
+  //Updates the butter class to match the status stored in the singleton.
+  $scope.butterClass = function(){
+    var status = $scope.butter.status;
+    status = status || 'normal';
+    console.log('butter '+status);
+    return 'butter pam '+status;
+  }
+
+}).directive('boxButter', function() {
+  return {
+    template: '<div ng-class="butterClass()" ng-bind="butter.message" ng-show="butter.message"></div>'
+  };
+});
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+citable.controller('menuController', function($scope, sharedProps){
+   $scope.data = sharedProps.data;
+
+   $scope.toggleMenu = function(event){
+    _gaq.push(['_trackEvent', 'Button', 'Toggle Menu']);
+    event.preventDefault();
+    if($scope.data.defaultDoc.title){
+      $scope.data.menu = !$scope.data.menu;
+    }
+  }
+});
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+citable.controller('actionController', function($scope, $http, gdocs, sharedProps, msgService){
+  console.log('SCOPE on Init',$scope.data);
+
+  $scope.data = sharedProps.data;
+
+  var bgPage = chrome.extension.getBackgroundPage();
+
+  //Pass the incomming param to the background page.
+  $scope.getDocument = function(param){
+    console.log('SCOPE on getDocument',$scope.data);
+
+    $scope.data.requesting = true; //Set the variable.
+
+    //Consider print to be an explicit action and save this file as the default for future use.
+    //This also makes the title and id available to the background page via chrome.storage.sync.get()
+    $scope.storeDefault();
+
+    bgPage.getDocument(param, $scope.data.defaultDoc.id, true, function(response){
+      if(response != null){
+        //success
+        msgService.queue(param.toProperCase()+' '+$scope.data.defaultDoc+'!'.title,'normal',5000);
+        $scope.closeWindow();
+      } else {
+        //failure
+        msgService.queue(status+"Couldn't get document.",'error');
+      }
+      $scope.data.requesting = false; //Reset the variable.
+    });
+  }
+});
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+citable.controller('CitationController', function($scope, sharedProps, $rootScope){
+  
+  var bgPage = chrome.extension.getBackgroundPage();
+
+  $scope.data = sharedProps.data; //shared 2-way data binding to factory object
+  
+  $scope.getPageInfo = function(){
+    console.log('getPageInfo');
+    bgPage.getPageInfo($scope.setCitation);
+  }
+
+  $scope.setCitation = function(pageInfo){
+    //Reset the flag
+      $scope.data.citationMeta.fresh = true;
+
+    //General loop for passing pageInfo values to the sharedProps object.
+    for( var i in pageInfo ){
+      $scope.data.citation[i] = pageInfo[i];
+    }
+
+    function currDate()
+    {
+      var d = new Date();
+      var curr_date = d.getDate();
+      var curr_month = d.getMonth() + 1; //months are zero based
+      var curr_year = d.getFullYear();
+      return curr_year + '/' + curr_month + '/' + curr_date;
+    }
+
+    $scope.data.citation.Date = currDate();
+
+    //Super simple function queue, should I implement a full queue?
+    if($scope.data.citationMeta.callback){
+      //Run it.
+      $scope.data.citationMeta.callback();
+      //Clear it out.
+      $scope.data.citationMeta.callback = null;
+    }
+
+    console.log('setCitation',pageInfo,$scope.data.citation);
+    $scope.$digest();
+  }
+
+  //Dumb startup
+  //$scope.getPageInfo();
+
+  //Watcher to update the note data if it gets stale.
+  //Lets us set the stale flag on ctrl-return and trigger a refresh for video logging. 
+  //Still grabs the selection, so clearing the field doesn't work. 
+  //Ok since you shouldn't make a selection if you are going to use this feature.
+  $scope.$watch('data.citationMeta.fresh', function(newValue,oldValue){
+    console.log('$scope.$watch(data.citationMeta.fresh) citationCtrl',$scope.data.citationMeta.fresh);
+    if (!$scope.data.citationMeta.fresh) { 
+      //Update the note
+      $scope.getPageInfo();
+    }
+  });
+
+});
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+// Main Angular controller for app.
+//function DocsController($scope, $http, gdocs) { //Use this if not using closure.
+citable.controller('DocsController', function($scope, $http, $timeout, gdocs, sharedProps, keyboardManager, msgService){
+  $scope.data = sharedProps.data; //shared 2-way data binding to factory object
+  //$scope.docs = $scope.data.docs; //Alias the docs prop for easy access. DOES NOT WORK
+  $scope.cats = []; //Shared cats within controller
+
+  console.log('gdocs',gdocs);
+
+  var bgPage = chrome.extension.getBackgroundPage();
+
+  // Bind ctrl+return
+  // Save the note but don't close the popup
+  keyboardManager.bind('ctrl+return', function(e) {
+    if($scope.data.online){
+      if($scope.controls.$valid){
+        $scope.saveNote(e,function(){
+          $scope.data.citationMeta.fresh = false;
+          $scope.data.citationMeta.callback = $scope.clearFields;
+          //TODO: Since we're refreshing the note, we can't clear the field. Maybe do it on fresh?
+          //$scope.clearFields();
+        });
+        _gaq.push(['_trackEvent', 'Shortcut', 'CTRL RETURN']);
+      } else {
+        msgService.queue('Please add a title.','error',5000);
+      }
+    }
+  });
+
+  // Bind alt+return
+  // Save the note and close the popup
+  keyboardManager.bind('alt+return', function(e) {
+    if($scope.data.online){
+      if($scope.controls.$valid){
+        $scope.saveNote(e,$scope.closeWindow);
+        _gaq.push(['_trackEvent', 'Shortcut', 'ALT RETURN']);
+      } else {
+        msgService.queue('Please add a title.','error',5000);
+      }
+    }
+  });
+
+  ///////////
+  //Startup//
+  ///////////
+
+  //Watch the value of data.online for changes and run the function if so.
+  $scope.$watch('data.online', function(newValue,oldValue){
+    console.log('$scope.$watch(data.online) docCtrl',$scope.data.online);
+    if(!$scope.data.online){ 
+      msgService.queue('Offline','error'); 
+    } else if ($scope.data.online && oldValue === false) { 
+      msgService.queue('Online','normal',1500); 
+      $scope.data.auth && $scope.fetchFolder(false);
+      //TODO: check $scope.data.docs or some other variable to insure that we don't already have the select menu loaded.
+    }
+  });
+
+  //Watch the value of data.auth for changes and run fetchFolder() if online too.
+  $scope.$watch('data.auth', function(newValue,oldValue){
+    console.log('$scope.$watch(data.auth) docCtrl',newValue);
+    if($scope.data.auth){
+      $scope.data.online && $scope.fetchFolder(false);
+    }
+  });
+
+  ///////////
+
+
+  //Retreive and update the defaultDoc based on local storage
+  storageSuccess = function(items) {
+    //update sharedProps values
+    $scope.data.defaultDoc = items.defaultDoc;
+    //$scope.updateMeta($scope.data.defaultDoc);
+    console.log('Settings retrieved',items,items.defaultDoc,$scope.data.defaultDoc);
+  }
+  chrome.storage.sync.get('defaultDoc', storageSuccess);
+  
+  //Update the default meta any time the storage value changes.
+  //We could also update the defaultDoc to guarantee everything stays in sync, but since we only trigger storage when we update it should be fine.
+  //chrome.storage.onChanged.addListener(function(resp){$scope.updateMeta(resp.defaultDoc.newValue)});
+
+  console.log('sharedProps on DocsController init',$scope.data);
+
+  // Response handler that caches file icons in the filesystem API.
+  function successCallbackWithFsCaching(resp, status, headers, config, statusText) {
+    console.log('successCallbackWithFsCaching',resp,status,headers,config, statusText);
+
+    $scope.data.loading = false;
+
+    if(!resp.items.length){
+      console.log('No docs in list.',$scope);
+      msgService.queue('Welcome to Citable!','normal',2000)
+      //No docs in doc list, create new document.
+
+      $scope.data.defaultDoc = {
+        'id':'',
+        'title':'',
+        'alternateLink':''
+      };
+      $scope.clearDocs();
+      //$scope.data.docs = [{'id':'','title':'Create New Document'}];
+      //$scope.$apply(function($scope){});
+    } else {
+    
+        var totalEntries = resp.items.length;
+    
+        resp.items.forEach(function(entry, i) {
+          
+          var doc = buildDocEntry(entry);
+    
+          $scope.data.docs.push(doc);
+            // Only want to sort and call $apply() when we have all entries.
+            if (totalEntries - 1 == i) {
+              $scope.data.docs.sort(Util.sortByDate);
+              //$scope.data.docs = $scope.docs; //?? Aliasing didn't work, so we had to make an explicit redefinition.
+              
+              //$scope.defaultDoc = $scope.docs[0].alternateLink;
+              //$scope.$apply(function($scope) {}); // Inform angular we made changes.
+            }
+        });
+        console.log('Documents List',$scope.data.docs,$scope.data.defaultDoc);
+        //msgService.queue('Got Docs!','success',2000);
+
+        //We have docs, so reset the defaultDoc if it isn't set already.
+        //TODO: check if document is in the list of docs. If not reset the default.
+        if(!$scope.data.defaultDoc){
+          console.log('Reset Default');
+          //Temporarily reset the default value, if there isn't a predefined default.
+          $scope.data.defaultDoc = $scope.data.docs[0];
+          //Don't automatically store this default. Instead continue to reset to the latest file until the user makes an explicit selection.
+        } else {
+          var defaultFound = false;
+          for(var i in $scope.data.docs){
+            doc = $scope.data.docs[i];
+            //console.log($scope.data.defaultDoc.id, i, doc.id, $scope.data.defaultDoc.id == doc.id)
+            if($scope.data.defaultDoc.id == doc.id){
+              defaultFound = true;
+            }
+          }
+          console.log('Default Found',defaultFound);
+          //Permanently redefine the default if the defaultDoc isn't in the doc list. By storing this we prevent ongoing mis-saves in a deleted doc.
+          if (defaultFound == false) {
+            $scope.data.defaultDoc = $scope.data.docs[0];
+            $scope.storeDefault();
+          }
         }
-        else {
-        	console.log('hasToken == false')
+    }
+  }
+
+  buildDocEntry = function(entry){
+    return {
+            title: entry.title,
+            id: entry.id,
+            updatedDate: Util.formatDate(entry.modifiedDate),
+            updatedDateFull: entry.modifiedDate,
+            icon: entry.iconLink,
+            size: entry.fileSize ? '( ' + entry.fileSize + ' bytes)' : null,
+            alternateLink: entry.alternateLink
+          };
+  }
+
+  $scope.clearDocs = function() {
+    $scope.data.docs = []; // Clear out old results.
+  };
+
+  $scope.fetchDocs = function(retry, folderId) {
+    //Probably unnecessary since we just did it in the fetchFolder step.
+    //this.clearDocs();
+
+
+    //Query had to be restructured to use the full mimeType instead of using the contains logic. Evidently the new sheets don't store the mimeType as a string or it's being abstracted somehow resulting in only old sheets appearing.
+    //"mimeType contains 'sheet' and '"+ 
+    if (gdocs.accessToken) {
+      var config = {
+        params: {
+            'alt': 'json', 
+            'q': "mimeType = 'application/vnd.google-apps.spreadsheet' and '"+folderId+"' in parents and trashed!=true" 
+        },
+        headers: {
+          'Authorization': 'Bearer ' + gdocs.accessToken
         }
+      };
+
+      $http.get(gdocs.DOCLIST_FEED, config).
+        success(successCallbackWithFsCaching).
+        error(function(data, status, headers, config, statusText) {
+          if (status == 401 && retry) {
+            gdocs.removeCachedAuthToken(
+                gdocs.auth.bind(gdocs, true, 
+                    $scope.fetchDocs.bind($scope, false)));
+          } else {
+            msgService.queue(status,'error');
+          }
+        });
+    }
+  };
+
+  $scope.fetchFolder = function(retry, opt_config) {
+    var oldFolderName = $scope.data.oldFolderName;
+    var folderName = $scope.data.folderName;
+
+    $scope.data.loading = true;
+
+    //Clear doc list from the select menu
+    this.clearDocs();
+
+    function successCallbackFolderId(resp, status, headers, config, statusText){
+
+      if( resp.items.length > 0){
+          //Add the folder to $scope
+          resp.items.forEach(function(entry, i) {
+            $scope.cats.push(entry);
+          });
+          console.log('Folders',$scope.cats,bgPage.firstRun,$scope.cats[0].id,$scope.data.driveProperties);
+
+          //If this is the first run since an update, do some maintenance on the folder.
+          if(opt_config){
+            //Update the old folders properties.
+            bgPage.insertProperties($scope.cats[0],$scope.data.driveProperties, function(){
+              //Rename the folder.
+              bgPage.renameFolder($scope.cats[0],folderName,function(){
+                msgService.queue('Folder updated!','normal',1000);
+              });
+            });
+          } 
+
+          //Uses the folderId so it's name independent from here on out.
+          //Get the files contained in the folder cats[0];
+          //TODO: recursively check all found folders to insure we get everything. (Might result in duplicates)
+          $scope.fetchDocs(false, $scope.cats[0].id);
+
+      } else {
+          if(bgPage.firstRun == true){
+            msgService.queue('Updating folder.');
+            var config = {
+              params: {'alt': 'json', 'q': "mimeType = 'application/vnd.google-apps.folder' and title='"+oldFolderName+"' and trashed!=true"},
+              headers: {
+                'Authorization': 'Bearer ' + gdocs.accessToken
+              }
+            };
+            $scope.fetchFolder(false, config);
+          } else {
+            msgService.queue('Creating folder.');
+            //No folders found, check for the old folder or create the folder
+            bgPage.createFolder(folderName,$scope.data.driveProperties,successCallbackFolderId);
+          }
+      }
+      
+      //Reset the variable so we don't do this again.
+      bgPage.firstRun = false;
+
+    } 
+    
+
+    if (gdocs.accessToken) {
+      console.log('fetchFolder',gdocs.accessToken, bgPage.firstRun);
+
+    //query: is a folder, properties contains Citable=true, is visible to PUBLIC, and isn't in the trash.
+    var config = opt_config ? opt_config : {
+      params: {'alt': 'json', 'q': "mimeType = 'application/vnd.google-apps.folder' and properties has { key='"+$scope.data.driveProperties[0].key+"' and value='"+$scope.data.driveProperties[0].value+"' and visibility='"+$scope.data.driveProperties[0].visibility+"' } and trashed!=true"},
+      headers: {
+        'Authorization': 'Bearer ' + gdocs.accessToken
+      }
+    };
+      
+
+      $http.get(gdocs.DOCLIST_FEED, config).
+        success(successCallbackFolderId).
+        error(function(data, status, headers, config, statusText) {
+          
+          if (status == 401 && retry) {
+            gdocs.removeCachedAuthToken(
+                gdocs.auth.bind(gdocs, true, 
+                    $scope.fetchDocs.bind($scope, false)));
+          } else {
+            console.log('fetchFolder error',status, headers);
+            if(status == 0){
+              msgService.queue('Offline','error');
+              //$scope.data.loading = false;
+              //return false;
+            } else {
+              msgService.queue(status,'error');
+            }
+            
+          }
+        });
+    }
+  };
+
+  //Handler for saving a new citation.
+  $scope.amendDoc = function(retry, destination, callback) {
+  console.log('gdocs.amendDoc..');
+    
+    //destination = destination!=null ? destination : $scope.data.newDoc;
+    //In the new scheme, new doc selected and no default on init are indistinguishable... this might be ok.
+    if((destination === null || destination.id == '')){ // && $scope.data.newDoc //Manual validation... icky.
+      console.log('bgPage.createDocument');
+      msgService.queue('Creating New Spreadsheet.');
+      bgPage.createDocument($scope.data.citation,$scope.data.newDoc.trim(),$scope.cats[0],function(response){
+        console.log(response.title+' created!',response,callback); //Works.
+        msgService.queue(response.title+' created!','normal',3000); //Works.
+        
+        //Cleanup the new doc creation process.
+        $scope.data.newDoc = '';
+
+        //Add doc to the menu.
+        $scope.data.docs.unshift(buildDocEntry(response));
+
+        //Set doc as default.
+        $scope.data.defaultDoc = $scope.data.docs[0];
+
+        callback(); //Doesn't get called...?
+      });
+    } /*else if(destination == null && localStorage['defaultDoc']){ //If the doc menu isn't loaded yet, then try using the default doc.
+            gdocs.amendDocHandler(localStorage['defaultDoc'], callback);   
+        //TODO: create error in amendDocHandler to catch sending note to a document that doesn't exist. Catches it with a check header error.
+    }*/ else{
+      console.log('destination: ',destination.id,destination.title);
+      amendDocHandler(retry, destination.id, callback); //Call the handler passing in the formatted values.
+    }
+  }
+
+  amendDocHandler = function(retry, docId, callback) {
+  
+    var handleSuccess = function(resp, status, headers, config, statusText) {
+      console.log('gdocs.amendDoc handleSuccess');
+      if (status != 201) {
+        console.log('AMEND ERROR', resp);
+        //gdocs.handleError(xhr, resp);
+        //util.hideMsg();
+        msgService.queue('Error'+status,'error');
+        /*if(status == 400 || status == 500) { 
+          console.log('Try updating headers: ',$scope.data.defaultDoc);
+          //Try updating the column headers to fix faulty docs.
+          //The second param is an optional doc so we don't update the whole list. We take the index of :selected and use just that doc from the docs array.
+          bgPage.updateDocument(function(){
+            msgService.queue('Headers Updated!');
+            $scope.saveNote();
+          }, $scope.data.defaultDoc);        
+          msgService.queue('Updating Headers...');
+        }; 
+        return;*/
+      } else {
+        /*bgPage.updateDocument(function(){
+            msgService.queue('Headers Updated!');
+            //$scope.saveNote();
+          }, $scope.data.defaultDoc);
+        msgService.queue('Updating Headers...');*/
+      
+        requestFailureCount = 0;
+        
+        console.log('Amend: ', status, resp);
+        
+        if(callback){callback();}
+      }
+    };
+    
+    if (gdocs.accessToken) {
+      msgService.queue('Adding note...');
+
+      var data = constructCitation();
+
+      var config = {
+        //params: {},
+        headers: {
+          'Authorization': 'Bearer ' + gdocs.accessToken,
+          'GData-Version': '3.0',
+          'Content-Type': 'application/atom+xml'
+        }//,
+        //body: data
+      };
+      console.log('data to send',config,data)
+
+      var worksheetId = 'default';
+
+      var url = bgPage.SPREAD_SCOPE +'/list/'+docId+'/'+worksheetId+'/private/full';
+
+      $http.post(url, data, config).
+          success(handleSuccess).
+          error(function(data, status, headers, config) {
+            
+            if (status == 401 && retry) {
+              gdocs.removeCachedAuthToken(
+                  gdocs.auth.bind(gdocs, true, 
+                      $scope.fetchDocs.bind($scope, false)));
+            } else if((status == 400 || status == 500 || status == 404) && retry) { 
+
+              console.log('Try updating headers: ',$scope.data.defaultDoc);
+              //Try updating the column headers to fix faulty docs.
+              //The second param is an optional doc so we don't update the whole list. We take the index of :selected and use just that doc from the docs array.
+              bgPage.updateDocument(function(error){
+                console.log('updateHeaders complete',error);
+                if(!error){ //only complete the callback if updateDocument didn't encounter an error.
+                  $scope.updateHeaderSuccess(callback)
+                } else {
+                  $scope.data.requesting = false; //Reset the variable.
+                  //Don't close the window.
+                  msgService.queue(error+' Check your document columns.','error');
+
+                  //Exit the amend sequence and throw the error.
+                  //$scope.saveNote.saveNoteFailure(error); //Not a function within this scope...
+                }
+              }, $scope.data.defaultDoc);            
+              
+              msgService.queue('Updating Headers...');
+
+            } else {
+              console.log('amend note error',status,data);
+              //$scope.saveNote.saveNoteFailure(status);
+              $scope.data.requesting = false; //Reset the variable.
+              msgService.queue(status+' Problem with the citation.','error');
+            }
+          });
+          //
+
+      console.log('Citation: ', url, config);
+    }
+  };
+
+  var constructCitation = function(){
+    
+    //TODO: rewrite these funtions to iterate through the citation object to create entry. Makes this code more reusable for future additions.
+    constructSpreadBody_ = function(entryTitle, entryUrl, entrySummary, entryTags, entryAuthor, entryDate) {            
+      
+      constructSpreadAtomXml_ = function(entryTitle, entryUrl, entrySummary, entryTags, entryAuthor, entryDate) {
+        /*var d = new Date();
+        var curr_date = d.getDate();
+        var curr_month = d.getMonth() + 1; //months are zero based
+        var curr_year = d.getFullYear();
+        var entryDate = curr_year + '/' + curr_month + '/' + curr_date;*/
+        
+        var atom = ["<?xml version='1.0' encoding='UTF-8'?>",
+                  '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gsx="http://schemas.google.com/spreadsheets/2006/extended">',//'--END_OF_PART\r\n',
+                    '<gsx:title>',entryTitle,'</gsx:title>',//'--END_OF_PART\r\n',
+                    '<gsx:url>',entryUrl,'</gsx:url>',//'--END_OF_PART\r\n',
+                    '<gsx:summary>',entrySummary,'</gsx:summary>',//'--END_OF_PART\r\n',
+                    '<gsx:tags>',entryTags,'</gsx:tags>',
+                    '<gsx:date>',entryDate,'</gsx:date>',
+                    '<gsx:author>',entryAuthor,'</gsx:author>',
+                    '</entry>'].join('');
+        return atom;
+      };
+
+      entryTitle = Util.parseForHTML(entryTitle);
+      entrySummary = Util.parseForHTML(entrySummary);
+      entryUrl = Util.parseForHTML(entryUrl);
+      entryTags = Util.parseForHTML(entryTags);
+      entryAuthor = Util.parseForHTML(entryAuthor);
+      //No need to parse the date since it's already formatted correctly.
+              
+      var body = [
+      constructSpreadAtomXml_(entryTitle, entryUrl, entrySummary, entryTags, entryAuthor, entryDate), '\r\n',
+      ].join('');
+      
+      return body;
+    };
+
+    var summary = $scope.data.citation.Summary;
+    var title = $scope.data.citation.Title;
+    var url = $scope.data.citation.Url;
+    var tags = $scope.data.citation.Tags;
+    var author = $scope.data.citation.Author;
+    var date = $scope.data.citation.Date;
+
+    var data = constructSpreadBody_(title, url, summary, tags, author, date);
+    
+    //Main return
+    return  data = data.trim().replace("^([\\W]+)<","<"); //There are evidently bad characters in the XML that this regex removes.
+
+  };
+
+  $scope.updateHeaderSuccess = function(callback){
+    console.log('updateHeaderSuccess',callback);
+    msgService.queue('Headers Updated!');
+    $scope.amendDoc(false, $scope.data.defaultDoc, callback); //Resubmit the add note request, without the retry flag.
+  }
+
+  // Toggles the authorization state.
+  /*$scope.toggleAuth = function(interactive) {
+    if (!gdocs.accessToken) {
+      gdocs.auth(interactive, function() {
+        $scope.fetchFolder(false);
+        //$scope.fetchDocs(false);
+      });
+    } else {
+      gdocs.revokeAuthToken(function() {});
+      this.clearDocs();
+    }
+  }*/
+
+  // Controls the label of the authorize/deauthorize button.
+  $scope.authButtonLabel = function() {
+    if (gdocs.accessToken)
+      return 'Deauthorize';
+    else
+      return 'Authorize';
+  };
+
+  //Actually want to show the selector either way? No, on return of no docs (ie, startup) show the new doc name field and hide the loading wheel.
+  //gotDocs is just part of this logic, it should also consider the state of the doc list query. 
+  //On error, display error. On 200 OK evaluate doc list length.
+  //Global variable with the state set. On callback success evaluate state and set global variable.
+  $scope.gotDocs = function(index) {
+    console.log('Docs length:',$scope.data.docs.length>0);
+    return (($scope.data.docs.length > 0 )||(!$scope.data.loading)); //This is silly since docs is always 0 before loading and after loading we'll always show the menu either defaulted or empty.
+  }
+
+  $scope.getMenu = function(){
+    return $scope.data.menu;
+  }
+
+  $scope.closeWindow = function(){
+    $timeout(function(){window.close();},1500);
+  }
+
+  $scope.clearFields = function(){
+    //Clear citation.
+    $scope.data.citation.Summary = null;
+    $scope.$apply();
+  }
+
+  $scope.saveNoteButton = function(event, callback){
+    _gaq.push(['_trackEvent', 'Button', 'Save']);
+    $scope.saveNote(event, callback);
+  }
+
+  $scope.saveNote = function(event,callback){
+    console.log('Save Note: ', $scope.data);
+    _gaq.push(['_trackEvent', 'Auto', 'Save Note']);
+    var saveNoteSuccess = function(){
+      console.log('SaveNote success', $scope.data, callback);
+      msgService.queue('Note added!','success', 2000);
+      $scope.data.requesting = false; //Reset the variable.
+      
+      //Remove citation from queue/log.
+
+      //Consider save to be an explicit action and save this file as the default for future use.
+      $scope.storeDefault();
+
+      if(callback){ callback(); }     
+    }
+
+    //TODO: should I push errors in the amend process to this function or just handle them individually?
+    var saveNoteFailure = function(error){
+      console.log('SaveNote failure', $scope.data);
+      msgService.queue('Opps '.concat(error,' , retry?'),'error');
+      $scope.data.requesting = false; //Reset the variable.
+      //Don't close the window.
+    }
+
+    if(!$scope.data.requesting && !$scope.getMenu()){
+      $scope.amendDoc(true, $scope.data.defaultDoc, saveNoteSuccess); //Amend the note, with retry enabled to update headers on error.
+      $scope.data.requesting = true; //Set the global variable.
+    }
+  }
+  
+  $scope.viewDoc = function(destination, url) {
+    console.log('viewDoc', destination, url);
+    _gaq.push(['_trackEvent', 'Button', 'View Document']);
+    //First looks for the url passed in from the DocList API since that address should be correct. 
+    var tabUrl = url != null ? url : constructURL(destination);
+    chrome.tabs.create({url: tabUrl});
+    window.close();
+
+    function constructURL(destination) {
+      if(destination == ''){ return null; }
+      return 'https://docs.google.com/spreadsheet/ccc?key='+destination;
+    }
+  }
+
+  $scope.storeDefault = function(){
+    console.log('storeDefault',$scope.data.defaultDoc);
+    // Save it using the Chrome extension storage API.
+    chrome.storage.sync.set({'defaultDoc': $scope.data.defaultDoc}, function() {
+      // Notify that we saved.
+      chrome.storage.sync.get('defaultDoc',function(items){console.log('storage.sync.get',items)});
+    });
+    //If there is a change to the stored value, updateMeta gets triggered automatically.
+  }
+
+  /*$scope.updateMeta = function(docId) {
+    $scope.data.defaultMeta = $scope.data.docs.filter(function(el){
+      //return el.id == $scope.data.defaultDoc;
+      return el.id == docId;
+    });
+    console.log('updateMeta', docId, $scope.data.defaultMeta);
+    //do something with the current doc id.
+  };*/
+
+  //Run toggleAuth when the constructor is called to kick everything off.
+  //stored in backgroundpage for persistance and universal access within the app.
+  //If it fails, show auth button. If it succeeds, then get the docs.
+  /*bgPage.toggleAuth(true,function(){
+    $scope.fetchFolder(false);
+  });*/
+  /*bgPage.toggleAuth(false,function(token){
+    if(token){
+      $scope.data.auth = true;
+      //$scope.fetchFolder(false);
+    } else {
+      $scope.data.auth = false;
+      //msgService.queue('Authorization Failed.','error');
+    }
+  });*/
+  
+});
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+// This service was based on OpenJS library available in BSD License
+// http://www.openjs.com/scripts/events/keyboard_shortcuts/index.php
+citable.factory('keyboardManager', ['$window', '$timeout', function ($window, $timeout) {
+  var keyboardManagerService = {};
+
+  var defaultOpt = {
+    'type':             'keydown',
+    'propagate':        false,
+    'inputDisabled':    false,
+    'target':           $window.document,
+    'keyCode':          false
+  };
+  // Store all keyboard combination shortcuts
+  keyboardManagerService.keyboardEvent = {}
+  // Add a new keyboard combination shortcut
+  keyboardManagerService.bind = function (label, callback, opt) {
+    var fct, elt, code, k;
+    // Initialize opt object
+    opt   = angular.extend({}, defaultOpt, opt);
+    label = label.toLowerCase();
+    elt   = opt.target;
+    if(typeof opt.target == 'string') elt = document.getElementById(opt.target);
+
+    fct = function (e) {
+      e = e || $window.event;
+
+      // Disable event handler when focus input and textarea
+      if (opt['inputDisabled']) {
+        var elt;
+        if (e.target) elt = e.target;
+        else if (e.srcElement) elt = e.srcElement;
+        if (elt.nodeType == 3) elt = elt.parentNode;
+        if (elt.tagName == 'INPUT' || elt.tagName == 'TEXTAREA') return;
+      }
+
+      // Find out which key is pressed
+      if (e.keyCode) code = e.keyCode;
+      else if (e.which) code = e.which;
+      var character = String.fromCharCode(code).toLowerCase();
+
+      if (code == 188) character = ","; // If the user presses , when the type is onkeydown
+      if (code == 190) character = "."; // If the user presses , when the type is onkeydown
+
+      var keys = label.split("+");
+      // Key Pressed - counts the number of valid keypresses - if it is same as the number of keys, the shortcut function is invoked
+      var kp = 0;
+      // Work around for stupid Shift key bug created by using lowercase - as a result the shift+num combination was broken
+      var shift_nums = {
+        "`":"~",
+        "1":"!",
+        "2":"@",
+        "3":"#",
+        "4":"$",
+        "5":"%",
+        "6":"^",
+        "7":"&",
+        "8":"*",
+        "9":"(",
+        "0":")",
+        "-":"_",
+        "=":"+",
+        ";":":",
+        "'":"\"",
+        ",":"<",
+        ".":">",
+        "/":"?",
+        "\\":"|"
+      };
+      // Special Keys - and their codes
+      var special_keys = {
+        'esc':27,
+        'escape':27,
+        'tab':9,        
+        'space':32,
+        'return':13,
+        'enter':13,
+        'backspace':8,
+
+        'scrolllock':145,
+        'scroll_lock':145,
+        'scroll':145,
+        'capslock':20,
+        'caps_lock':20,
+        'caps':20,
+        'numlock':144,
+        'num_lock':144,
+        'num':144,
+
+        'pause':19,
+        'break':19,
+
+        'insert':45,
+        'home':36,
+        'delete':46,
+        'end':35,
+
+        'pageup':33,
+        'page_up':33,
+        'pu':33,
+
+        'pagedown':34,
+        'page_down':34,
+        'pd':34,
+
+        'left':37,
+        'up':38,
+        'right':39,
+        'down':40,
+
+        'f1':112,
+        'f2':113,
+        'f3':114,
+        'f4':115,
+        'f5':116,
+        'f6':117,
+        'f7':118,
+        'f8':119,
+        'f9':120,
+        'f10':121,
+        'f11':122,
+        'f12':123
+      };
+      // Some modifiers key
+      var modifiers = {
+        shift: {
+          wanted:   false, 
+          pressed:  e.shiftKey ? true : false
+        },
+        ctrl : {
+          wanted:   false, 
+          pressed:  e.ctrlKey ? true : false
+        },
+        alt  : {
+          wanted:   false, 
+          pressed:  e.altKey ? true : false
+        },
+        meta : { //Meta is Mac specific
+          wanted:   false, 
+          pressed:  e.metaKey ? true : false
+        }
+      };
+      // Foreach keys in label (split on +)
+      for(var i=0, l=keys.length; k=keys[i],i<l; i++) {
+        switch (k) {
+          case 'ctrl':
+          case 'control':
+            kp++;
+            modifiers.ctrl.wanted = true;
+            break;
+          case 'shift':
+          case 'alt':
+          case 'meta':
+            kp++;
+            modifiers[k].wanted = true;
+            break;
+        }
+
+        if (k.length > 1) { // If it is a special key
+          if(special_keys[k] == code) kp++;
+        } else if (opt['keyCode']) { // If a specific key is set into the config
+          if (opt['keyCode'] == code) kp++;
+        } else { // The special keys did not match
+          if(character == k) kp++;
+          else {
+            if(shift_nums[character] && e.shiftKey) { // Stupid Shift key bug created by using lowercase
+              character = shift_nums[character];
+              if(character == k) kp++;
+            }
+          }
+        }
+      }
+
+      if(kp == keys.length &&
+        modifiers.ctrl.pressed == modifiers.ctrl.wanted &&
+        modifiers.shift.pressed == modifiers.shift.wanted &&
+        modifiers.alt.pressed == modifiers.alt.wanted &&
+        modifiers.meta.pressed == modifiers.meta.wanted) {
+        $timeout(function() {
+          callback(e);
+        }, 1);
+
+        if(!opt['propagate']) { // Stop the event
+          // e.cancelBubble is supported by IE - this will kill the bubbling process.
+          e.cancelBubble = true;
+          e.returnValue = false;
+
+          // e.stopPropagation works in Firefox.
+          if (e.stopPropagation) {
+            e.stopPropagation();
+            e.preventDefault();
+          }
+          return false;
+        }
+      }
+
+    };
+    // Store shortcut
+    keyboardManagerService.keyboardEvent[label] = {
+      'callback': fct,
+      'target':   elt,
+      'event':    opt['type']
+    };
+    //Attach the function with the event
+    if(elt.addEventListener) elt.addEventListener(opt['type'], fct, false);
+    else if(elt.attachEvent) elt.attachEvent('on' + opt['type'], fct);
+    else elt['on' + opt['type']] = fct;
+  };
+  // Remove the shortcut - just specify the shortcut and I will remove the binding
+  keyboardManagerService.unbind = function (label) {
+    label = label.toLowerCase();
+    var binding = keyboardManagerService.keyboardEvent[label];
+    delete(keyboardManagerService.keyboardEvent[label])
+    if(!binding) return;
+    var type    = binding['event'],
+    elt     = binding['target'],
+    callback  = binding['callback'];
+    if(elt.detachEvent) elt.detachEvent('on' + type, callback);
+    else if(elt.removeEventListener) elt.removeEventListener(type, callback, false);
+    else elt['on'+type] = false;
+  };
+  //
+  return keyboardManagerService;
+}]);
+
+//End Closure
+})();
