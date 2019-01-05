@@ -5,6 +5,32 @@ body {
 	margin:0px;
 	color: #444;
 }
+#loading {
+	/*width: 10.5in;*/
+	padding-top: .25in;
+	padding-bottom: .25in;
+	padding-left: .25in;
+	padding-right: .25in;
+	text-align:center;
+	float:left;
+	clear:none;
+}
+#butter {
+  color: #fff;
+  background-color: #333333;
+  padding: 5px 15px;
+  border-radius: 15px;
+  width: 258px;
+  text-align: center;
+  /*float: right;*/
+  margin:auto;
+  margin-top: 0px;
+  /*margin-bottom: 15px;*/
+  display: none;
+}
+#butter.error {
+  background-color: red;
+}
 a {
 	color: #4E7DC2;
 	text-decoration: none;
@@ -137,6 +163,59 @@ div.checkbox {
 	float: left;
 	margin-left: 0px;
 }
+#display{
+    margin-bottom: 10px;
+    height: 30px;
+    width:100%;
+}
+#selection{
+	/*clear: none;
+	display: inline-block;
+	position: relative;
+	top: -3px;
+	left: 45px;*/
+	/*margin-bottom: 15px;*/
+}
+
+#selection select{
+	width:288px;
+}
+
+select {
+  -webkit-appearance: button;
+  -webkit-border-radius: 4px;
+  /*-webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);*/
+  -webkit-padding-end: 20px;
+  -webkit-padding-start: 2px;
+  -webkit-user-select: none;
+  color: #444;
+  font-size: 12px;
+  margin: 0;
+  overflow: hidden;
+  padding: 0px 15px 0px 5px;
+  vertical-align: middle;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  height:25px;
+  background-position: center right;
+  background-repeat: no-repeat;
+  border:1px solid #808080;
+  /*border: 1px solid #CCC;*/
+  /*background-image: url(img/select-arrow.png), -webkit-linear-gradient(#FAFAFA, #F4F4F4 40%, #E5E5E5);*/
+  background-image: url(img/select-arrow.png), -webkit-gradient(linear,left top,left bottom,color-stop(0,#fafafa),color-stop(1,#e5e5e5)); /*-webkit-gradient(linear,left top,left bottom,color-stop(0,#fefefe),color-stop(1,#e9e9e9))*/
+}
+select:HOVER{
+	background-image:url(img/select-arrow.png), -webkit-gradient(linear,left top,left bottom,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
+	border:1px solid #909090;
+	color:#000;
+}
+select:ACTIVE{
+	background-image:url(img/select-arrow.png), -webkit-gradient(linear,left bottom,left top,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
+	border:1px solid #4080fa;
+	color:#000;
+}
+.select{
+}
 .button{
 	font-family: 'Droid Sans', Arial, Sans-Serif;
 	font-size: 12px;
@@ -160,6 +239,60 @@ div.checkbox {
 	border:1px solid #4080fa;
 	color:#222222;
 }
+.button[disabled],.button[disabled]:ACTIVE,.button[disabled]:HOVER{
+	background-image:-webkit-gradient(linear,left top,left bottom,color-stop(0,#fafafa),color-stop(1,#e5e5e5));
+	border:1px solid #ccc;
+	color:#ccc;
+}
+.full{
+	width: 100%;
+}
+.half{
+	width: 95%;
+}
+.option{
+	padding-bottom: 20px;
+}
+.option.field2, .option.field3 {
+	display:inline-block;
+	width: 50%;
+}
+.option.field3 {
+	text-align:right;
+}
+.option.field0 {
+	padding-bottom: 110px;
+}
+.hidden{
+	display:none;
+}
+.doc_title{
+	margin-left: 20px;
+	padding-left: .5in;
+	position: relative;
+	top: 25px;
+	float: left;
+	font-size: 18px;
+}
+ui-state-highlight {
+	width: 3in;
+	height: 3in;
+	line-height: 3in;
+	padding: 0 0 0 .5in;
+	margin: 0px;
+	border:2px dashed rgb(255,255,160);
+	display: block;
+	float: left;
+}
+/*textarea,input{
+	width: 100%;
+	background-color: transparent !important;
+	border: none;
+}*/
+
+/*#shadow{
+	height: 40px;
+}*/
 #output {
 	float:left;
 	clear:none;
@@ -168,10 +301,11 @@ div.checkbox {
 	position:relative;
 	left:328px;
 }
-.page{
+/*-----------------------*/
+.page, .loading{
 	background-color: #fff;
 	margin:20px 0px 20px 20px;
-	padding: .5in .5in .5in 0in;
+	padding: 24px; /*.25in*/
 }
 .export{
 	/*-webkit-border-radius: 8px;*/
@@ -205,6 +339,7 @@ ui-state-highlight {
 	margin: 0px;
 	background-color: rgb(255,255,160);
 	overflow: hidden;
+	cursor: move;
 }
 #template {
 	display: none;
@@ -286,6 +421,33 @@ ui-state-highlight {
 	-webkit-box-shadow:0px 0px 4px rgba(0,0,0,0.25);
 }
 
+.sortable-placeholder, .placeholder{
+	width: 3in;
+	height: 3in;
+	background-color: rgb(255,255,200);
+	overflow: hidden;
+	margin-bottom: 30px;
+}
+
+.moving {
+	display:none;
+}
+#loading.landscape{
+	width: 10.5in;
+	height:auto;
+}
+#loading.portrait{
+	width: 8in;
+	height:auto;
+}
+.export{
+	/*-webkit-border-radius: 8px;*/
+	width: 8.5in;
+	padding: .5in;
+	margin:20px 0px 20px 20px;
+	background-color: #fff;
+}
+
 .landscape{
 	width: 10.5in;
 	height: 7.5in;
@@ -307,6 +469,9 @@ ui-state-highlight {
 }
 #note, .Droid, .handwritten{
 	cursor: pointer;
+}
+#note.controls {
+	cursor: default;
 }
 .left{
 	float: left;

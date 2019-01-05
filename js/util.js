@@ -54,9 +54,9 @@ Util.toArray = function(list) {
  */
 Util.stringify = function(parameters) {
   var params = [];
-  for(var p in parameters) {
+  for (var p in parameters) {
     params.push(encodeURIComponent(p) + '=' +
-                encodeURIComponent(parameters[p]));
+      encodeURIComponent(parameters[p]));
   }
   return params.join('&');
 };
@@ -86,7 +86,8 @@ Util.unstringify = function(paramStr) {
 Util.formatDate = function(dateStr) {
   var date = new Date(dateStr.split('T')[0]);
   return [date.getMonth() + 1, date.getDate(),
-          date.getFullYear().toString().substring(2)].join('/');
+    date.getFullYear().toString().substring(2)
+  ].join('/');
 };
 
 /**
@@ -95,23 +96,23 @@ Util.formatDate = function(dateStr) {
  * @return {string} The formated date string in ISO 8601 format.
  */
 Util.ISODateString = function(d) {
- var pad = function(n) {
-   return n < 10 ? '0' + n : n;
- };
- return d.getUTCFullYear() + '-'
-        + pad(d.getUTCMonth() + 1) + '-'
-        + pad(d.getUTCDate()) + 'T'
-        + pad(d.getUTCHours()) + ':'
-        + pad(d.getUTCMinutes()) + ':'
-        + pad(d.getUTCSeconds());// + 'Z'
+  var pad = function(n) {
+    return n < 10 ? '0' + n : n;
+  };
+  return d.getUTCFullYear() + '-' +
+    pad(d.getUTCMonth() + 1) + '-' +
+    pad(d.getUTCDate()) + 'T' +
+    pad(d.getUTCHours()) + ':' +
+    pad(d.getUTCMinutes()) + ':' +
+    pad(d.getUTCSeconds()); // + 'Z'
 };
 
-/** 
+/**
  * Formats a string with the given parameters. The string to format must have
- * placeholders that correspond to the index of the arguments passed and surrounded 
+ * placeholders that correspond to the index of the arguments passed and surrounded
  * by curly braces (e.g. 'Some {0} string {1}').
  *
- * @param {string} var_args The string to be formatted should be the first 
+ * @param {string} var_args The string to be formatted should be the first
  *     argument followed by the variables to inject into the string
  * @return {string} The string with the specified parameters injected
  */
@@ -140,89 +141,133 @@ Util.sortByTitle = function(a, b) {
     return -1;
   }
   return 0;
-}
+};
 
 Util.parseForHTML = function(content) {
-        //regular expression to find characters not accepted in XML.
-          var rx= /(<)|(>)|(&)|(")|(')/g; 
-        if(content == null){return '';}
-        var content = content.replace(rx, function(m){
-          switch(m)
-          {
-          case '<':
-            return '&lt;';
-            break;
-          case '>':
-            return '&gt;';
-            break;
-          case '&':
-            return '&amp;';
-            break;
-          case '"':
-            return '&quot;';
-            break;
-          case '\'':
-            return '&apos;';
-            break;
-          default:
-            return m;
-            break;
-          }
-        });
-        return sanitizeStringForXML(content);
-      }
+  //regular expression to find characters not accepted in XML.
+  var rx = /(<)|(>)|(&)|(")|(')/g;
+  if (content == null) {
+    return '';
+  }
+  content = content.replace(rx, function(m) {
+    switch (m) {
+      case '<':
+        return '&lt;';
+        break;
+      case '>':
+        return '&gt;';
+        break;
+      case '&':
+        return '&amp;';
+        break;
+      case '"':
+        return '&quot;';
+        break;
+      case '\'':
+        return '&apos;';
+        break;
+      default:
+        return m;
+        break;
+    }
+  });
+  return sanitizeStringForXML(content);
+};
 
-// WARNING: too painful to include supplementary planes, these characters (0x10000 and higher) 
+// WARNING: too painful to include supplementary planes, these characters (0x10000 and higher)
 // will be stripped by this function. See what you are missing (heiroglyphics, emoji, etc) at:
 // http://en.wikipedia.org/wiki/Plane_(Unicode)#Supplementary_Multilingual_Plane
 var NOT_SAFE_IN_XML_1_0 = /[^\x09\x0A\x0D\x20-\xFF\x85\xA0-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD]/gm;
+
 function sanitizeStringForXML(theString) {
-    "use strict";
-    return theString.replace(NOT_SAFE_IN_XML_1_0, '');
+  "use strict";
+  return theString.replace(NOT_SAFE_IN_XML_1_0, '');
 }
 
 function removeInvalidCharacters(node) {
-    "use strict";
+  "use strict";
 
-    if (node.attributes) {
-        for (var i = 0; i < node.attributes.length; i++) {
-            var attribute = node.attributes[i];
-            if (attribute.nodeValue) {
-                attribute.nodeValue = sanitizeStringForXML(attribute.nodeValue);
-            }
-        }
+  if (node.attributes) {
+    for (var i = 0; i < node.attributes.length; i++) {
+      var attribute = node.attributes[i];
+      if (attribute.nodeValue) {
+        attribute.nodeValue = sanitizeStringForXML(attribute.nodeValue);
+      }
     }
-    if (node.childNodes) {
-        for (var i = 0; i < node.childNodes.length; i++) {
-            var childNode = node.childNodes[i];
-            if (childNode.nodeType == 1 /* ELEMENT_NODE */) {
-                removeInvalidCharacters(childNode);
-            } else if (childNode.nodeType == 3 /* TEXT_NODE */) {
-                if (childNode.nodeValue) {
-                    childNode.nodeValue = sanitizeStringForXML(childNode.nodeValue);
-                }
-            }
+  }
+  if (node.childNodes) {
+    for (var i = 0; i < node.childNodes.length; i++) {
+      var childNode = node.childNodes[i];
+      if (childNode.nodeType == 1 /* ELEMENT_NODE */ ) {
+        removeInvalidCharacters(childNode);
+      } else if (childNode.nodeType == 3 /* TEXT_NODE */ ) {
+        if (childNode.nodeValue) {
+          childNode.nodeValue = sanitizeStringForXML(childNode.nodeValue);
         }
+      }
     }
+  }
 }
 
-// JSON to CSV Converter  
+// JSON to CSV Converter
 //TODO: use "for(var i in o){console.log(i,o[i]);}" to traverse a single object instead of an array of objects. i=key o[1]=value
 // Accepts an object array in the form of [{a:1,b:2},{a:3,b:4},...] -> "a,b \r\n 1,2 \r\n 3,4"
-  Util.JSONToCSV = function (objArray) {
-        console.log('JSON objArray:',objArray);
-        var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray; //Insures that the incoming param is an object array.
-        //var header = array.length > 1 ? array[0] : array;
-        var str = Object.keys(array[0]) + '\r\n'; //Uses the first object in the array to get the column headers.
-        for (var i = 0; i < array.length; i++) {
-            var line = '';
-            for (var index in array[i]) {
-                if (line != '') line += ',';
-                console.log('line',i,array[i][index],line);
-                line += '"'+Util.parseForHTML(array[i][index])+'"'; //Add the HTML parsed value of the citation to the CSV line.
-            }
-            str += line + '\r\n';
-        }
-        console.log('CSV data:',str);
-        return str;
+Util.JSONToCSV = function(objArray) {
+  console.log('JSON objArray:', objArray);
+  var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray; //Insures that the incoming param is an object array.
+  //var header = array.length > 1 ? array[0] : array;
+  var str = Object.keys(array[0]) + '\r\n'; //Uses the first object in the array to get the column headers.
+  for (var i = 0; i < array.length; i++) {
+    var line = '';
+    for (var index in array[i]) {
+      if (line != '') line += ',';
+      console.log('line', i, array[i][index], line);
+      line += '"' + Util.parseForHTML(array[i][index]) + '"'; //Add the HTML parsed value of the citation to the CSV line.
     }
+    str += line + '\r\n';
+  }
+  console.log('CSV data:', str);
+  return str;
+};
+
+/**
+ * Utility for displaying a message to the user.
+ * @param {string} msg The message.
+ */
+Util.displayMsg = function(msg) {
+  $('#butter').removeClass('error').text(msg).show();
+};
+
+/**
+ * Utility for removing any messages currently showing to the user.
+ */
+Util.hideMsg = function() {
+  $('#butter').fadeOut(1500);
+};
+
+/**
+ * Utility for displaying an error to the user.
+ * @param {string} msg The message.
+ */
+Util.displayError = function(msg) {
+  util.displayMsg(msg);
+  $('#butter').addClass('error');
+};
+
+/**
+ * Sets up a future poll for the user's document list.
+ */
+Util.scheduleRequest = function() {
+  var exponent = Math.pow(2, requestFailureCount);
+  var delay = Math.min(bgPage.pollIntervalMin * exponent,
+    pollIntervalMax);
+  delay = Math.round(delay);
+
+  if (bgPage.oauth.hasToken()) {
+    var req = bgPage.window.setTimeout(function() {
+      gdocs.getDocumentList(); //Get the first folder, no callback.
+      util.scheduleRequest();
+    }, delay);
+    bgPage.requests.push(req);
+  }
+};

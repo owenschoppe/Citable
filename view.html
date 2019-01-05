@@ -1,72 +1,77 @@
 <!DOCTYPE html>
 <!--
  * Author: Owen Schoppe <owen.schoppe@gmail.com>
- * Citable by Owen Schoppe is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License
+ * Printable and Citable by Owen Schoppe is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License
  *
 -->
 <html>
 <head>
-<title>Citable</title>
-<!--<link href="fonts/lithoantique_demibold_macroman/stylesheet.css" rel="stylesheet" type="text/css" charset="utf-8" />
-<link href="fonts/lithoantique_medium_macroman/stylesheet.css" rel="stylesheet" type="text/css" charset="utf-8" />-->
-<!--A library for creating pdfs-->
-<!--<script type="text/javascript" src="./lib/pdf.js"></script>-->
-<!-- Add jQuery UI for draggable elements -->
-<link rel="stylesheet" type="text/css" href="/css/landscape.css" media="print">
-<link rel="stylesheet" type="text/css" href="/css/portrait.css" media="print">
-<link rel="stylesheet" type="text/css" href="/css/print.css" media="print">
-<link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" type="text/css" href="/css/view.css" media="screen">
-<link rel="stylesheet" type="text/css" href="/css/notes.css">
-<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
-<script type="text/javascript" src="js/jquery-ui-1.8.20.custom.min.js"></script>
-<script type="text/javascript" src="js/view.js"></script>
-<script type="text/javascript" src="js/analytics.js"></script>
-<style type="text/css">
-	/*add css to style the notes*/
-</style>
+	<title>Printable</title>
+	<link rel="stylesheet" type="text/css" href="/css/landscape.css" media="print">
+	<link rel="stylesheet" type="text/css" href="/css/portrait.css" media="print">
+	<link rel="stylesheet" type="text/css" href="/css/print.css" media="print">
+	<link rel="stylesheet" type="text/css" href="/css/view.css" media="screen">
+	<link rel="stylesheet" type="text/css" href="/css/notes.css" media="all">
+	<link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
+
+	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="js/draggable.js"></script>
+	<script type="text/javascript" src="js/util.js"></script>
+	<script type="text/javascript" src="js/gdocs.js"></script>
+	<!--<script type="text/javascript" src="js/analytics.js"></script>-->
+	<script type="text/javascript" src="js/printexport.js"></script>
+	<script type="text/javascript" src="js/menu.js"></script>
+	<script type="text/javascript" src="js/render.js"></script>
+	<script type="text/javascript" src="js/view.js"></script>
+
+
 </head>
 <body>
-	<div id="output"></div>
+	<div id="loading" class="loading offset"><img src="css/img/loading.gif" height="16" width="16"/></div>
+
+	<div id="output" class="offset">
+	</div>
 	<div id="controls-wrapper">
 		<div id="controls">
-			<div id="page-title">Print</div>
+			<div id="page-title">Printable</div>
+		    <div id="display">
+                <div id="butter"></div>
+			    <div id="selection"></div>
+            </div>
 			<div id="total"></div>
 			<div id="button-wrapper">
-			<button id="print-button" class="button" >Print</button>
-			<button id="cancel-button" class="button" >Cancel</button>
-			<button id="template-button" class="button" >Print Template</button>
+			<button id="print-button" class="button" disabled>Print</button>
+			<button id="template-button" class="button">Print Template</button>
+			<button id="cancel-button" class="button">Cancel</button>
+
 			</div>
 			<div id="clear"></div>
 			<div class="divider"></div>
 			<div id="note-wrapper" class="left">
-				<div id="note">
+				<div id="note" class="controls">
 					<form id="elements" name="elements">
-						<div class="checkbox"><input type="checkbox" name="print" value="summary1" id="summary1" />Summary</div>
-						<div class="checkbox"><input type="checkbox" name="print" value="title1" id="title1" />Title</div>
-						<div class="checkbox"><input type="checkbox" name="print" value="author1" id="author1" />Author</div>
-						<div class="checkbox"><input type="checkbox" name="print" value="url1" id="url1" />URL</div>
-						<div class="checkbox"><input type="checkbox" name="print" value="tags1" id="tags1" />Tags</div>
 					</form>
 				</div>
 				<div id="shadow"></div>
 			</div>
-			
+
 			<div id="clear"></div>
 			<div id="radioControls">
 				<form id="fonts">
-							<input type="radio" name="font" value="Droid" id="typed" />Typed<br />
-							<input type="radio" name="font" value="handwritten" id="hand"/><span class="">Handwritten</span>
-							
+					<input type="radio" name="font" value="Droid" id="typed"/>Typed<br />
+					<input type="radio" name="font" value="handwritten" id="hand"/>Handwritten
 				</form>
 				<form id="orientation">
-							<div id="radioland"><input type="radio" name="pages" value="landscape" id="landscape" />Landscape</div>
-							<div id="radioport"><input type="radio" name="pages" value="portrait" id="portrait" />Portrait</div>
+							<div id="radioland"><input type="radio" name="pages" value="landscape" id="landscape"/>Landscape</div>
+							<div id="radioport"><input type="radio" name="pages" value="portrait" id="portrait"/>Portrait</div>
 				</form>
-				
+
 				<img class="pageIcon landscapeIcon" src="/css/img/Landscape128.png"/>
 				<img class="pageIcon portraitIcon" src="/css/img/Portrait128.png"/>
 				<span class="fontIcon">A</span>
+				<form id="mForm">
+					<div id="mCheck"><input type="checkbox" name="m" id="mInput"/><a href="http://www.shop3m.com/70071213287.html" target="_blank">Print on 3m Post-it Sheets</a></div>
+				</form>
 			</div>
 			<div id="clear"></div>
 			<div class="divider"></div>
@@ -75,5 +80,6 @@
 		<div id="control-shadow"></div>
 	</div>
 	<div id="indicator">Page <span id="pageNum">1</span></div>
+	<!--<div id="loading" class="shadowbox"><img src="css/img/loading.gif"  height="16" width="16"/></div>-->
 </body>
 </html>

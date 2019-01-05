@@ -62,7 +62,7 @@ GDocs.prototype.removeCachedAuthToken = function(opt_callback) {
     var accessToken = this.accessToken;
     this.accessToken = null;
     // Remove token from the token cache.
-    chrome.identity.removeCachedAuthToken({ 
+    chrome.identity.removeCachedAuthToken({
       token: accessToken
     }, function() {
       opt_callback && opt_callback();
@@ -81,7 +81,7 @@ GDocs.prototype.revokeAuthToken = function(opt_callback) {
     xhr.send();
     this.removeCachedAuthToken(opt_callback);
   }
-}
+};
 
 /*
  * Generic HTTP AJAX request handler.
@@ -93,9 +93,9 @@ GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_head
   var xhr = new XMLHttpRequest();
   xhr.open(method, url, true);
 
-  
 
-  // Include common headers (auth and version) and add rest. 
+
+  // Include common headers (auth and version) and add rest.
   xhr.setRequestHeader('Authorization', 'Bearer ' + this.accessToken);
   for (var key in headers) {
     xhr.setRequestHeader(key, headers[key]);
@@ -129,7 +129,7 @@ GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_head
   var onError = function(response) {
       if (retry) {
         this.removeCachedAuthToken(
-            this.auth.bind(this, true, 
+            this.auth.bind(this, true,
                 this.upload.bind(this, blob, callback, false)));
       } else {
         document.getElementById('main').classList.remove('uploading');
@@ -150,4 +150,17 @@ GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_head
 
 };*/
 
-
+/**
+ * A generic error handler for failed XHR requests.
+ * @param {XMLHttpRequest} xhr The xhr request that failed.
+ * @param {string} textStatus The server's returned status.
+ */
+GDocs.handleError = function(xhr, textStatus) {
+  //util.hideMsg();
+  if (xhr.status != 0) {
+    util.displayError(xhr.status, ' ', xhr.statusText);
+  } else {
+    util.displayError("No internet connection.");
+  }
+  ++requestFailureCount;
+};
