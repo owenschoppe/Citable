@@ -3,14 +3,13 @@ By Owen Schoppe
 
 Save citable quotes and notes in Google spreadsheets.
 
-Sick of manually tracking sources when collecting quotes? For students, researchers, and other professionals who do secondary research, Citable simplifies collecting quotes, notes and other data points along with the additional reference information needed to make a web citation. 
+Sick of manually tracking sources when collecting quotes? For students, researchers, and other professionals who do secondary research, Citable simplifies collecting quotes, notes and other data points along with the additional reference information needed to make a web citation.
 
 Notes are saved in a spreadsheet in your Google Docs to enable collaboration with colleagues and rigorous analysis of the collected notes. To collaborate online, simply share the spreadsheet.
 
 Collaborate using Post-its? Citable includes a printing template to simplify printing notes directly onto Post-its for easy offline collaboration.
 
-Citable is now compatible with Printable, a Chrome app that provides enhanced printing for Google spreadsheets.
-https://chrome.google.com/webstore/detail/printable/jihmnnkhocjgfhnffpigaachefmnelfg
+Citable provides enhanced printing for Google spreadsheets. Print each row one a single sticky and select which columns to include.
 
 Citable is secure and suitable for work. All notes are securely transmitted only between the specified Google account and your computer. Citable maintains your privacy.
 
