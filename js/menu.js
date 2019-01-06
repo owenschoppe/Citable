@@ -104,7 +104,6 @@ gdocs.changeAction = function(aForm, aValue, aLabel) {
   cols = [];
   $('#loading').removeClass('hidden');
 
-  debugger;
   // docKey = $('#destination').val(); //not found...
   console.log('docKey: ', docKey, aLabel);
   chrome.storage.local.set({

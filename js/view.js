@@ -478,7 +478,7 @@ var getDocId = function() {
 
 //IMPORTANT TODO: Rewrite the whole process around a function queue, thus on changeAction will clear the queue and start over. BIG project. Is it possible to abort functions midway without explicitly checking for a flag?
 /*------------------------------------------------------------------------------------------*/
-var processRowsCallback = function() {
+async function processRowsCallback() {
   rows = row; //From printexport.js
   console.log('processRowsCallback()', rows);
 
@@ -501,14 +501,23 @@ var processRowsCallback = function() {
 
 
 	//Initialize the select control values
-	// chrome.storage.local.get(docKey, function(response){
-		// console.log('get local storage',response);
-		for (var i = 0; i < 5; i++) {
-			initSelect(i, cols, defaultFields, defaultColumns);
+	async function initSelects() {
+		async function handleResponse(response) {
+			console.log('get local storage',response);
+			var valuesArray = [];
+			for (var i = 0; i < 5; i++) {
+				valuesArray.push( initSelect(i, cols, defaultFields, defaultColumns, response) );
+			}
+			await chrome.storage.local.set({[docKey]: valuesArray}, function(r){
+				console.log(r);
+			});
 		}
-	// });
+		await chrome.storage.local.get(docKey, function(response){
+			handleResponse(response);
+		});
+	}
 
-  var onSet = function() {
+  async function onSet() {
 
     //console.log(localStor.get(''));
     //Init CSS
@@ -522,16 +531,17 @@ var processRowsCallback = function() {
       //renderNotes(makeDraggable);
     };
 
-    chrome.storage.local.get('orientation', onStorage);
+    await chrome.storage.local.get('orientation', onStorage);
   };
 
-  chrome.storage.local.set({[docKey] : defaultColumns}, onSet);
-	// onSet();
+  // chrome.storage.local.set({[docKey] : defaultColumns}, onSet);
+	initSelects();
+	onSet();
 };
 
 /*------------------------------------------------------------------------------------------*/
 //Render select controls.
-buildSelect = function(cols, defaultFields, callback) {
+function buildSelect(cols, defaultFields, callback) {
   console.log('buildSelect()');
   var html = [];
   for (var col in cols) {
@@ -562,28 +572,27 @@ function onChangeHandler(e) {
 
 /*------------------------------------------------------------------------------------------*/
 //Initialize select controls.
-initSelect = function(i, cols, defaultFields, defaultColumns, storageResponse) {
+function initSelect(i, cols, defaultFields, defaultColumns, storageResponse) {
 
   // var handleResponse = function(items) {
     var fieldId = defaultFields[i];
     // console.log('initSelect.onStorage', fieldId, i, items, items[i], docKey);
-    //var i = parseInt(formName.substr(5,1)); //Done. TODO: pass in i to boost speed.
+    // var i = parseInt(fieldId.substr(5,1)); //Done. TODO: pass in i to boost speed.
     var valuesArray = [];
-    // if (items) {
-      // valuesArray = items; //Get array using the document id as the object key value.
-    // } else { //Initialize localStorage for the doc if no record is found.
-			// var obj = {};
-		  // obj[docKey] = cols;
-		  // chrome.storage.local.set(obj, function(r){});
-    // }
-
+	  if (storageResponse[docKey] && Array.isArray(storageResponse[docKey])) {
+	    valuesArray = storageResponse[docKey]; //Get array using the document id as the object key value.
+	  }
+		// else { //Initialize localStorage for the doc if no record is found.
+		//   chrome.storage.local.set({[docKey] : defaultColumns}, function(r){ console.log(r); });
+	  // }
     ////////////////////////////
     //TODO: Move this to it's own function and rewrite. It should store create an initial default menu set on init.
 
     if (valuesArray && valuesArray[i]) { //If i in the array exists use that. //Should we check that that col still exists in document?
       console.log('Existing value:', valuesArray[i]);
-      $("select[name='" + formName + "']").val(valuesArray[i]); //Updates the select control position.
-    } else {
+      $("select[name='" + defaultFields[i] + "']").val(valuesArray[i]); //Updates the select control position.
+			selectedOption = valuesArray[i];
+		} else {
       console.log('No value.');
 
       var selectedOption = defaultLayout(cols, defaultColumns[i], defaultColumns);
@@ -595,13 +604,15 @@ initSelect = function(i, cols, defaultFields, defaultColumns, storageResponse) {
 
 			//Push the updated values back to local storage.
       // var obj = items.docKey;
-      chrome.storage.local.set({[docKey]: valuesArray}, function(r){console.log(r)});
+      // await chrome.storage.local.set({[docKey]: valuesArray}, function(r){
+			// 	console.log(r);
+			// });
 			//chrome.storage.local.set({[docKey]:'foo'}, function(r){console.log(r)}) //sets the value of variable docKey as key with value 'foo'.
 			//chrome.storage.local.set({docKey:'bar'}, function(r){console.log(r)}) //sets the literal 'docKey' as key with value 'foo'.
 			//chrome.storage.local.get(docKey, function(r){console.log(r)}) //gets the value of local storage with the value of variable docKey as key.
 			//chrome.storage.local.get('docKey', function(r){console.log(r)}) //gets the value of local storage with the literal value 'docKey' as key.
     }
-		return;
+		return selectedOption;
     //changeAction(formName, elementName);
   // };
 };
