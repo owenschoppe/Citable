@@ -1,9 +1,14 @@
+html {
+	overflow: scroll;
+}
+
 body {
 	font-size: 14px;
 	font-family:'Droid Sans', Arial, Verdana, Sans-Serif;
 	background-color: #ccc;
 	margin:0px;
 	color: #444;
+	position: absolute;
 }
 #loading {
 	/*width: 10.5in;*/
@@ -36,19 +41,21 @@ a {
 	text-decoration: none;
 }
 a:hover {
-	color: #07377F;
-	text-decoration: none;
+	color: #880000;
+	text-decoration: underline;
 }
 #page-title {
 	font-size: 24px;
 	font-weight: thin;
 	margin-top: 20px;
 	margin-bottom: 20px;
+	display: inline-block;
 }
 #total {
 	font-size: 14px;
 	font-weight: thin;
 	margin-bottom: 10px;
+    height:15px;
 }
 .divider {
 	margin:20px 0 20px 0;
@@ -85,9 +92,8 @@ a:hover {
 #elements{
 	padding:20px;
 }
-#elements input[type=checkbox], input[type=radio]{
+input[type=checkbox], input[type=radio]{
 	margin-right: 10px;
-	margin-left: 20px;
 	/*margin-bottom: 40px;*/
 }
 div.checkbox {
@@ -100,7 +106,7 @@ div.checkbox {
 #radioControls{
 	position: relative;
 }
-#fonts, #orientation{
+#fonts, #orientation, #mForm {
 	float:left;
 	width:268px;
 	margin: 0px;
@@ -148,20 +154,21 @@ div.checkbox {
 	clear: none;
 }
 #print-button{
-	font-family: 'Droid Sans', Arial, Sans-Serif;
+	font-family: 'droid-sans', Arial, Sans-Serif;
 	font-weight: bold;
 	float: right;
 }
 #cancel-button{
-	font-family: 'Droid Sans', Arial, Sans-Serif;
-	font-weight: 400;
-	float: right;
-}
-#template-button{
-	font-family: 'Droid Sans', Arial, Sans-Serif;
+	font-family: 'droid-sans', Arial, Sans-Serif;
 	font-weight: 400;
 	float: left;
 	margin-left: 0px;
+}
+#template-button{
+	font-family: 'droid-sans', Arial, Sans-Serif;
+	font-weight: 400;
+	float: right;
+	/*margin-left: 0px;*/
 }
 #display{
     margin-bottom: 10px;
@@ -217,25 +224,27 @@ select:ACTIVE{
 .select{
 }
 .button{
-	font-family: 'Droid Sans', Arial, Sans-Serif;
+	font-family: 'droid-sans', Arial, Sans-Serif;
 	font-size: 12px;
 	color:#444444;
-	/*width: 58px;
-	height: 24px;*/
+	/*width: 58px;*/
+	height: 25px;
 	margin:0px;
-	padding: 5px 12px 5px 12px;
+	/*padding: 7px 12px 4px 12px;*/
+	vertical-align: middle;
+	padding: 0px 12px 0px 12px;
 	margin-left: 6px;
 	-webkit-border-radius: 4px;
 	border:1px solid #808080;
-	background-image:-webkit-gradient(linear,left bottom,left top,color-stop(0,#fafafa),color-stop(1,#e5e5e5));
+	background-image:-webkit-gradient(linear,left top,left bottom,color-stop(0,#fafafa),color-stop(1,#e5e5e5));
 }
 .button:HOVER{
-	background-image:-webkit-gradient(linear,left bottom,left top,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
+	background-image:-webkit-gradient(linear,left top,left bottom,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
 	border:1px solid #909090;
 	color:#222222;
 }
 .button:ACTIVE{
-	background-image:-webkit-gradient(linear,left top,left bottom,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
+	background-image:-webkit-gradient(linear,left bottom,left top,color-stop(0,#fefefe),color-stop(1,#e9e9e9));
 	border:1px solid #4080fa;
 	color:#222222;
 }
@@ -293,84 +302,19 @@ ui-state-highlight {
 /*#shadow{
 	height: 40px;
 }*/
-#output {
-	float:left;
-	clear:none;
-}
-.offset {
-	position:relative;
-	left:328px;
-}
-/*-----------------------*/
-.page, .loading{
-	background-color: #fff;
-	margin:20px 0px 20px 20px;
-	padding: 24px; /*.25in*/
-}
-.export{
-	/*-webkit-border-radius: 8px;*/
-	width: 8.5in;
-	padding: .5in;
-	margin:20px 0px 20px 20px;
-	background-color: #fff;
-}
-.doc_title{
-	margin-left: 20px;
-	padding-left: .5in;
-	position: relative;
-	top: 25px;
-	float: left;
-	font-size: 18px;
-}
-ui-state-highlight {
-	width: 3in;
-	height: 3in;
-	line-height: 3in;
-	padding: 0 0 0 .5in;
-	margin: 0px;
-	border:2px dashed rgb(255,255,160);
-	display: block;
-	float: left;
-}
-#note {
-	width: 3in;
-	height: 3in;
-	padding: 0px;
-	margin: 0px;
-	background-color: rgb(255,255,160);
-	overflow: hidden;
-	cursor: move;
-}
-#template {
-	display: none;
-}
-#template #note {
-	border: 2px #000 solid;
-	background-color: #fff;
-	margin-bottom: 40px;
-}
-#form{
-	margin:20px;
-}
-/*textarea,input{
-	width: 100%;
-	background-color: transparent !important;
-	border: none;
-}*/
-
-/*#shadow{
-	height: 40px;
-}*/
 #instructions {
 	padding-top: 10px;
-	margin-left: 35px;
+	margin-left: 25px;
 	padding-bottom: 20px;
 	font-size: 13px;
 }
 #instructions._export {
 	margin-left: 0px;
 }
-
+#supportedColumns {
+	-webkit-margin-before: 10px;
+	-webkit-padding-start: 30px;
+}
 #controls::-webkit-scrollbar {
 	width: 11px;
 }
@@ -447,41 +391,92 @@ ui-state-highlight {
 	margin:20px 0px 20px 20px;
 	background-color: #fff;
 }
-
+/*---------------------------*/
+#output {
+	float:left;
+	clear:none;
+	width:1404px;
+}
+.offset {
+	position:relative;
+	left:328px;
+}
+/*-----------------------*/
+.page, .loading{
+	background-color: #fff;
+	margin:20px 0px 20px 20px;
+	padding: 24px; /*.25in*/
+}
 .landscape{
-	width: 10.5in;
-	height: 7.5in;
+	width: 10.5in; /* page width(11in) = 10.5in + page-margin(.25in*2) */
+	height: 8in; /* page width(8.5in) = 8in + page-margin(.25in*2) */
+	float:left;
 }
 .portrait{
 	width: 8in;
-	height: 10in;
+	height: 10.5in;
+	float:left;
+}
+/*-----------------------*/
+#content {
+	float: left;
 }
 .landscape #content{
-	height: 7.5in;
+	/*height: 736px;*/ /* 8in-(16px*2) height is probably unnecessary */
+	/*width: 10.5in;*/
+	padding: 16px 0 16px 0;
 }
 .portrait #content{
-	height: 10in;
+	/*height: 10.5in;*/
+	/*width: 737px;*/
+	padding: 0 16px 0 15px; /* Strange 1px error, doesn't leave room for two rows. */
 }
+/*-----------------------*/
 .note_wrapper{
-	padding-left:.5in;
 	list-style: none;
 	cursor: default;
 }
-#note, .Droid, .handwritten{
-	cursor: pointer;
+.landscape .note_wrapper{
+	margin: 40px 24px 20px 24px; /* bottom margin(40px) = shadow(20px) + 20px */
+	padding: 0px;
 }
-#note.controls {
-	cursor: default;
+.portrait .note_wrapper{
+	margin: 24px 40px 4px 40px; /* bottom margin(24px) = shadow(20px) + 4px */
+	padding: 0px;
+}
+/*-----------------------*/
+#note {
+	width: 3in;
+	height: 3in;
+	padding: 0px;
+	margin: 0px;
+	background-color: rgb(255,255,160);
+	overflow: hidden;
+	cursor: move;
 }
 .left{
 	float: left;
 }
-.middle{
-	float:left;
+#shadow {
+  background-image: url(img/shadow_small.png);
+  background-size: 3in;
+  width: 3in;
+  background-repeat: no-repeat;
+  height: 20px;
 }
-.right{
-	float: left;
+/*-----------------------*/
+#note.controls {
+	cursor: default;
 }
-.portrait .right{
-	/*padding-left:1.5in;*/
+/*#template {
+	display: none;
 }
+#template #note {
+	border: 2px #000 solid;
+	background-color: #fff;
+	margin-bottom: 40px;
+}*/
+#form{
+	margin:20px;
+}
+/*---------------------------*/
