@@ -397,10 +397,9 @@ initCheck = function(formName, elementName) {
 */
 
 changeAction = function(formName, formValue, rows) {
-	debugger;
   console.time('loading timer');
 
-  var onStorage = function(items) {
+  var handleResponse = function(items) {
     console.log('changeAction.onStorage', formName, formValue, rows, items);
     $('#loading').removeClass('hidden');
     var valuesArray = items[docKey];
@@ -408,7 +407,7 @@ changeAction = function(formName, formValue, rows) {
     //if(isNumber(i)){
     valuesArray[i] = formValue;
     chrome.storage.local.set({
-      docKey: valuesArray
+      [docKey]: valuesArray
     });
     //rerenderNotes(formName);
     //setTimeout(function(){rerenderNotes(i,valuesArray)},0);
@@ -430,7 +429,7 @@ changeAction = function(formName, formValue, rows) {
     };
   };
 
-  chrome.storage.local.get(docKey, onStorage);
+  chrome.storage.local.get(docKey, handleResponse);
 
 };
 
@@ -463,7 +462,8 @@ var getDocId = function() {
   if ($('#destination').length) {
     //Menu exists-> load document.
     console.log('Document menu exists');
-    docKey = $('#destination').val();
+		//TODO: fix this
+    // docKey = $('#destination').val();
     console.log('docKey: ', docKey);
     gdocs.printDocument(null, processRowsCallback); //In printexport.js
   } else {
@@ -477,11 +477,12 @@ var getDocId = function() {
 //TODO: Can we remove the redundant variable 'row' and improve efficiency with explicit passing?
 
 //IMPORTANT TODO: Rewrite the whole process around a function queue, thus on changeAction will clear the queue and start over. BIG project. Is it possible to abort functions midway without explicitly checking for a flag?
-
+/*------------------------------------------------------------------------------------------*/
 var processRowsCallback = function() {
   rows = row; //From printexport.js
   console.log('processRowsCallback()', rows);
-  //Parse column names.
+
+	//Parse column names.
   var cols = [];
   for (var key in rows[1]) {
     if (rows[1].hasOwnProperty(key)) {
@@ -490,15 +491,22 @@ var processRowsCallback = function() {
   }
   console.log('Cols: ', cols);
 
+	//Set the default field names
   var defaultFields = ['field0', 'field1', 'field2', 'field3', 'field4'];
+	var defaultColumns = ['summary', 'title', 'author', 'url', 'tags'];
 
 
+	//Build the select controls
   buildSelect(cols, defaultFields);
 
-  //Initialize the local cache for this document to be the default settings, will update on initSelect()
-  //localStorage[docKey] = defaultColumns;
-  //console.log(localStorage[docKey]);
 
+	//Initialize the select control values
+	// chrome.storage.local.get(docKey, function(response){
+		// console.log('get local storage',response);
+		for (var i = 0; i < 5; i++) {
+			initSelect(i, cols, defaultFields, defaultColumns);
+		}
+	// });
 
   var onSet = function() {
 
@@ -517,14 +525,11 @@ var processRowsCallback = function() {
     chrome.storage.local.get('orientation', onStorage);
   };
 
-  for (var i = 0; i < 5; i++) {
-    initSelect(i, cols, defaultFields);
-  }
-  var obj = new Object();
-  obj[docKey] = cols;
-  chrome.storage.local.set(obj, onSet);
+  chrome.storage.local.set({[docKey] : defaultColumns}, onSet);
+	// onSet();
 };
 
+/*------------------------------------------------------------------------------------------*/
 //Render select controls.
 buildSelect = function(cols, defaultFields, callback) {
   console.log('buildSelect()');
@@ -533,7 +538,8 @@ buildSelect = function(cols, defaultFields, callback) {
     html.push('<option value="', cols[col], '">', cols[col], '</option>');
   }
   //TODO: Change this to i<defaultFields.length for a fully generalized function.
-  for (var i = 0; i < 5; i++) {
+	var valuesArray = [];
+	for (var i = 0; i < 5; i++) {
     var j = (i == 2 || i == 3) ? 'half' : 'full';
     var name = "field" + i;
     $('#elements').append('<div class="option ' + name + '"><select id="' + name + '" class="Droid select ' + j + '" name="' + name + '" ><option value="none">None</option>' + html.join('') + '</select></div>');
@@ -554,19 +560,22 @@ function onChangeHandler(e) {
   changeAction(this.name, this.value, rows);
 }
 
+/*------------------------------------------------------------------------------------------*/
 //Initialize select controls.
-initSelect = function(i, cols, defaultFields) {
-  var defaultColumns = ['summary', 'title', 'author', 'url', 'tags'];
-  var onStorage = function(items) {
-    var formName = defaultFields[i];
-    console.log('initSelect.onStorage', formName, i, items, items[docKey], docKey);
+initSelect = function(i, cols, defaultFields, defaultColumns, storageResponse) {
+
+  // var handleResponse = function(items) {
+    var fieldId = defaultFields[i];
+    // console.log('initSelect.onStorage', fieldId, i, items, items[i], docKey);
     //var i = parseInt(formName.substr(5,1)); //Done. TODO: pass in i to boost speed.
     var valuesArray = [];
-    if (items[docKey]) {
-      valuesArray = items[docKey]; //Get array using the document id as the object key value.
-    } else { //Initialize localStorage for the doc if no record is found.
-      //localStor.set({docKey : []});
-    }
+    // if (items) {
+      // valuesArray = items; //Get array using the document id as the object key value.
+    // } else { //Initialize localStorage for the doc if no record is found.
+			// var obj = {};
+		  // obj[docKey] = cols;
+		  // chrome.storage.local.set(obj, function(r){});
+    // }
 
     ////////////////////////////
     //TODO: Move this to it's own function and rewrite. It should store create an initial default menu set on init.
@@ -575,25 +584,26 @@ initSelect = function(i, cols, defaultFields) {
       console.log('Existing value:', valuesArray[i]);
       $("select[name='" + formName + "']").val(valuesArray[i]); //Updates the select control position.
     } else {
-      console.log('No value ');
+      console.log('No value.');
 
-      var elementName = defaultLayout(cols, defaultColumns[i], defaultColumns);
+      var selectedOption = defaultLayout(cols, defaultColumns[i], defaultColumns);
 
-      valuesArray[i] = elementName; //Update the default value in the variable array.
+      valuesArray[i] = selectedOption; //Update the default value in the variable array.
 
-      console.log('Made it here.', items[docKey], docKey, elementName);
-      $("select[name='" + formName + "']").val(elementName);
+      console.log('Set value of select.', docKey, selectedOption);
+      $("select[name='" + fieldId + "']").val(selectedOption);
 
-      var obj = items.docKey;
-      chrome.storage.local.set({
-        docKey: elementName
-      }); //Why isn't this storing?
+			//Push the updated values back to local storage.
+      // var obj = items.docKey;
+      chrome.storage.local.set({[docKey]: valuesArray}, function(r){console.log(r)});
+			//chrome.storage.local.set({[docKey]:'foo'}, function(r){console.log(r)}) //sets the value of variable docKey as key with value 'foo'.
+			//chrome.storage.local.set({docKey:'bar'}, function(r){console.log(r)}) //sets the literal 'docKey' as key with value 'foo'.
+			//chrome.storage.local.get(docKey, function(r){console.log(r)}) //gets the value of local storage with the value of variable docKey as key.
+			//chrome.storage.local.get('docKey', function(r){console.log(r)}) //gets the value of local storage with the literal value 'docKey' as key.
     }
-
+		return;
     //changeAction(formName, elementName);
-  };
-
-  chrome.storage.local.get(docKey, onStorage);
+  // };
 };
 
 var nextCol = 0; //Needs to be global so that it persists between calls.
