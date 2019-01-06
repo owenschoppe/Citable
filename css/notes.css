@@ -1,17 +1,47 @@
 @font-face {
-	font-family: 'hand-font';
-	src: url('../fonts/ComicSansMS.ttf') format('truetype');
+  font-family: 'hand-font';
+  src: url('../fonts/Dekko/Dekko-Regular.ttf') format('truetype');
 }
-.summary, #summary{
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto/Roboto-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto/Roboto-Italic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto/Roboto-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto/Roboto-BoldItalic.ttf') format('truetype');
+  font-weight: bold;
+  font-style: italic;
+}
+
+.summary, #summary {
   font-size: 17px;
   height: 211px;
-  margin-bottom:4px;
+  margin-bottom: 4px;
   resize: none;
   line-height: 19px;
-  overflow:hidden;
+  overflow: hidden;
   text-overflow: ellipsis;
 }
-.title, #title{
+
+.title, #title {
   font-size: 14px;
   height: 16px;
   font-weight: bold;
@@ -19,7 +49,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.url, #url, .author, #author{
+
+.url, #url, .author, #author {
   font-size: 9px;
   font-style: italic;
   height: 11px;
@@ -30,45 +61,60 @@
   clear: none;
   float: left;
 }
+
 .fullWidth {
   width: 100%;
 }
-.tags, #tags{
+
+.tags, #tags {
   font-size: 12px;
   font-weight: bold;
-  margin-top:1px;
+  margin-top: 1px;
   overflow: hidden;
   text-overflow: ellipsis;
   clear: both;
 }
+
 .handwritten {
-	font-family: 'hand-font', Arial, Sans-Serif;
-	line-height: normal;
+  font-family: 'hand-font', Arial, Sans-Serif;
+  line-height: 1.4;
 }
+
 .summary.handwritten {
-	font-size:12px;
-	text-transform:uppercase;
-	line-height: 19px;
+  font-size: 18px;
+  /* text-transform:uppercase; */
+  line-height: 21px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
 .title.handwritten {
-	font-size:12px;
-	text-transform:uppercase;
+  font-size: 12px;
+  text-transform: uppercase;
+  line-height: 16px;
+  font-weight: bold;
 }
+
 .url.handwritten {
-	font-size:8px;
+  font-size: 9px;
 }
+
 .tags.handwritten {
-	font-size:10px;
+  font-size: 10px;
 }
+
 .Droid {
-	font-family: 'Droid Sans', Arial, Sans-Serif;
+  font-family: 'Roboto', Arial, Sans-Serif;
 }
-.bold{
-	font-weight:bold;
+
+.bold {
+  font-weight: bold;
 }
-.italic{
-	font-style:italic;
+
+.italic {
+  font-style: italic;
 }
+
 #shadow {
   background-image: url(img/shadow_small.png);
   background-size: 3in;
@@ -76,12 +122,14 @@
   background-repeat: no-repeat;
   height: 30px;
 }
+
 #clear, .clear {
-	clear: both;
+  clear: both;
 }
-#content{
-	margin:0px;
-	padding:0px;
+
+#content {
+  margin: 0px;
+  padding: 0px;
 }
 
 .fade {
@@ -89,7 +137,7 @@
 }
 
 .hidden {
-  display:none;
+  display: none;
 }
 
 /*.left{

@@ -1,34 +1,64 @@
 /*For template*/
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto/Roboto-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto/Roboto-Italic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto/Roboto-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto/Roboto-BoldItalic.ttf') format('truetype');
+  font-weight: bold;
+  font-style: italic;
+}
+
 body {
   font-size: 14px;
-  font-family:'droid-sans', Sans-Serif;
+  font-family: 'Roboto', Sans-Serif;
   background-color: #ccc;
-  margin:0px;
+  margin: 0px;
   color: #444;
   position: absolute;
 }
+
 /*End*/
 #controls, #shadow, #indicator {
-	display: none !important;
-	width: 0px;
-
+  display: none !important;
+  width: 0px;
 }
+
 /*#print {
 	background: url(img/sprite_black2.png) no-repeat -84px -63px;
 	height: 21px;
 	opacity: .55;
 	width: 21px;
 }*/
-
 #print_instructions {
-	margin: 40px;
-	width: 208px;
+  margin: 40px;
+  width: 208px;
 }
-#print_instructions img{
-	margin-right: auto;
-	margin-left: auto;
-	display: block;
+
+#print_instructions img {
+  margin-right: auto;
+  margin-left: auto;
+  display: block;
 }
+
 /*.landscape #instructions {
 	clear: both;
 	text-align: center;
@@ -56,101 +86,128 @@ body {
 }*/
 /*-----------------------*/
 #output {
-	float:left;
-	clear:none;
+  float: left;
+  clear: none;
 }
+
 .offset {
-	position:relative;
-	left:0px;
+  position: relative;
+  left: 0px;
 }
+
 /*-----------------------*/
-.landscape{
-	width: 10.5in; /* page width(11in) = 10.5in + page-margin(.25in*2) */
-	height: 8in; /* page width(8.5in) = 8in + page-margin(.25in*2) */
+.landscape {
+  width: 10.5in;
+  /* page width(11in) = 10.5in + page-margin(.25in*2) */
+  height: 8in;
+  /* page width(8.5in) = 8in + page-margin(.25in*2) */
 }
-.portrait{
-	width: 8in;
-	height: 10.5in;
+
+.portrait {
+  width: 8in;
+  height: 10.5in;
 }
-.page{
-	background-color: #fff;
-	margin:0px;
-	padding: 0px;
-	page-break-before: always;
+
+.page {
+  background-color: #fff;
+  margin: 0px;
+  padding: 0px;
+  page-break-before: always;
 }
+
 /*-----------------------*/
 #content {
-	float: left;
+  float: left;
 }
-.landscape #content{
-	padding: 16px 0 16px 0;
+
+.landscape #content {
+  padding: 16px 0 16px 0;
 }
-.portrait #content{
-	padding: 0 16px 0 15px;
+
+.portrait #content {
+  padding: 0 16px 0 15px;
 }
+
 /*.m = 3m template*/
-.m.landscape #content{
-	padding: 16px 72px 16px 72px;
+.m.landscape #content {
+  padding: 16px 72px 16px 72px;
 }
-.m.portrait #content{
-	padding: 72px 16px 72px 15px;
+
+.m.portrait #content {
+  padding: 72px 16px 72px 15px;
 }
+
 /*-----------------------*/
-.note_wrapper{
+.note_wrapper {
   list-style: none;
 }
-.landscape .note_wrapper{
-	margin: 40px 24px 20px 24px; /* bottom margin(40px) = padding bottom(20px) + 20px */
-	padding: 0 0 20px 0;
+
+.landscape .note_wrapper {
+  margin: 40px 24px 20px 24px;
+  /* bottom margin(40px) = padding bottom(20px) + 20px */
+  padding: 0 0 20px 0;
 }
-.portrait .note_wrapper{
-	margin: 24px 40px 4px 40px; /* bottom margin(24px) = padding bottom(20px) + 4px */
-	padding: 0 0 20px 0;
+
+.portrait .note_wrapper {
+  margin: 24px 40px 4px 40px;
+  /* bottom margin(24px) = padding bottom(20px) + 4px */
+  padding: 0 0 20px 0;
 }
+
 /*.m = 3m template*/
-.m.landscape .note_wrapper{
-	margin: 40px 0px 20px 0px; /* bottom margin(40px) = padding bottom(20px) + 20px */
-	padding: 0 0 20px 0;
+.m.landscape .note_wrapper {
+  margin: 40px 0px 20px 0px;
+  /* bottom margin(40px) = padding bottom(20px) + 20px */
+  padding: 0 0 20px 0;
 }
-.m.portrait .note_wrapper{
-	margin: 0px 40px 0px 40px; /* bottom margin(24px) = padding bottom(20px) + 4px */
-	padding: 0 0 0px 0;
+
+.m.portrait .note_wrapper {
+  margin: 0px 40px 0px 40px;
+  /* bottom margin(24px) = padding bottom(20px) + 4px */
+  padding: 0 0 0px 0;
 }
+
 /*-----------------------*/
 #note {
-	width: 3in;
-	height: 3in;
-	padding: 0px;
-	margin: 0px;
-	overflow: hidden;
+  width: 3in;
+  height: 3in;
+  padding: 0px;
+  margin: 0px;
+  overflow: hidden;
 }
+
 #template #note {
-	width:284px; /*96px*3in-2pxborder=284px*/
-	height:284px;
-	border: 2px #000 solid;
-	background-color: #fff;
+  width: 284px;
+  /*96px*3in-2pxborder=284px*/
+  height: 284px;
+  border: 2px #000 solid;
+  background-color: #fff;
 }
-.left{
-	float: left;
-	padding:0px;
+
+.left {
+  float: left;
+  padding: 0px;
 }
+
 /*-----------------------*/
-#form{
-	margin:20px;
+#form {
+  margin: 20px;
 }
+
 /*textarea,input{
 	width: 100%;
 	background-color: transparent !important;
 	border: none;
 }*/
 .divider {
-	margin:40px 0 20px 0;
-	border-top:1px #000 solid;
-	clear: both;
-	position: relative;
-
+  margin: 40px 0 20px 0;
+  border-top: 1px #000 solid;
+  clear: both;
+  position: relative;
 }
+
 /*-----------------------*/
 #loading {
-	display: none; !important
+  display: none;
+   !important
 }
