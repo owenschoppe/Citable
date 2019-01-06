@@ -1,75 +1,44 @@
+/*For template*/
 body {
-  font: 14px 'Droid Sans', Arial, Verdana, Sans-Serif;
+  font-size: 14px;
+  font-family:'droid-sans', Sans-Serif;
   background-color: #ccc;
   margin:0px;
+  color: #444;
+  position: absolute;
 }
+/*End*/
 #controls, #shadow, #indicator {
 	display: none !important;
 	width: 0px;
-	
+
 }
-#print {
+/*#print {
 	background: url(img/sprite_black2.png) no-repeat -84px -63px;
 	height: 21px;
 	opacity: .55;
 	width: 21px;
-}
-#output {
-	float:left;
-	clear:none;
-}
-.offset {
-	position:relative;
-	left:0px;
-}
-.page{
-	background-color: #fff;
-	margin:0px;
-	/*padding: .5in .5in .5in .5in;*/
-	page-break-before: always;
-}
-
-#note {
-	width: 3in;
-	height: 3in;
-	padding: 0px;
-	margin: 0px;
-	margin-bottom: 30px;
-	overflow: hidden;
-}
-#template #note {
-	width:284px; /*96px*3in-2pxborder=284px*/
-	height:284px;
-	border: 2px #000 solid;
-	background-color: #fff;
-	margin-bottom: 30px;
-}
-
-.divider {
-	margin:40px 0 20px 0;
-	border-top:1px #000 solid;
-	clear: both;
-	position: relative;
-	
-}
-#form{
-	margin:20px;
-}
-textarea,input{
-	width: 100%;
-	background-color: transparent !important;
-	border: none;
-}
-/*#shadow{
-	height: 40px;
 }*/
-#instructions {
+
+#print_instructions {
+	margin: 40px;
+	width: 208px;
+}
+#print_instructions img{
+	margin-right: auto;
+	margin-left: auto;
+	display: block;
+}
+/*.landscape #instructions {
 	clear: both;
 	text-align: center;
 }
 .portrait #instructions {
 	clear: none;
-	padding: 10px;
+	text-align: center;
+	width: 2.5in;
+	margin-right: auto;
+	margin-left: auto;
 }
 .portrait #instructions img {
 	margin-bottom: 10px;
@@ -84,28 +53,104 @@ textarea,input{
 	bottom: -30px;
 	width: 100px;
 	height: 100px;
+}*/
+/*-----------------------*/
+#output {
+	float:left;
+	clear:none;
 }
-
+.offset {
+	position:relative;
+	left:0px;
+}
+/*-----------------------*/
 .landscape{
-	width: 10in;
-	height: 7.5in;
+	width: 10.5in; /* page width(11in) = 10.5in + page-margin(.25in*2) */
+	height: 8in; /* page width(8.5in) = 8in + page-margin(.25in*2) */
 }
 .portrait{
-	width: 7.5in;
-	height: 10in;
+	width: 8in;
+	height: 10.5in;
 }
+.page{
+	background-color: #fff;
+	margin:0px;
+	padding: 0px;
+	page-break-before: always;
+}
+/*-----------------------*/
+#content {
+	float: left;
+}
+.landscape #content{
+	padding: 16px 0 16px 0;
+}
+.portrait #content{
+	padding: 0 16px 0 15px;
+}
+/*.m = 3m template*/
+.m.landscape #content{
+	padding: 16px 72px 16px 72px;
+}
+.m.portrait #content{
+	padding: 72px 16px 72px 15px;
+}
+/*-----------------------*/
 .note_wrapper{
+  list-style: none;
 }
-
+.landscape .note_wrapper{
+	margin: 40px 24px 20px 24px; /* bottom margin(40px) = padding bottom(20px) + 20px */
+	padding: 0 0 20px 0;
+}
+.portrait .note_wrapper{
+	margin: 24px 40px 4px 40px; /* bottom margin(24px) = padding bottom(20px) + 4px */
+	padding: 0 0 20px 0;
+}
+/*.m = 3m template*/
+.m.landscape .note_wrapper{
+	margin: 40px 0px 20px 0px; /* bottom margin(40px) = padding bottom(20px) + 20px */
+	padding: 0 0 20px 0;
+}
+.m.portrait .note_wrapper{
+	margin: 0px 40px 0px 40px; /* bottom margin(24px) = padding bottom(20px) + 4px */
+	padding: 0 0 0px 0;
+}
+/*-----------------------*/
+#note {
+	width: 3in;
+	height: 3in;
+	padding: 0px;
+	margin: 0px;
+	overflow: hidden;
+}
+#template #note {
+	width:284px; /*96px*3in-2pxborder=284px*/
+	height:284px;
+	border: 2px #000 solid;
+	background-color: #fff;
+}
 .left{
 	float: left;
 	padding:0px;
 }
-.middle{
-	float:left;
-	padding-left:.45in;
+/*-----------------------*/
+#form{
+	margin:20px;
 }
-.right{
-	float: right;
-	padding:0px;
+/*textarea,input{
+	width: 100%;
+	background-color: transparent !important;
+	border: none;
+}*/
+.divider {
+	margin:40px 0 20px 0;
+	border-top:1px #000 solid;
+	clear: both;
+	position: relative;
+
+}
+/*-----------------------*/
+#loading {
+	display: none; !important
 }
