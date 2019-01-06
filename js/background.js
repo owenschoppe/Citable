@@ -12,13 +12,13 @@
       var requests = [];
       var docName; //For passing the document name to the export page.
       var docKey;
-            
-      
+
+
       var FULL_SCOPE = DOCLIST_SCOPE + ' ' + SPREAD_SCOPE + ' ' + DRIVE_SCOPE;
-      
+
       // Array to hold callback functions
-      var callbacks = []; 
-      
+      var callbacks = [];
+
       var firstRun = true; //Variable that is only true in the first start after an update. //Set to false if there is no need to update the headers.
 
 	//defines a common and persistant object for handling the accessToken and other functions. avoids having to invoke angular in the background.
@@ -50,25 +50,25 @@
     }
     // Success, do something with response...
 });*/
-      
+
 
 /////////////////////////////////////////////////////////
  // This function is called onload in the popup code
-    function getPageInfo(callback) 
-    { 
+    function getPageInfo(callback)
+    {
     	chrome.tabs.getSelected(function(tab){
 	        console.log('getPageInfo',tab);
-	        if ((tab.url.indexOf("chrome-devtools://") == -1) 
-	        	&& (tab.url.indexOf("chrome://") == -1) 
+	        if ((tab.url.indexOf("chrome-devtools://") == -1)
+	        	&& (tab.url.indexOf("chrome://") == -1)
 	        	&& (tab.url.indexOf("chrome-extension://") == -1)
 	        	&& (tab.url.indexOf("file://") == -1)) {
 	            console.log('execute content scripts');
 	            // Add the callback to the queue
 	            callbacks = [];
-	            callbacks.push(callback); 
-	            // Inject the content script into the current page        
-	    		//chrome.tabs.executeScript(null, { file: "content_script.js" }); 
-	    		
+	            callbacks.push(callback);
+	            // Inject the content script into the current page
+	    		//chrome.tabs.executeScript(null, { file: "content_script.js" });
+
 	    		chrome.tabs.executeScript(null, { file: "js/jquery-1.7.2.min.js" }, function() {
 	    				if (chrome.runtime.lastError) {
 				            console.log('Scripting error:',chrome.runtime.lastError.message);
@@ -81,7 +81,7 @@
 					        }
 	        			});
 	    		});
-    	    	
+
 	    		//console.log('callbacks',callbacks);
 	    	} else {
 	    		console.log('getPageInfo error');
@@ -98,11 +98,11 @@
 		  	};
     		callback(pageInfo);
 		}
-    }; 
-    
+    };
+
     chrome.extension.onConnect.addListener(function(port) {
 	  var tab = port.sender.tab;
-	
+
 	  // This will get called by the content script we execute in
 	  // the tab as a result of the user pressing the browser action.
 	  port.onMessage.addListener(function(info) {
@@ -115,7 +115,7 @@
 
 		if(info.values == 0 && info.message == "myCustomEvent"){
 			//Need to update functions to grab the doc id from the tab url and put it in the bgpage variables.
-				var docKey = tab.url.split("=")[1].split('#')[0].split('&')[0];	
+				var docKey = tab.url.split("=")[1].split('#')[0].split('&')[0];
 				console.log('Try printing',docKey);
 				_gaq.push(['_trackEvent', 'Button', 'Print From Sheet']);
 				//gdocs.printDocument();
@@ -129,7 +129,7 @@
 				_gaq.push(['_trackEvent', 'Button', 'Export From Sheet']);
 				//gdocs.exportDocument();
 				//gdocs.exportDocumentPage();
-				
+
 				getDocument('export', docKey, true, function(response){});
 				//callPrintable('export');
 		}
@@ -156,17 +156,16 @@ function callPrintable(action, callback){
 	console.log('callPrintable');
 	// The ID of the extension we want to talk to.
 	//var printableId = "bdhofmoocbkmplcojaemnjogcmefeido"; //Local, for testing.
-	var printableId = "jihmnnkhocjgfhnffpigaachefmnelfg"; //Live. //Intentionally broken since Printable is broken
+	// var printableId = "jihmnnkhocjgfhnffpigaachefmnelfg"; //Live. //Intentionally broken since Printable is broken
 	// Make a simple request:
 	if(action == "print") {
 		_gaq.push(['_trackEvent', 'Button', 'Print Document']);
-		chrome.runtime.sendMessage(printableId, {printDoc: true, key: docKey, name: docName}, function(response) {
-			console.log('response ',response);
-			if(response == undefined){
-				chrome.tabs.create({ 'url' : 'view.html'}); //Disabled temporarily.
-			}
-			if(callback){ callback(response); }
-		});
+
+    chrome.storage.sync.get(null, function(response){
+			chrome.tabs.create({ 'url' : 'view.html?key=' + response.defaultDoc.id + '&title=' + response.defaultDoc.title});
+			if(callback){ callback(); }
+    });
+
 	} else if(action == "export") {
 		_gaq.push(['_trackEvent', 'Button', 'Export Document']);
 		chrome.runtime.sendMessage(printableId, {exportDoc: true, key: docKey, name: docName}, function(response) {
@@ -185,14 +184,14 @@ function callPrintable(action, callback){
 
 processDocContent = function(response, xhr, callback) {
     console.log('rows returned: ', xhr);
-    
+
     //Clear row cache in bgPage. //TODO: clean this up so as to not leave a copy lying around. Maybe use localStorage?
     var row = [];
-    
+
     var data = JSON.parse(response);
     console.log('row data: ',data,Boolean(data.feed.entry));
     if(data.feed.entry) {
-      
+
       for (var i = 0, entry; entry = data.feed.entry[i]; ++i) {
         console.log(i);
         row.push(new Row(entry));
@@ -217,7 +216,7 @@ processDocContent = function(response, xhr, callback) {
       	//docName = response.defaultDoc.title;
       });
       if(callback) { callback(true); }
-    
+
     } else {
       console.log('No entries');
       showMsg('Invalid file.',error,10000);
@@ -238,12 +237,12 @@ processDocContent = function(response, xhr, callback) {
     return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
   };
 
-  getDocument = function(param, docId, retry, callback){    
-    
+  getDocument = function(param, docId, retry, callback){
+
     /*chrome.storage.sync.get('defaultDoc', function(response){
       	console.log("chrome.storage.sync.get('defaultDoc')",response);
-      	
-    	docId = response.defaultDoc.id;  	
+
+    	docId = response.defaultDoc.id;
     });*/
     if(docId == ''){ return; }
     else {
@@ -304,13 +303,13 @@ var createDocument = function(data, fileName, parentFolder, callback){
 	console.log('createDocument',data,fileName,callback);
 	_gaq.push(['_trackEvent', 'Auto', 'Create Document']);
 	// JSON to CSV Converter
-	
+
 	//TODO: use "for(var i in o){console.log(i,o[i]);}" to traverse a single object instead of an array of objects. i=key o[1]=value
 
 
 	var handleSuccess = function(response, xhr) {
 		console.log('doc returned: ',response, xhr);
-		
+
 		if (xhr.status != 201 && xhr.status != 200) {
 			console.log('ERROR', xhr);
 			return;
@@ -335,10 +334,10 @@ var createDocument = function(data, fileName, parentFolder, callback){
 		}
 
 		//var resourceId = JSON.parse(response).entry.gd$resourceId.$t;
-				
-		//callback(resourceId);	
-		callback && callback(JSON.parse(response));	
-	}; 
+
+		//callback(resourceId);
+		callback && callback(JSON.parse(response));
+	};
 
 	const boundary = '-------314159265358979323846';
   	const delimiter = "\r\n--" + boundary + "\r\n";
@@ -355,12 +354,12 @@ var createDocument = function(data, fileName, parentFolder, callback){
 		  //"isRoot": false
 		}
 
-	/*var properties = {	
+	/*var properties = {
 	    'key': key,
 		'value': value,
 		'visibility': visibility
 	}*/
-	
+
 	var metadata = {
       'title': fileName,
       'mimeType': contentType,
@@ -414,13 +413,13 @@ _gaq.push(['_trackEvent', 'Auto', 'Create Folder']);
 
 	var handleSuccess = function(response, xhr) {
 		console.log('Folder created: ', response, xhr);
-		var data = {items:[JSON.parse(response)]}; //Wrap the response in an object with property items so it looks like the fetchFolder response. Hack.	
-		callback(data);		
-	}; 
-  	
+		var data = {items:[JSON.parse(response)]}; //Wrap the response in an object with property items so it looks like the fetchFolder response. Hack.
+		callback(data);
+	};
+
   //util.displayMsg('Creating folder...');
   console.log('Creating folder...');
-  
+
 	var headers = {
 		'Authorization': 'Bearer ' + gdocs.accessToken,
 		'GData-Version': '3.0',
@@ -430,7 +429,7 @@ _gaq.push(['_trackEvent', 'Auto', 'Create Folder']);
 	var parent = {
 		"id": "root"
 	}
-	
+
 	var metadata = {
 		'title': title,
 		'mimeType': "application/vnd.google-apps.folder",
@@ -480,27 +479,27 @@ function logout(access_token, callback) {
 // updateProperties($scope.data.docs, 'Citable', 'True', 'Public');
 var insertProperties = function(docs, properties, callback){
 	console.log('insertProperties ', docs, properties);
-	_gaq.push(['_trackEvent', 'Auto', 'Update Properties']); //When this goes to 0 in analytics, stop doing this on install. 
-   	
+	_gaq.push(['_trackEvent', 'Auto', 'Update Properties']); //When this goes to 0 in analytics, stop doing this on install.
+
   	var handleSuccess = function(response, xhr) {
 		console.log('Property added: ', response, xhr);
 
 		//If successful, this method returns a Properties resource in the response body.
 
-		if(callback){callback(response);}		
+		if(callback){callback(response);}
 	};
-   
+
     var headers = {
       'Authorization': 'Bearer ' + gdocs.accessToken,
       'GData-Version': '3.0',
       'Content-Type': 'application/json'
     };
-	
+
 	/*var properties = [{
         'key': key,
 	    'value': value,
 	    'visibility': visibility
-    }];*/    
+    }];*/
 
 	var loopProperties = function(id){
 		for(var i in properties){
@@ -528,13 +527,13 @@ var insertProperties = function(docs, properties, callback){
 		console.log('one doc only');
 		loopProperties(docs.id);
 	}
-	
+
 }
 
 var renameFolder = function(folder, title, callback){
 	console.log('renameFolder ', folder, title);
-	_gaq.push(['_trackEvent', 'Auto', 'Rename Folder']); //When this goes to 0 in analytics, stop doing this on install. 
-  
+	_gaq.push(['_trackEvent', 'Auto', 'Rename Folder']); //When this goes to 0 in analytics, stop doing this on install.
+
 	var id = folder.id;
 
     var headers = {
@@ -542,7 +541,7 @@ var renameFolder = function(folder, title, callback){
       'GData-Version': '3.0',
       'Content-Type': 'application/json'
     };
-	
+
     var body = {
     	'title': title
     }
@@ -566,7 +565,7 @@ var renameFolder = function(folder, title, callback){
 
 		//If successful, this method returns a Files resource in the response body.
 
-		if(callback){callback(response);}		
+		if(callback){callback(response);}
 	};
 
 	makeRequest(id,headers,body);
@@ -577,13 +576,13 @@ var renameFolder = function(folder, title, callback){
 //Runs completely in the background.
 //TODO: Citable successfully posts the note even if only one column (with incoming data) is present. This is ok, if we assume users don't want data if they delete a column, but it's problematic if we want to be fool-proof. Consider doing a forced header-update for all docs on a recurring basis.
 var updateDocument = function(callback, docToUpdate) {
-	
+
 	var privateDocs;
 	if (docToUpdate != null) {
 		_gaq.push(['_trackEvent', 'Auto', 'Update Document', 'Single']);
 		privateDocs = [docToUpdate];
 	}
-	else { 
+	else {
 		_gaq.push(['_trackEvent', 'Auto', 'Update Document', 'Multi', privateDocs.length]);
 		//Docs is currently null since it is outside of the scope of angular. Consider revising. Today we have to pass in the complete doc list if we want to update everyting.
 		privateDocs = docs; //Copy the doclist into a private variable so that we can run in the background while the user can send notes to the doc of choice.
@@ -610,7 +609,7 @@ var updateDocument = function(callback, docToUpdate) {
 		  this.colCount = (entry.gs$colCount ? entry.gs$colCount.$t : '');
 	}
 	var colCount;
-	
+
 	var handleSuccess = function(response, xhr){
 		console.log('updateDocument handleSuccess: ', response, xhr);
 		if (xhr.status != 200) {
@@ -621,28 +620,28 @@ var updateDocument = function(callback, docToUpdate) {
 		} else {
 			requestFailureCount = 0;
 		}
-		
+
 		var data = JSON.parse(xhr.response);
 		console.log('JSON data', data);
 		Cells = [];
 		colCount = parseInt(data.feed.gs$colCount.$t);
-		
+
 		console.log('Cell data. Should have entries. ', data);
-		
+
 		if(data.feed.entry) {
-			
+
 			var sheetEntry = new Sheet(data.feed);
 			console.log('sheetEntry: ',sheetEntry);
-		
+
 			console.log('process feed');
 			for (var i = 0, entry; entry = data.feed.entry[i]; ++i) {
 				Cells.push(new Cell(entry));
 			}
 			var missingTitles = checkTitles();
 			var moreCols = missingTitles.length - (colCount - parseInt(Cells[Cells.length-1].col) ); //Columns needed minus, the total number of columns minus the last filled column. The blank columns at the end of the row.
-		
+
 			console.log(missingTitles.length,'-(',colCount,'-', parseInt(Cells[Cells.length-1].col),') = moreCols: ',moreCols);
-		
+
 			if(missingTitles.length>0){
 				if(moreCols > 0){
 					//getWorksheet(moreCols, function(){updateCells(1, parseInt(Cells[Cells.length-1].col)+1, missingTitles)});
@@ -659,7 +658,7 @@ var updateDocument = function(callback, docToUpdate) {
 			updateCells(1, 1, order); //Update everything starting in cell R1C1.
 		}
 	}
-	
+
 	var checkTitles = function(){
 		var cellValues = '';
 		var missingTitles = [];
@@ -678,7 +677,7 @@ var updateDocument = function(callback, docToUpdate) {
 		console.log('missingTitles: ',missingTitles);
 		return missingTitles;
 	}
-	
+
 	//Generic function to batch update cells in row r starting in column c.
 	var updateCells = function(r,c,missingTitle,callback){
 		var handleCellsSuccess = function(response, xhr){
@@ -693,7 +692,7 @@ var updateDocument = function(callback, docToUpdate) {
 			console.log('Finished Updating Titles in Doc ',k);
 			nextDocument();
 		}
-		//gs$colCount': colCount+n 
+		//gs$colCount': colCount+n
 
 		var headers = {
 			//'method': 'POST',
@@ -704,15 +703,15 @@ var updateDocument = function(callback, docToUpdate) {
 			  'If-Match': '*'
 			//}//,
 		   //'body': constructBatchAtomXml_(r,c,missingTitle)
-		   
+
 		};
 		//var url = SPREAD_SCOPE +'/cells/'+docId+'/'+worksheetId+'/private/full/R'+r+'C'+c; //Url for single cell updates.
-		var url = SPREAD_SCOPE +'/cells/'+docId+'/'+worksheetId+'/private/full/batch'; 
+		var url = SPREAD_SCOPE +'/cells/'+docId+'/'+worksheetId+'/private/full/batch';
 		console.log('AddTitles request',r,c,missingTitle,headers,url);
 
 		gdocs.makeRequest('POST',url, handleCellsSuccess, constructBatchAtomXml_(r,c,missingTitle), headers);
 	};
-	
+
 	//For batch cell updates.
 	constructBatchCellAtomXml_ = function(r,c,content) {
 	  var atom = ['<entry>',
@@ -724,7 +723,7 @@ var updateDocument = function(callback, docToUpdate) {
 	  '</entry>',].join('');
 	  return atom;
 	};
-	
+
 	contructBatchCellEntries_ = function(r,c,missingTitles){
   	  	var batch = '';
   	  	for( var i=0; i<missingTitles.length; i++){
@@ -732,7 +731,7 @@ var updateDocument = function(callback, docToUpdate) {
   	  	}
   	  	return batch;
   	  };
-	
+
 	constructBatchAtomXml_ = function(r,c,missingTitles) {
 	  var atom = ['<feed xmlns="http://www.w3.org/2005/Atom" xmlns:batch="http://schemas.google.com/gdata/batch" xmlns:gs="http://schemas.google.com/spreadsheets/2006" >',
   	  '<id>https://spreadsheets.google.com/feeds/cells/',docId,'/',worksheetId,'/private/full</id>',
@@ -743,7 +742,7 @@ var updateDocument = function(callback, docToUpdate) {
 	};
 
 	var addCols = function(n, sheetEntry, callback){
-		
+
 		var handleColsSuccess = function(response, xhr){
 			console.log('updateDocument addCols handleSuccess: ',xhr);
 			if (xhr.status != 200) {
@@ -765,13 +764,13 @@ var updateDocument = function(callback, docToUpdate) {
 			  'If-Match': '*'
 			//}//,
 		   //'body': constructColAtomXml_(parseInt(colCount)+n,sheetEntry)
-		   
+
 		};
 		var url = SPREAD_SCOPE +'/worksheets/'+docId+'/private/full/'+worksheetId;
 		console.log('AddCols request',n,headers,url);
 		gdocs.makeRequest('PUT', url, handleColsSuccess, constructColAtomXml_(parseInt(colCount)+n,sheetEntry), headers);
 	};
-	
+
 	constructColAtomXml_ = function(n,sheetEntry) {
 	  var atom = ["<?xml version='1.0' encoding='UTF-8'?>",'<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gs="http://schemas.google.com/spreadsheets/2006"><id>https://spreadsheets.google.com/feeds/worksheets/',docId,'/private/full/',worksheetId,'</id>',
 				  ' <updated>',sheetEntry.updated,'</updated>',
@@ -787,7 +786,7 @@ var updateDocument = function(callback, docToUpdate) {
 				'</entry>'].join('');
 	  return atom.trim().replace("^([\\W]+)<","<"); //There are evidently bad characters in the XML that this regex removes.
 	};
-		
+
 	//Decriment through the privateDocs array and update each one.
 	var nextDocument = function(hasError){
 		console.log(privateDocs.length)
@@ -795,14 +794,14 @@ var updateDocument = function(callback, docToUpdate) {
 			docId = privateDocs[k].id;
 
 			console.log('Bearer ' + gdocs.accessToken);
-			
+
 			var headers = {
 				//'headers': {
 				    'Authorization': 'Bearer ' + gdocs.accessToken,
 				    'GData-Version': '3.0',
 				    'content-type': 'application/json'
 				//}
-			};	
+			};
 			var params = {
 				//'params': {
 				    'alt': 'json',
@@ -819,9 +818,9 @@ var updateDocument = function(callback, docToUpdate) {
 			//TODO: make this angular and use $http
 			//Reference: GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_headers)
 			gdocs.makeRequest('GET', url, handleSuccess, null, headers);
-			
+
 			k--; //Step backward throug the doclist.
-			
+
 		} else {
 			//End of updateDocument.
 			if(callback){ callback(hasError) };
@@ -829,14 +828,12 @@ var updateDocument = function(callback, docToUpdate) {
     }
     //Intitialize k to privateDocs.length-1 for the doc list.
     //We work backwards through the list to prevent inverting the users doclist.
-	var k = privateDocs.length-1; 
+	var k = privateDocs.length-1;
     nextDocument(); //Start the process.
 };
 
 //Callback for calling updateDocuments on first run from background page.
 var updateDocumentCallback = function() {
 	console.log('Successfully completed spreadsheets header update.');
-	firstRun = false; 
+	firstRun = false;
 }
-
-    

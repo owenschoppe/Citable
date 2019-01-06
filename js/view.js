@@ -65,6 +65,7 @@ var DOCLIST_FEED = DOCLIST_SCOPE + '/default/private/full/';
 var FULL_SCOPE = DOCLIST_SCOPE + ' ' + SPREAD_SCOPE;
 
 var docKey; //The doc key for the document to print.
+var title; //The doc title to print
 //var rows = bgPage.row;
 var rows = []; //From printexport.js
 //console.log(rows);
@@ -735,7 +736,9 @@ var startup = function() {
 
     if (defaultDoc != undefined) {
       console.log('items.defaultDoc', defaultDoc);
-      docKey = defaultDoc.id;
+      docKey = parseURLParams(document.URL)['key'][0] || defaultDoc.id;
+			title = parseURLParams(document.URL)['title'][0] || defaultDoc.title;
+			$('#selection').html('<div id="title" class="Droid" name="title">' + title + '</select>');
       gdocs.printDocument(null, processRowsCallback); //In printexport.js
       // gdocs.start(); //Refactor getting the doc list.
     } else {
