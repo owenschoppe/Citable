@@ -16,9 +16,9 @@
 <link rel="stylesheet" type="text/css" href="/css/landscape.css" media="print">
 <link rel="stylesheet" type="text/css" href="/css/portrait.css" media="print">
 <link rel="stylesheet" type="text/css" href="/css/print.css" media="print">
-<link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" type="text/css" href="/css/view.css" media="screen">
 <link rel="stylesheet" type="text/css" href="/css/notes.css">
+
 <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 <script type="text/javascript" src="js/FileSaver.min.js"></script>
 <!--<script type="text/javascript" src="js/BlobBuilder.min.js"></script>-->
@@ -56,21 +56,24 @@
 	<div id="output"></div>
 	<div id="controls-wrapper">
 		<div id="controls">
-			<div id="page-title">Export</div>
-			<div id="total"></div>
+			<h1 id="page-title">Export</h1>
+			<h2 id="total"></h2>
 			<div id="button-wrapper">
 			<button id="print-button" class="button">Download</button>
 			<button id="cancel-button" class="button">Cancel</button>
 			</div>
 			<div id="clear"></div>
 			<div class="divider"></div>
-			<div id="instructions" class="_export clear">Citations are exported in Bibtex format.</br></br>Import into <a href="https://www.zotero.org/" target="_blank">Zotero</a> or your favorite citation managment app to generate a bibliography.</div>
+			<div id="instructions" class="_export clear">
+				<p>Citations are exported in Bibtex format.</p>
+				<p>Import into <a href="https://www.zotero.org/" target="_blank">Zotero</a> or your favorite citation managment app to generate a bibliography.</p>
+			</div>
 			<div id="butterbox">
 				<div id="butter" style="width:150px;margin:auto;padding:auto;align:center;"></div>
 			</div>
 		</div>
 		<div id="control-shadow"></div>
 	</div>
-    
+
 </body>
 </html>

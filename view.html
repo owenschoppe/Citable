@@ -5,6 +5,7 @@
  *
 -->
 <html>
+
 <head>
 	<title>Printable</title>
 	<link rel="stylesheet" type="text/css" href="/css/landscape.css" media="print">
@@ -12,7 +13,6 @@
 	<link rel="stylesheet" type="text/css" href="/css/print.css" media="print">
 	<link rel="stylesheet" type="text/css" href="/css/view.css" media="screen">
 	<link rel="stylesheet" type="text/css" href="/css/notes.css" media="all">
-	<link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
 
 	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 	<script type="text/javascript" src="js/draggable.js"></script>
@@ -26,23 +26,24 @@
 
 
 </head>
+
 <body>
-	<div id="loading" class="loading offset"><img src="css/img/loading.gif" height="16" width="16"/></div>
+	<div id="loading" class="loading offset"><img src="css/img/loading.gif" height="16" width="16" /></div>
 
 	<div id="output" class="offset">
 	</div>
 	<div id="controls-wrapper">
 		<div id="controls">
-			<div id="page-title">Printable</div>
-		    <div id="display">
-                <div id="butter"></div>
-			    <div id="selection"></div>
-            </div>
+			<h1 id="page-title">Printable</h1>
+			<div id="display">
+				<div id="butter"></div>
+				<div id="selection"></div>
+			</div>
 			<div id="total"></div>
 			<div id="button-wrapper">
-			<button id="print-button" class="button" disabled>Print</button>
-			<button id="template-button" class="button">Print Template</button>
-			<button id="cancel-button" class="button">Cancel</button>
+				<button id="print-button" class="button" disabled>Print</button>
+				<button id="template-button" class="button">Print Template</button>
+				<button id="cancel-button" class="button">Cancel</button>
 
 			</div>
 			<div id="clear"></div>
@@ -58,28 +59,29 @@
 			<div id="clear"></div>
 			<div id="radioControls">
 				<form id="fonts">
-					<input type="radio" name="font" value="Droid" id="typed"/>Typed<br />
-					<input type="radio" name="font" value="handwritten" id="hand"/>Handwritten
+					<div><input type="radio" name="font" value="Droid" id="typed" /><label for="typed">Typed</label></div>
+					<div><input type="radio" name="font" value="handwritten" id="hand" /><label for="hand">Handwritten</label></div>
 				</form>
 				<form id="orientation">
-							<div id="radioland"><input type="radio" name="pages" value="landscape" id="landscape"/>Landscape</div>
-							<div id="radioport"><input type="radio" name="pages" value="portrait" id="portrait"/>Portrait</div>
+					<div id="radioland"><input type="radio" name="pages" value="landscape" id="landscape" /><label for="landscape">Landscape</label></div>
+					<div id="radioport"><input type="radio" name="pages" value="portrait" id="portrait" /><label for="portrait">Portrait</label></div>
 				</form>
-
-				<img class="pageIcon landscapeIcon" src="/css/img/Landscape128.png"/>
-				<img class="pageIcon portraitIcon" src="/css/img/Portrait128.png"/>
-				<span class="fontIcon">A</span>
-				<form id="mForm">
-					<div id="mCheck"><input type="checkbox" name="m" id="mInput"/><a href="http://www.shop3m.com/70071213287.html" target="_blank">Print on 3m Post-it Sheets</a></div>
-				</form>
+				<span aria-hidden="true">
+					<img class="pageIcon landscapeIcon" src="/css/img/Landscape128.png" />
+					<img class="pageIcon portraitIcon" src="/css/img/Portrait128.png" />
+					<span class="fontIcon">A</span>
+				</span>
 			</div>
 			<div id="clear"></div>
 			<div class="divider"></div>
-			<div id="instructions" class="clear">Place stickies on templates as indicated. <br />Adjust your printer settings as needed.</div>
+			<div id="instructions" class="clear">
+				<p>Place stickies on templates as indicated.</p>
+				<p>Adjust your printer settings as needed.</p>
+			</div>
+			<div id="control-shadow"></div>
 		</div>
-		<div id="control-shadow"></div>
-	</div>
-	<div id="indicator">Page <span id="pageNum">1</span></div>
-	<!--<div id="loading" class="shadowbox"><img src="css/img/loading.gif"  height="16" width="16"/></div>-->
+		<div id="indicator">Page <span id="pageNum">1</span></div>
+		<!--<div id="loading" class="shadowbox"><img src="css/img/loading.gif"  height="16" width="16"/></div>-->
 </body>
+
 </html>

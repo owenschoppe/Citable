@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#hand').addEventListener('change', fontHandler);
   document.querySelector('#landscape').addEventListener('change', orientHandler);
   document.querySelector('#portrait').addEventListener('change', orientHandler);
-  document.querySelector('#mInput').addEventListener('change', mHandler);
+  //document.querySelector('#mInput').addEventListener('change', mHandler);
   document.querySelector('#cancel-button').addEventListener('click', cancelHandler);
   document.querySelector('#template-button').addEventListener('click', templateHandler);
 });
@@ -148,7 +148,7 @@ function openTemplate() {
         'url': 'template-landscape.html'
       });
     }
-  }
+  };
   chrome.storage.local.get('orientation', onStorage);
 }
 
@@ -407,9 +407,7 @@ changeAction = function(formName, formValue, rows) {
     var i = parseInt(formName.substr(5, 1));
     //if(isNumber(i)){
     valuesArray[i] = formValue;
-    chrome.storage.local.set({
-      [docKey]: valuesArray
-    });
+    chrome.storage.local.set({[docKey]: valuesArray});
     //rerenderNotes(formName);
     //setTimeout(function(){rerenderNotes(i,valuesArray)},0);
     setTimeout(function() {
@@ -753,7 +751,7 @@ var startup = function() {
     //Initialized the layout CSS for the radio controls.
     //value, key, formName, elementName, callback
     document.getElementById('loading').addClassName(items.orientation);
-    initCheck(items.m, false, 'mForm', 'm');
+    // initCheck(items.m, false, 'mForm', 'm'); //if using the template switcher
     initRadio(items.orientation, 'landscape', 'orientation', 'pages', toggleCSS);
     initRadio(items.font, 'Droid', 'fonts', 'font', setFontIcon);
   };
