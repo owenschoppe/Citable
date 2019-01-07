@@ -16,31 +16,37 @@ chrome.runtime.getBackgroundPage(function(ref) {
 });
 
 function fontHandler(e) {
+	_gaq.push(['_trackEvent', 'Button', 'Change Font']);
   changeFont(this.form, this.value);
 }
 
 function orientHandler(e) {
+	_gaq.push(['_trackEvent', 'Button', 'Change Orientation']);
   changeOrient(this.form, this.value);
 }
 
 function mHandler(e) {
+	_gaq.push(['_trackEvent', 'Button', 'Change Template']);
   //console.log('mHandler',e);
   changeTemplate(this.form, this.checked);
 }
 
 function printHandler(e) {
+	_gaq.push(['_trackEvent', 'Button', 'Print Stickies']);
   printDocumentPage();
   return false;
 }
 
 function cancelHandler(e) {
   console.log('close window');
+	_gaq.push(['_trackEvent', 'Button', 'Cancel Print']);
   window.open('', '_self', ''); //bug fix. This is a hack and may not be future proof. Works by crashing window.open?
   window.close();
   return false;
 }
 
 function templateHandler(e) {
+	_gaq.push(['_trackEvent', 'Button', 'Print Template']);
   openTemplate();
   return false;
 }
