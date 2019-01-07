@@ -257,17 +257,19 @@ Util.displayError = function(msg) {
 /**
  * Sets up a future poll for the user's document list.
  */
-Util.scheduleRequest = function() {
+Util.scheduleRequest = function(request) {
   var exponent = Math.pow(2, requestFailureCount);
-  var delay = Math.min(bgPage.pollIntervalMin * exponent,
-    pollIntervalMax);
+  var delay = Math.min(pollIntervalMin * exponent, pollIntervalMax);
   delay = Math.round(delay);
-
-  if (bgPage.oauth.hasToken()) {
-    var req = bgPage.window.setTimeout(function() {
-      gdocs.getDocumentList(); //Get the first folder, no callback.
-      util.scheduleRequest();
-    }, delay);
-    bgPage.requests.push(req);
-  }
+  chrome.runtime.getBackgroundPage(function(ref) {
+    ref.toggleAuth(true, function() {
+      var req = ref.window.setTimeout(function() {
+        // gdocs.getDocumentList(); //Get the first folder, no callback.
+        // util.scheduleRequest();
+        request();
+      }, delay);
+      requests.push(req);
+      //req();
+    });
+  });
 };

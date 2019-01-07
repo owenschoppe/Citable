@@ -743,7 +743,7 @@ Author: Eric Bidelman (ericbidelman@chromium.org)
           //Set doc as default.
           $scope.data.defaultDoc = $scope.data.docs[0];
 
-          callback(); //Doesn't get called...?
+          if(callback) callback(); //Doesn't get called...?
         });
       }
       /*else if(destination == null && localStorage['defaultDoc']){ //If the doc menu isn't loaded yet, then try using the default doc.
