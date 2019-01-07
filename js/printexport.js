@@ -102,27 +102,28 @@ gdocs.exportDocument = function(destination, callback) {
   if (destination == 'new') {
     return;
   }
-  //Duplicate the print request to get the updated rows.
-  //For now just run print first.
   console.log('exportDocument ', destination);
 
   //TODO: Pass in docName.
   //docName = $("select option:selected").text();
   //docName = docs[$("select option").index($("select option:selected"))-1].title;
   //console.log('docName: ',docName);
+  var handleSuccess = function(response, xhr) {
+    gdocs.processDocContent(response, xhr, callback);
+  };
 
-  var worksheetId = 'od6';
-  var url = SPREAD_SCOPE + '/list/' + docKey + '/' + worksheetId + '/private/full'; //good
-
-  var params = {
-    'headers': {
-      'GData-Version': '3.0'
+  var config = {
+    params: {
+      'alt': 'json'
     },
-    'parameters': {
-      'alt': 'json',
+    headers: {
+      'Authorization': 'Bearer ' + gdocs.accessToken,
+      'GData-Version': '3.0',
     }
   };
-  bgPage.oauth.sendSignedRequest(url, function(response, xhr) {
-    gdocs.processDocContent(response, xhr, callback);
-  }, params);
+
+  var worksheetId = 'default';
+  var url = SPREAD_SCOPE + '/list/' + docKey + '/' + worksheetId + '/private/full?' + Util.stringify(config.params);
+
+  gdocs.makeRequest('GET', url, handleSuccess, null, config.headers);
 };

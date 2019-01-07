@@ -16,37 +16,37 @@ chrome.runtime.getBackgroundPage(function(ref) {
 });
 
 function fontHandler(e) {
-	_gaq.push(['_trackEvent', 'Button', 'Change Font']);
+  _gaq.push(['_trackEvent', 'Button', 'Change Font']);
   changeFont(this.form, this.value);
 }
 
 function orientHandler(e) {
-	_gaq.push(['_trackEvent', 'Button', 'Change Orientation']);
+  _gaq.push(['_trackEvent', 'Button', 'Change Orientation']);
   changeOrient(this.form, this.value);
 }
 
 function mHandler(e) {
-	_gaq.push(['_trackEvent', 'Button', 'Change Template']);
+  _gaq.push(['_trackEvent', 'Button', 'Change Template']);
   //console.log('mHandler',e);
   changeTemplate(this.form, this.checked);
 }
 
 function printHandler(e) {
-	_gaq.push(['_trackEvent', 'Button', 'Print Stickies']);
+  _gaq.push(['_trackEvent', 'Button', 'Print Stickies']);
   printDocumentPage();
   return false;
 }
 
 function cancelHandler(e) {
   console.log('close window');
-	_gaq.push(['_trackEvent', 'Button', 'Cancel Print']);
+  _gaq.push(['_trackEvent', 'Button', 'Cancel Print']);
   window.open('', '_self', ''); //bug fix. This is a hack and may not be future proof. Works by crashing window.open?
   window.close();
   return false;
 }
 
 function templateHandler(e) {
-	_gaq.push(['_trackEvent', 'Button', 'Print Template']);
+  _gaq.push(['_trackEvent', 'Button', 'Print Template']);
   openTemplate();
   return false;
 }
@@ -413,7 +413,9 @@ changeAction = function(formName, formValue, rows) {
     var i = parseInt(formName.substr(5, 1));
     //if(isNumber(i)){
     valuesArray[i] = formValue;
-    chrome.storage.local.set({[docKey]: valuesArray});
+    chrome.storage.local.set({
+      [docKey]: valuesArray
+    });
     //rerenderNotes(formName);
     //setTimeout(function(){rerenderNotes(i,valuesArray)},0);
     setTimeout(function() {
@@ -467,7 +469,7 @@ var getDocId = function() {
   if ($('#destination').length) {
     //Menu exists-> load document.
     console.log('Document menu exists');
-		//TODO: fix this
+    //TODO: fix this
     // docKey = $('#destination').val();
     console.log('docKey: ', docKey);
     gdocs.printDocument(null, processRowsCallback); //In printexport.js
@@ -487,7 +489,7 @@ async function processRowsCallback() {
   rows = row; //From printexport.js
   console.log('processRowsCallback()', rows);
 
-	//Parse column names.
+  //Parse column names.
   var cols = [];
   for (var key in rows[1]) {
     if (rows[1].hasOwnProperty(key)) {
@@ -496,31 +498,33 @@ async function processRowsCallback() {
   }
   console.log('Cols: ', cols);
 
-	//Set the default field names
+  //Set the default field names
   var defaultFields = ['field0', 'field1', 'field2', 'field3', 'field4'];
-	var defaultColumns = ['summary', 'title', 'author', 'url', 'tags'];
+  var defaultColumns = ['summary', 'title', 'author', 'url', 'tags'];
 
 
-	//Build the select controls
+  //Build the select controls
   buildSelect(cols, defaultFields);
 
 
-	//Initialize the select control values
-	async function initSelects() {
-		async function handleResponse(response) {
-			console.log('get local storage',response);
-			var valuesArray = [];
-			for (var i = 0; i < 5; i++) {
-				valuesArray.push( initSelect(i, cols, defaultFields, defaultColumns, response) );
-			}
-			await chrome.storage.local.set({[docKey]: valuesArray}, function(r){
-				console.log(r);
-			});
-		}
-		await chrome.storage.local.get(docKey, function(response){
-			handleResponse(response);
-		});
-	}
+  //Initialize the select control values
+  async function initSelects() {
+    async function handleResponse(response) {
+      console.log('get local storage', response);
+      var valuesArray = [];
+      for (var i = 0; i < 5; i++) {
+        valuesArray.push(initSelect(i, cols, defaultFields, defaultColumns, response));
+      }
+      await chrome.storage.local.set({
+        [docKey]: valuesArray
+      }, function(r) {
+        console.log(r);
+      });
+    }
+    await chrome.storage.local.get(docKey, function(response) {
+      handleResponse(response);
+    });
+  }
 
   async function onSet() {
 
@@ -540,8 +544,8 @@ async function processRowsCallback() {
   };
 
   // chrome.storage.local.set({[docKey] : defaultColumns}, onSet);
-	initSelects();
-	onSet();
+  initSelects();
+  onSet();
 };
 
 /*------------------------------------------------------------------------------------------*/
@@ -553,11 +557,11 @@ function buildSelect(cols, defaultFields, callback) {
     html.push('<option value="', cols[col], '">', cols[col], '</option>');
   }
   //TODO: Change this to i<defaultFields.length for a fully generalized function.
-	var valuesArray = [];
-	for (var i = 0; i < 5; i++) {
+  var valuesArray = [];
+  for (var i = 0; i < 5; i++) {
     var j = (i == 2 || i == 3) ? 'half' : 'full';
     var name = "field" + i;
-    $('#elements').append('<div class="option ' + name + '"><label for="' + name + '" class="visuallyhidden">Area ' + (parseInt(i)+1) + '</label><select id="' + name + '" class="Droid select ' + j + '" name="' + name + '" ><option value="none">None</option>' + html.join('') + '</select></div>');
+    $('#elements').append('<div class="option ' + name + '"><label for="' + name + '" class="visuallyhidden">Area ' + (parseInt(i) + 1) + '</label><select id="' + name + '" class="Droid select ' + j + '" name="' + name + '" ><option value="none">None</option>' + html.join('') + '</select></div>');
     name = "#" + name;
     document.querySelector(name).addEventListener('change', onChangeHandler);
   }
@@ -580,45 +584,45 @@ function onChangeHandler(e) {
 function initSelect(i, cols, defaultFields, defaultColumns, storageResponse) {
 
   // var handleResponse = function(items) {
-    var fieldId = defaultFields[i];
-    // console.log('initSelect.onStorage', fieldId, i, items, items[i], docKey);
-    // var i = parseInt(fieldId.substr(5,1)); //Done. TODO: pass in i to boost speed.
-    var valuesArray = [];
-	  if (storageResponse[docKey] && Array.isArray(storageResponse[docKey])) {
-	    valuesArray = storageResponse[docKey]; //Get array using the document id as the object key value.
-	  }
-		// else { //Initialize localStorage for the doc if no record is found.
-		//   chrome.storage.local.set({[docKey] : defaultColumns}, function(r){ console.log(r); });
-	  // }
-    ////////////////////////////
-    //TODO: Move this to it's own function and rewrite. It should store create an initial default menu set on init.
+  var fieldId = defaultFields[i];
+  // console.log('initSelect.onStorage', fieldId, i, items, items[i], docKey);
+  // var i = parseInt(fieldId.substr(5,1)); //Done. TODO: pass in i to boost speed.
+  var valuesArray = [];
+  if (storageResponse[docKey] && Array.isArray(storageResponse[docKey])) {
+    valuesArray = storageResponse[docKey]; //Get array using the document id as the object key value.
+  }
+  // else { //Initialize localStorage for the doc if no record is found.
+  //   chrome.storage.local.set({[docKey] : defaultColumns}, function(r){ console.log(r); });
+  // }
+  ////////////////////////////
+  //TODO: Move this to it's own function and rewrite. It should store create an initial default menu set on init.
 
-    if (valuesArray && valuesArray[i]) { //If i in the array exists use that. //Should we check that that col still exists in document?
-      console.log('Existing value:', valuesArray[i]);
-      $("select[name='" + defaultFields[i] + "']").val(valuesArray[i]); //Updates the select control position.
-			selectedOption = valuesArray[i];
-		} else {
-      console.log('No value.');
+  if (valuesArray && valuesArray[i]) { //If i in the array exists use that. //Should we check that that col still exists in document?
+    console.log('Existing value:', valuesArray[i]);
+    $("select[name='" + defaultFields[i] + "']").val(valuesArray[i]); //Updates the select control position.
+    selectedOption = valuesArray[i];
+  } else {
+    console.log('No value.');
 
-      var selectedOption = defaultLayout(cols, defaultColumns[i], defaultColumns);
+    var selectedOption = defaultLayout(cols, defaultColumns[i], defaultColumns);
 
-      valuesArray[i] = selectedOption; //Update the default value in the variable array.
+    valuesArray[i] = selectedOption; //Update the default value in the variable array.
 
-      console.log('Set value of select.', docKey, selectedOption);
-      $("select[name='" + fieldId + "']").val(selectedOption);
+    console.log('Set value of select.', docKey, selectedOption);
+    $("select[name='" + fieldId + "']").val(selectedOption);
 
-			//Push the updated values back to local storage.
-      // var obj = items.docKey;
-      // await chrome.storage.local.set({[docKey]: valuesArray}, function(r){
-			// 	console.log(r);
-			// });
-			//chrome.storage.local.set({[docKey]:'foo'}, function(r){console.log(r)}) //sets the value of variable docKey as key with value 'foo'.
-			//chrome.storage.local.set({docKey:'bar'}, function(r){console.log(r)}) //sets the literal 'docKey' as key with value 'foo'.
-			//chrome.storage.local.get(docKey, function(r){console.log(r)}) //gets the value of local storage with the value of variable docKey as key.
-			//chrome.storage.local.get('docKey', function(r){console.log(r)}) //gets the value of local storage with the literal value 'docKey' as key.
-    }
-		return selectedOption;
-    //changeAction(formName, elementName);
+    //Push the updated values back to local storage.
+    // var obj = items.docKey;
+    // await chrome.storage.local.set({[docKey]: valuesArray}, function(r){
+    // 	console.log(r);
+    // });
+    //chrome.storage.local.set({[docKey]:'foo'}, function(r){console.log(r)}) //sets the value of variable docKey as key with value 'foo'.
+    //chrome.storage.local.set({docKey:'bar'}, function(r){console.log(r)}) //sets the literal 'docKey' as key with value 'foo'.
+    //chrome.storage.local.get(docKey, function(r){console.log(r)}) //gets the value of local storage with the value of variable docKey as key.
+    //chrome.storage.local.get('docKey', function(r){console.log(r)}) //gets the value of local storage with the literal value 'docKey' as key.
+  }
+  return selectedOption;
+  //changeAction(formName, elementName);
   // };
 };
 
@@ -740,9 +744,15 @@ var startup = function() {
 
     if (defaultDoc != undefined) {
       console.log('items.defaultDoc', defaultDoc);
-      docKey = parseURLParams(document.URL).key[0] || defaultDoc.id;
-			title = parseURLParams(document.URL).title[0] || defaultDoc.title;
-			$('#selection').html('<div><span class="Droid regular">Document: </span><span id="title" class="Droid bold" name="title">' + title + '</span></div>');
+      try {
+        docKey = parseURLParams(document.URL).key[0];
+        title = parseURLParams(document.URL).title[0];
+      } catch (e) {
+        docKey = defaultDoc.id;
+        title = defaultDoc.title;
+      }
+
+      $('#selection').html('<div><span class="Droid regular">Document: </span><span id="title" class="Droid bold" name="title">' + title + '</span></div>');
       gdocs.printDocument(null, processRowsCallback); //In printexport.js
       // gdocs.start(); //Refactor getting the doc list.
     } else {

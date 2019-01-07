@@ -168,12 +168,12 @@ function callPrintable(action, callback){
 
 	} else if(action == "export") {
 		_gaq.push(['_trackEvent', 'Button', 'Export Document']);
-			chrome.tabs.create({ 'url' : 'export.html'});
-			if(callback){ callback(); }
-	} else {
-		if(callback){ callback(null); }
-	}
 
+    chrome.storage.sync.get(null, function(response){
+			chrome.tabs.create({ 'url' : 'export.html?key=' + response.defaultDoc.id + '&title=' + response.defaultDoc.title});
+			if(callback){ callback(); }
+    });
+  }
 }
 
 
