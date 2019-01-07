@@ -100,7 +100,7 @@ var renderNotes = function(rows, callback) {
 setTotal = function(pages) {
   //if(num){ pages = num; }
   console.log('Set total: ', pages);
-  var total = "<span class='Droid regular'>Total: </span><span class='Myriad bold'>" + pages + " sheets of stickies</span>";
+  var total = "<span class='Droid regular'>Total: </span><span class='Droid bold'>" + pages + " sheets of stickies</span>";
   document.getElementById('total').innerHTML = total;
 };
 
@@ -551,7 +551,7 @@ function buildSelect(cols, defaultFields, callback) {
 	for (var i = 0; i < 5; i++) {
     var j = (i == 2 || i == 3) ? 'half' : 'full';
     var name = "field" + i;
-    $('#elements').append('<div class="option ' + name + '"><select id="' + name + '" class="Droid select ' + j + '" name="' + name + '" ><option value="none">None</option>' + html.join('') + '</select></div>');
+    $('#elements').append('<div class="option ' + name + '"><label for="' + name + '" class="visuallyhidden">Area ' + (parseInt(i)+1) + '</label><select id="' + name + '" class="Droid select ' + j + '" name="' + name + '" ><option value="none">None</option>' + html.join('') + '</select></div>');
     name = "#" + name;
     document.querySelector(name).addEventListener('change', onChangeHandler);
   }
@@ -734,9 +734,9 @@ var startup = function() {
 
     if (defaultDoc != undefined) {
       console.log('items.defaultDoc', defaultDoc);
-      docKey = parseURLParams(document.URL)['key'][0] || defaultDoc.id;
-			title = parseURLParams(document.URL)['title'][0] || defaultDoc.title;
-			$('#selection').html('<div id="title" class="Droid" name="title">' + title + '</select>');
+      docKey = parseURLParams(document.URL).key[0] || defaultDoc.id;
+			title = parseURLParams(document.URL).title[0] || defaultDoc.title;
+			$('#selection').html('<div><span class="Droid regular">Document: </span><span id="title" class="Droid bold" name="title">' + title + '</span></div>');
       gdocs.printDocument(null, processRowsCallback); //In printexport.js
       // gdocs.start(); //Refactor getting the doc list.
     } else {
@@ -752,8 +752,8 @@ var startup = function() {
     //value, key, formName, elementName, callback
     document.getElementById('loading').addClassName(items.orientation);
     // initCheck(items.m, false, 'mForm', 'm'); //if using the template switcher
-    initRadio(items.orientation, 'landscape', 'orientation', 'pages', toggleCSS);
-    initRadio(items.font, 'Droid', 'fonts', 'font', setFontIcon);
+    initRadio(items.orientation, 'landscape', 'radioControls', 'pages', toggleCSS);
+    initRadio(items.font, 'Droid', 'radioControls', 'font', setFontIcon);
   };
   chrome.storage.local.get(null, onStorage);
 };

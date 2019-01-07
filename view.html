@@ -7,7 +7,7 @@
 <html>
 
 <head>
-	<title>Printable</title>
+	<title>Citable</title>
 	<link rel="stylesheet" type="text/css" href="/css/landscape.css" media="print">
 	<link rel="stylesheet" type="text/css" href="/css/portrait.css" media="print">
 	<link rel="stylesheet" type="text/css" href="/css/print.css" media="print">
@@ -34,7 +34,7 @@
 	</div>
 	<div id="controls-wrapper">
 		<div id="controls">
-			<h1 id="page-title">Printable</h1>
+			<h1 id="page-title">Print</h1>
 			<div id="display">
 				<div id="butter"></div>
 				<div id="selection"></div>
@@ -48,33 +48,39 @@
 			</div>
 			<div id="clear"></div>
 			<div class="divider"></div>
-			<div id="note-wrapper" class="left">
-				<div id="note" class="controls">
-					<form id="elements" name="elements">
-					</form>
-				</div>
-				<div id="shadow"></div>
-			</div>
+			<form id="note-wrapper" class="left">
+				<fieldset>
+					<legend class="instructions"><span>Select Columns to Print</span></legend>
+					<div id="note" class="controls">
+						<div id="elements" name="elements">
+						</div>
+					</div>
+					<div id="shadow"></div>
+				</fieldset>
+			</form>
 
 			<div id="clear"></div>
-			<div id="radioControls">
-				<form id="fonts">
-					<div><input type="radio" name="font" value="Droid" id="typed" /><label for="typed">Typed</label></div>
-					<div><input type="radio" name="font" value="handwritten" id="hand" /><label for="hand">Handwritten</label></div>
-				</form>
-				<form id="orientation">
-					<div id="radioland"><input type="radio" name="pages" value="landscape" id="landscape" /><label for="landscape">Landscape</label></div>
-					<div id="radioport"><input type="radio" name="pages" value="portrait" id="portrait" /><label for="portrait">Portrait</label></div>
-				</form>
-				<span aria-hidden="true">
-					<img class="pageIcon landscapeIcon" src="/css/img/Landscape128.png" />
-					<img class="pageIcon portraitIcon" src="/css/img/Portrait128.png" />
-					<span class="fontIcon">A</span>
-				</span>
-			</div>
+			<form id="radioControls">
+				<fieldset>
+					<legend class="instructions"><span>Format Printing</span></legend>
+					<div id="fonts">
+						<div><input type="radio" name="font" value="Droid" id="typed" /><label for="typed">Typed</label></div>
+						<div><input type="radio" name="font" value="handwritten" id="hand" /><label for="hand">Handwritten</label></div>
+					</div>
+					<div id="orientation">
+						<div id="radioland"><input type="radio" name="pages" value="landscape" id="landscape" /><label for="landscape">Landscape</label></div>
+						<div id="radioport"><input type="radio" name="pages" value="portrait" id="portrait" /><label for="portrait">Portrait</label></div>
+					</div>
+					<span aria-hidden="true">
+						<img class="pageIcon landscapeIcon" src="/css/img/Landscape128.png" />
+						<img class="pageIcon portraitIcon" src="/css/img/Portrait128.png" />
+						<span class="fontIcon">A</span>
+					</span>
+				</fieldset
+			</form>
 			<div id="clear"></div>
 			<div class="divider"></div>
-			<div id="instructions" class="clear">
+			<div id="instructions" class="instructions clear">
 				<p>Place stickies on templates as indicated.</p>
 				<p>Adjust your printer settings as needed.</p>
 			</div>

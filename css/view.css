@@ -39,6 +39,17 @@ body {
   position: absolute;
 }
 
+.visuallyhidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
 #loading {
   /*width: 10.5in;*/
   padding-top: .25in;
@@ -69,7 +80,7 @@ body {
 }
 
 a {
-  color: #4E7DC2;
+  color: #4576BF;
   text-decoration: none;
 }
 
@@ -90,7 +101,7 @@ h2, #total {
   font-size: 14px;
   font-weight: lighter;
   margin-top: 0;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   height: 15px;
 }
 
@@ -229,7 +240,7 @@ div.checkbox {
 
 #display {
   margin-bottom: 10px;
-  height: 30px;
+  /* height: 30px; */
   width: 100%;
 }
 
@@ -376,13 +387,18 @@ ui-state-highlight {
 /*#shadow{
 	height: 40px;
 }*/
-#instructions {
+.instructions {
   margin-left: 25px;
-  padding-bottom: 20px;
-  font-size: 13px;
+  padding-bottom: 10px;
+  font-size: 14px;
 }
 
-#instructions._export {
+legend.instructions {
+  font-size: 12px;
+  color: #757575;
+}
+
+.instructions._export {
   margin-left: 0px;
 }
 
@@ -584,6 +600,11 @@ ui-state-highlight {
 }*/
 #form {
   margin: 20px;
+}
+fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
 }
 
 /*---------------------------*/
