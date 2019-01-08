@@ -67,7 +67,7 @@
     {
       "matches": ["*://docs.google.com/spreadsheet/*"],
       "css": ["css/spreadsheet.css"],
-      "js": ["js/jquery-1.7.2.min.js","js/spreadsheet.js"],
+      "js": ["js/jquery-3.3.1.min.js","js/spreadsheet.js"],
       "run_at": "document_end"
     }
   ]
