@@ -142,7 +142,7 @@ h2, #total {
   width: 315px;
 }
 
-#elements {
+#elements, .elements {
   padding: 20px;
 }
 
@@ -457,7 +457,7 @@ legend.instructions {
   padding-right: 10px;
 }
 
-.ui-sortable-helper #note {
+.ui-sortable-helper #note, .ui-sortable-helper .note {
   -webkit-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
 }
 
@@ -526,18 +526,18 @@ legend.instructions {
 }
 
 /*-----------------------*/
-#content {
+#content, .content {
   float: left;
 }
 
-.landscape #content {
+.landscape #content, .landscape .content {
   /*height: 736px;*/
   /* 8in-(16px*2) height is probably unnecessary */
   /*width: 10.5in;*/
   padding: 16px 0 16px 0;
 }
 
-.portrait #content {
+.portrait #content, .portrait .content {
   /*height: 10.5in;*/
   /*width: 737px;*/
   padding: 0 16px 0 15px;
@@ -563,7 +563,7 @@ legend.instructions {
 }
 
 /*-----------------------*/
-#note {
+#note, .note {
   width: 3in;
   height: 3in;
   padding: 0px;
@@ -577,7 +577,7 @@ legend.instructions {
   float: left;
 }
 
-#shadow {
+#shadow, .shadow {
   background-image: url(img/shadow_small.png);
   background-size: 3in;
   width: 3in;
@@ -586,7 +586,7 @@ legend.instructions {
 }
 
 /*-----------------------*/
-#note.controls {
+#note.controls, .note.controls {
   cursor: default;
 }
 
@@ -598,7 +598,7 @@ legend.instructions {
 	background-color: #fff;
 	margin-bottom: 40px;
 }*/
-#form {
+#form, .form {
   margin: 20px;
 }
 fieldset {

@@ -37,7 +37,7 @@ body {
 }
 
 /*End*/
-#controls, #shadow, #indicator {
+#controls, #shadow, .shadow, #indicator {
   display: none !important;
   width: 0px;
 }
@@ -116,7 +116,7 @@ body {
 }
 
 /*-----------------------*/
-#content {
+#content, .content {
   float: left;
 }
 
@@ -124,16 +124,16 @@ body {
   padding: 16px 0 16px 0;
 }
 
-.portrait #content {
+.portrait #content, .portrait .content {
   padding: 0 16px 0 15px;
 }
 
 /*.m = 3m template*/
-.m.landscape #content {
+.m.landscape #content, .m.landscape .content {
   padding: 16px 72px 16px 72px;
 }
 
-.m.portrait #content {
+.m.portrait #content, .m.portrait .content {
   padding: 72px 16px 72px 15px;
 }
 
@@ -168,7 +168,7 @@ body {
 }
 
 /*-----------------------*/
-#note {
+#note, .note {
   width: 3in;
   height: 3in;
   padding: 0px;
@@ -176,7 +176,7 @@ body {
   overflow: hidden;
 }
 
-#template #note {
+#template #note, #template .note {
   width: 284px;
   /*96px*3in-2pxborder=284px*/
   height: 284px;
@@ -190,7 +190,7 @@ body {
 }
 
 /*-----------------------*/
-#form {
+#form, .form {
   margin: 20px;
 }
 

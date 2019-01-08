@@ -4,7 +4,7 @@
  * Printable and Citable by Owen Schoppe is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License
  *
 -->
-<html>
+<html lang="en">
 
 <head>
 	<title>Citable</title>
@@ -14,7 +14,7 @@
 	<link rel="stylesheet" type="text/css" href="/css/view.css" media="screen">
 	<link rel="stylesheet" type="text/css" href="/css/notes.css" media="all">
 
-	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
 	<script type="text/javascript" src="js/draggable.js"></script>
 	<script type="text/javascript" src="js/util.js"></script>
 	<script type="text/javascript" src="js/gdocs.js"></script>
@@ -27,65 +27,66 @@
 </head>
 
 <body>
-	<div id="loading" class="loading offset"><img src="css/img/loading.gif" height="16" width="16" /></div>
+	<main>
+		<div id="loading" class="loading offset"><img src="css/img/loading.gif" height="16" width="16" /></div>
 
-	<div id="output" class="offset">
-	</div>
-	<div id="controls-wrapper">
-		<div id="controls">
-			<h1 id="page-title">Print</h1>
-			<div id="display">
-				<div id="butter"></div>
-				<div id="selection"></div>
-			</div>
-			<div id="total"></div>
-			<div id="button-wrapper">
-				<button id="print-button" class="button" disabled>Print</button>
-				<button id="template-button" class="button">Print Template</button>
-				<button id="cancel-button" class="button">Cancel</button>
+		<div id="output" class="offset">
+		</div>
+		<div id="controls-wrapper">
+			<div id="controls">
+				<h1 id="page-title">Print</h1>
+				<div id="display">
+					<div id="butter"></div>
+					<div id="selection"></div>
+				</div>
+				<div id="total"></div>
+				<div id="button-wrapper">
+					<button id="print-button" class="button" disabled>Print</button>
+					<button id="template-button" class="button">Print Template</button>
+					<button id="cancel-button" class="button">Cancel</button>
 
-			</div>
-			<div id="clear"></div>
-			<div class="divider"></div>
-			<form id="note-wrapper" class="left">
-				<fieldset>
-					<legend class="instructions"><span>Select Columns to Print</span></legend>
-					<div id="note" class="controls">
-						<div id="elements" name="elements">
+				</div>
+				<div class="clear"></div>
+				<div class="divider"></div>
+				<form id="note-wrapper" class="left">
+					<fieldset>
+						<legend class="instructions"><span>Select Columns to Print</span></legend>
+						<div id="note" class="controls">
+							<div id="elements" name="elements">
+							</div>
 						</div>
-					</div>
-					<div id="shadow"></div>
-				</fieldset>
-			</form>
+						<div id="shadow"></div>
+					</fieldset>
+				</form>
 
-			<div id="clear"></div>
-			<form id="radioControls">
-				<fieldset>
-					<legend class="instructions"><span>Format Printing</span></legend>
-					<div id="fonts">
-						<div><input type="radio" name="font" value="Droid" id="typed" /><label for="typed">Typed</label></div>
-						<div><input type="radio" name="font" value="handwritten" id="hand" /><label for="hand">Handwritten</label></div>
-					</div>
-					<div id="orientation">
-						<div id="radioland"><input type="radio" name="pages" value="landscape" id="landscape" /><label for="landscape">Landscape</label></div>
-						<div id="radioport"><input type="radio" name="pages" value="portrait" id="portrait" /><label for="portrait">Portrait</label></div>
-					</div>
-					<span aria-hidden="true">
-						<img class="pageIcon landscapeIcon" src="/css/img/Landscape128.png" />
-						<img class="pageIcon portraitIcon" src="/css/img/Portrait128.png" />
-						<span class="fontIcon">A</span>
-					</span>
-				</fieldset </form> <div id="clear">
+				<div class="clear"></div>
+				<form id="radioControls">
+					<fieldset>
+						<legend class="instructions"><span>Format Printing</span></legend>
+						<div id="fonts">
+							<div><input type="radio" name="font" value="Droid" id="typed" /><label for="typed">Typed</label></div>
+							<div><input type="radio" name="font" value="handwritten" id="hand" /><label for="hand">Handwritten</label></div>
+						</div>
+						<div id="orientation">
+							<div id="radioland"><input type="radio" name="pages" value="landscape" id="landscape" /><label for="landscape">Landscape</label></div>
+							<div id="radioport"><input type="radio" name="pages" value="portrait" id="portrait" /><label for="portrait">Portrait</label></div>
+						</div>
+						<span aria-hidden="true">
+							<img class="pageIcon landscapeIcon" src="/css/img/Landscape128.png" />
+							<img class="pageIcon portraitIcon" src="/css/img/Portrait128.png" />
+							<span class="fontIcon">A</span>
+						</span>
+					</fieldset </form> <div class="clear">
+			</div>
+			<div class="divider"></div>
+			<div id="instructions" class="instructions clear">
+				<p>Place stickies on templates as indicated.</p>
+				<p>Adjust your printer settings as needed.</p>
+			</div>
+			<div id="control-shadow"></div>
 		</div>
-		<div class="divider"></div>
-		<div id="instructions" class="instructions clear">
-			<p>Place stickies on templates as indicated.</p>
-			<p>Adjust your printer settings as needed.</p>
-		</div>
-		<div id="control-shadow"></div>
-	</div>
-	<div id="indicator">Page <span id="pageNum">1</span></div>
-	<!--<div id="loading" class="shadowbox"><img src="css/img/loading.gif"  height="16" width="16"/></div>-->
+		<div id="indicator">Page <span id="pageNum">1</span></div>
+	</main>
 </body>
 
 </html>

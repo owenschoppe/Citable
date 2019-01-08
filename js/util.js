@@ -235,14 +235,14 @@ Util.JSONToCSV = function(objArray) {
  * @param {string} msg The message.
  */
 Util.displayMsg = function(msg) {
-  $('#butter').removeClass('error').text(msg).show();
+  document.querySelector('#butter').classList.remove('error').innerText = (msg);
 };
 
 /**
  * Utility for removing any messages currently showing to the user.
  */
 Util.hideMsg = function() {
-  $('#butter').fadeOut(1500);
+  document.querySelector('#butter').innerText = ('');
 };
 
 /**
@@ -250,8 +250,8 @@ Util.hideMsg = function() {
  * @param {string} msg The message.
  */
 Util.displayError = function(msg) {
-  util.displayMsg(msg);
-  $('#butter').addClass('error');
+  Util.displayMsg(msg);
+  document.querySelector('#butter').classList.add('error').innerText = (msg);
 };
 
 /**

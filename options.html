@@ -7,41 +7,48 @@
  * Author: Eric Bidelman <ericbidelman@chromium.org>
  * Revised: Owen Schoppe <owen.schoppe@gmail.com>
 -->
-<html>
+<html lang="en">
   <head>
     <title>Citable Options</title>
-    <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
     <script type="text/javascript" src="js/analytics.js"></script>
     <script type="text/javascript" src="js/options.js"></script>
     <link rel="stylesheet" type="text/css" href="/css/options.css">
   </head>
 
   <body>
-    <div class="controls">
-		<div id="citable" class="page-title"><img src="icon48.png"/>Citable</div>
-		<div class="page-title">Settings</div>
-		<p ><button id="revoke" class="button">Revoke your OAuth token</button></p>
-		<!--<p class="description" >Refresh rate (seconds): <input id="refresh_rate" value="300" style="width:32px"></p>-->
-		<div class="divider"></div>
-		<div class="helper">
-			<div class="page-title">Shortcuts</div>
-			<div class="instructions break"><div class="Droid bold">command shift X</div>Open Citable to save your selection.<br><i>Modify this command from the Chrome Extensions Manager</i></div>
-			<div class="instructions break"><div class="Droid bold">tab</div>Navigate between controls in Citable</div>
-			<div class="instructions break"><div class="Droid bold">alt return</div>Quickly save note from anywhere in Citable.</div>
-			<div class="instructions break"><div class="Droid bold">ctrl return</div>Compose several notes from the same URL.</div>
-			<!--<div class="instructions break"><div class="Droid bold">return</div>Navigate to the next field and add note.</div>
-			<div class="instructions break"><div class="Droid bold">shift return</div>Add a new line in the summary field.</div>-->
-		</div>
-		<div class="divider"></div>
-		<div class="page-title">Privacy</div>
-		<div class="instructions break">Your data is never shared with Citable or any third parties. <br/>Notes are only transmitted between your computer and the specified Google Drive account using HTTPS.</div>
-    <a href="https://docs.google.com/document/d/1MAcmx7dVydaxejDyi_WEzHaYzimghYtxOVy7JBEucks/edit?usp=sharing">View Policy</a>
-		<div class="divider"></div>
-		<div class="page-title">Feedback?</div>
-		<a href="mailto:owen.schoppe@gmail.com?subject=Citable feedback">Email me!</a>
-		<div class="ip"><a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/3.0/80x15.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/InteractiveResource" property="dct:title" rel="dct:type">Citable</span> by <span xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName">Owen Schoppe</span> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License</a></div>
+    <main class="controls">
+  		<h1 id="citable" class="page-title"><img src="icon48.png" alt=""/>Citable</h1>
+  		<h2 class="page-title">Settings</h2>
+  		<p ><button id="revoke" class="button">Revoke your OAuth token</button></p>
+  		<!--<p class="description" >Refresh rate (seconds): <input id="refresh_rate" value="300" style="width:32px"></p>-->
+  		<div class="divider"></div>
+  		<div class="helper">
+  			<h2 class="page-title">Shortcuts</h2>
+        <dl>
+          <dt class="Droid bold">command shift X</dt>
+          <dd class="break">
+            Open Citable to save your selection.<br>
+            <i>Modify this command from the Chrome Extensions Manager</i>
+          </dd>
+          <dt class="Droid bold">tab</dt>
+          <dd class="break">Navigate between controls in Citable</dd>
+          <dt class="Droid bold">alt return</dt>
+          <dd class="break">Quickly save note from anywhere in Citable.</dd>
+          <dt class="Droid bold">ctrl return</dt>
+          <dd class="break">Compose several notes from the same URL.</dd>
+        </dl>
+  			<!--<div class="instructions break"><div class="Droid bold">return</div>Navigate to the next field and add note.</div>
+  			<div class="instructions break"><div class="Droid bold">shift return</div>Add a new line in the summary field.</div>-->
+  		</div>
+  		<div class="divider"></div>
+  		<h2 class="page-title">Privacy</h2>
+  		<div class="instructions break">Your data is never shared with Citable or any third parties. <br/>Notes are only transmitted between your computer and the specified Google Drive account using HTTPS.</div>
+      <a href="https://docs.google.com/document/d/1MAcmx7dVydaxejDyi_WEzHaYzimghYtxOVy7JBEucks/edit?usp=sharing" rel="noreferrer">View Policy</a>
+  		<div class="divider"></div>
+  		<h2 class="page-title">Feedback?</h2>
+  		<a href="mailto:owen.schoppe@gmail.com?subject=Citable feedback">Email me!</a>
+  		<div class="ip"><a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/3.0/80x15.png" rel="noreferrer"/></a><br /><span xmlns:dct="https://purl.org/dc/terms/" href="https://purl.org/dc/dcmitype/InteractiveResource" property="dct:title" rel="dct:type">Citable</span> by <span xmlns:cc="https://creativecommons.org/ns#" property="cc:attributionName">Owen Schoppe</span> is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="noreferrer">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License</a></div>
 
-    </div>
-
+    </main>
   </body>
 </html>

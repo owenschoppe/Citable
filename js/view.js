@@ -83,7 +83,7 @@ var renderCallback = function(container, pages, callback) {
   var output = document.getElementById('output');
   //output.appendChild(container);
   output.replaceChild(container, output.firstChild);
-  $('#loading').addClass('hidden'); //Hide the loading gif.
+  document.querySelector('#loading').classList.add('hidden'); //Hide the loading gif.
   document.querySelector('#print-button').addEventListener('click', printHandler);
   document.querySelector('#print-button').disabled = false;
   console.timeEnd('renderNotes timer');
@@ -168,20 +168,16 @@ changeFont = function(formName, elementName) {
 
   if (elementName == 'Droid') {
     console.log('toggle to Droid');
-    $('.summary').toggleClass('handwritten Droid');
-    $('.title').toggleClass('handwritten Droid');
-    $('.author').toggleClass('handwritten Droid');
-    $('.url').toggleClass('handwritten Droid');
-    $('.tags').toggleClass('handwritten Droid');
-    $('.fontIcon').toggleClass('handwritten Droid');
+    document.querySelectorAll('.summary, .title, .author, .url, .tags, .fontIcon').forEach((item) => {
+      item.classList.toggle('handwritten');
+      item.classList.toggle('Droid')
+    });
   } else {
     console.log('toggle to handwritten');
-    $('.summary').toggleClass('Droid handwritten');
-    $('.title').toggleClass('Droid handwritten');
-    $('.author').toggleClass('Droid handwritten');
-    $('.url').toggleClass('Droid handwritten');
-    $('.tags').toggleClass('Droid handwritten');
-    $('.fontIcon').toggleClass('Droid handwritten');
+    document.querySelectorAll('.summary, .title, .author, .url, .tags, .fontIcon').forEach((item) => {
+      item.classList.toggle('handwritten');
+      item.classList.toggle('Droid')
+    });
   }
   return;
 };
@@ -196,20 +192,25 @@ changeOrient = function(aForm, aValue) {
 
   if (aValue == 'portrait') {
     console.log('toggle to portrait');
-    $('.page').toggleClass('landscape portrait');
-    $('.loading').toggleClass('landscape portrait');
-    $('.landscapeIcon').hide();
-    $('.portraitIcon').show();
+    document.querySelectorAll('.page, .loading').forEach((item) => {
+      item.classList.toggle('landscape');
+      item.classList.toggle('portrait');
+    });
+    document.querySelectorAll('.landscapeIcon, .portraitIcon').forEach((item) => {
+      item.classList.toggle('hidden');
+    });
     //toggleCSS(1,noteOrderCSS);
     toggleCSS(1);
     bgPage.resizeWindow('printable', 1200, 1110);
   } else {
     console.log('toggle to landscape');
-    $('.page').toggleClass('portrait landscape');
-    $('.loading').toggleClass('portrait landscape'); //TODO: Multiple CSS changes are slow.
-    $('.landscapeIcon').show();
-    $('.portraitIcon').hide();
-    //toggleCSS(0,noteOrderCSS);
+    document.querySelectorAll('.page, .loading').forEach((item) => {
+      item.classList.toggle('landscape');
+      item.classList.toggle('portrait');
+    });
+    document.querySelectorAll('.landscapeIcon, .portraitIcon').forEach((item) => {
+      item.classList.toggle('hidden');
+    });
     toggleCSS(0);
     bgPage.resizeWindow('printable', 1440, 900);
   }
@@ -224,10 +225,14 @@ changeTemplate = function(aForm, aValue) {
   });
 
   if (aValue == true) {
-    $('.page').addClass('m');
+    document.querySelectorAll('.page').forEach((item) => {
+      item.classList.add('m');
+    });
     document.querySelector('#template-button').disabled = true;
   } else {
-    $('.page').removeClass('m');
+    document.querySelectorAll('.page').forEach((item) => {
+      item.classList.remove('m');
+    });
     document.querySelector('#template-button').disabled = false;
   }
 };
@@ -298,8 +303,12 @@ var toggleCSS = function(dir, callback) {
       document.styleSheets[0].disabled = false; //TODO: what is a faster way to handle this. Could save a couple seconds.
       document.styleSheets[1].disabled = true;
       //Toggles the visibility of the helper icons in the control bar.
-      $('.landscapeIcon').show();
-      $('.portraitIcon').hide();
+      document.querySelectorAll('.landscapeIcon').forEach((item) => {
+        item.classList.remove('hidden');
+      });
+      document.querySelectorAll('.portraitIcon').forEach((item) => {
+        item.classList.add('hidden');
+      });
       break;
     case 1: //portrait
       chrome.storage.local.set({
@@ -309,8 +318,12 @@ var toggleCSS = function(dir, callback) {
       document.styleSheets[1].disabled = false;
       document.styleSheets[0].disabled = true;
       //Toggles the visibility of the helper icons in the control bar.
-      $('.landscapeIcon').hide();
-      $('.portraitIcon').show();
+      document.querySelectorAll('.landscapeIcon').forEach((item) => {
+        item.classList.add('hidden');
+      });
+      document.querySelectorAll('.portraitIcon').forEach((item) => {
+        item.classList.remove('hidden');
+      });
       break;
   }
 
@@ -323,21 +336,25 @@ var toggleCSS = function(dir, callback) {
 ///////////////////////////
 var noteOrderCSS = function(dir) {
   //Removes the note placement classes in preparation for changing them.
-  $('.note_wrapper').removeClass("left middle right");
+  document.querySelectorAll('.note_wrapper').forEach((item) => {
+    item.classList.remove('left', 'middle', 'right');
+  });
   switch (dir) {
     case 0: //landscape
       //Changes the classes of the notes for display purposes.
-      $('.note_wrapper').addClass(function(index) {
-        return index % 3 == 0 ? "left" : (index % 3 == 1 ? "middle" : "right");
+      document.querySelectorAll('.note_wrapper').forEach((item,index) => {
+        var className = index % 3 == 0 ? "left" : (index % 3 == 1 ? "middle" : "right");
         //TODO: rewrite this function to not use switch. (This will be pretty but will have a negligible speed boost.)
         //Instead use columns(2 or 3), such that 'return index%col==0 ? "left" : (index%col==1 ? "middle" : "right");'
         //The middle class may need to be rewritten.
+        item.classList.add(className);
       });
       break;
     case 1: //portrait
       //Changes the classes of the notes for display purposes.
-      $('.note_wrapper').addClass(function(index) {
-        return index % 2 == 0 ? "left" : "right";
+      document.querySelectorAll('.note_wrapper').forEach((item,index) => {
+        var className = index % 2 == 0 ? "left" : "right";
+        item.classList.add(className);
       });
       break;
   }
@@ -356,14 +373,14 @@ var setFontIcon = function(dir) {
   }
 
   chrome.storage.local.get('font', function(items) {
-    $('.fontIcon').addClass(items.font);
+    document.querySelector('.fontIcon').classList.add(items.font);
   });
 };
 
 var setTemplate = function(dir) {
   console.log('setTemplate() ', dir);
   if (dir == true) {
-    $('.page').addClass('m');
+    document.querySelector('.page').classList.add('m');
     document.querySelector('#template-button').disabled = true;
     console.log('addClass');
   } else {
@@ -408,7 +425,7 @@ changeAction = function(formName, formValue, rows) {
 
   var handleResponse = function(items) {
     console.log('changeAction.onStorage', formName, formValue, rows, items);
-    $('#loading').removeClass('hidden');
+    document.querySelector('#loading').classList.remove('hidden');
     var valuesArray = items[docKey];
     var i = parseInt(formName.substr(5, 1));
     //if(isNumber(i)){
@@ -466,7 +483,7 @@ function parseURLParams(url) {
 //Callback after creating the document menu.
 var getDocId = function() {
   console.log('getDocId()');
-  if ($('#destination').length) {
+  if (document.querySelectorAll('#destination').length) {
     //Menu exists-> load document.
     console.log('Document menu exists');
     //TODO: fix this
@@ -477,7 +494,7 @@ var getDocId = function() {
     //Menu does not exist-> redirect to Drive.
     console.log('No document menu.');
     //$('#loading').addClass('hidden'); //Hide the loading gif.
-    $('#loading').html('Try printing directly from a spreadsheet in <a href="https://drive.google.com">Google Drive</a>.');
+    document.querySelector('#loading').innerHTML = ('Try printing directly from a spreadsheet in <a href="https://drive.google.com">Google Drive</a>.');
   }
 };
 
@@ -561,7 +578,10 @@ function buildSelect(cols, defaultFields, callback) {
   for (var i = 0; i < 5; i++) {
     var j = (i == 2 || i == 3) ? 'half' : 'full';
     var name = "field" + i;
-    $('#elements').append('<div class="option ' + name + '"><label for="' + name + '" class="visuallyhidden">Area ' + (parseInt(i) + 1) + '</label><select id="' + name + '" class="Droid select ' + j + '" name="' + name + '" ><option value="none">None</option>' + html.join('') + '</select></div>');
+    var div = document.createElement('div');
+    div.innerHTML = ('<label for="' + name + '" class="visuallyhidden">Area ' + (parseInt(i) + 1) + '</label><select id="' + name + '" class="Droid select ' + j + '" name="' + name + '" ><option value="none">None</option>' + html.join('') + '</select>');
+    div.classList.add('option', name);
+    document.querySelector('#elements').append(div);
     name = "#" + name;
     document.querySelector(name).addEventListener('change', onChangeHandler);
   }
@@ -599,7 +619,8 @@ function initSelect(i, cols, defaultFields, defaultColumns, storageResponse) {
 
   if (valuesArray && valuesArray[i]) { //If i in the array exists use that. //Should we check that that col still exists in document?
     console.log('Existing value:', valuesArray[i]);
-    $("select[name='" + defaultFields[i] + "']").val(valuesArray[i]); //Updates the select control position.
+    //Updates the select control position.
+    document.querySelector("select[name='" + defaultFields[i] + "']").value = (valuesArray[i]);
     selectedOption = valuesArray[i];
   } else {
     console.log('No value.');
@@ -609,7 +630,7 @@ function initSelect(i, cols, defaultFields, defaultColumns, storageResponse) {
     valuesArray[i] = selectedOption; //Update the default value in the variable array.
 
     console.log('Set value of select.', docKey, selectedOption);
-    $("select[name='" + fieldId + "']").val(selectedOption);
+    document.querySelector("select[name='" + fieldId + "']").value = (selectedOption);
 
     //Push the updated values back to local storage.
     // var obj = items.docKey;
@@ -674,18 +695,8 @@ $(window).scroll(function() {
     }
   }
   //console.log(currentPage.page,currentPage.percent);
-  $('#pageNum').empty().append(currentPage.page);
+  document.querySelector('#pageNum').innerText = currentPage.page;
 });
-
-/*function isScrolledIntoView(elem) {
-    var docViewTop = $(window).scrollTop();
-    var docViewBottom = docViewTop + $(window).height();
-
-    var elemTop = $(elem).offset().top;
-    var elemBottom = elemTop + $(elem).height();
-	console.log((elemBottom <= docViewBottom) , (elemTop >= docViewTop));
-    return ((elemBottom <= docViewBottom) && (elemTop >= docViewTop));
-}*/
 
 function percentScrolledIntoView(elem) {
   var docViewTop = $(window).scrollTop();

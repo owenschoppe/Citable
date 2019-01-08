@@ -128,32 +128,8 @@ function errorHandler(e) {
       msg = 'Unknown Error';
       break;
   }
-  util.displayError(msg);
+  Util.displayError(msg);
 }
-
-/**
- * Utility for displaying a message to the user.
- * @param {string} msg The message.
- */
-util.displayMsg = function(msg) {
-  $('#butter').removeClass('error').text(msg).show();
-};
-
-/**
- * Utility for removing any messages currently showing to the user.
- */
-util.hideMsg = function() {
-  $('#butter').fadeOut(1500);
-};
-
-/**
- * Utility for displaying an error to the user.
- * @param {string} msg The message.
- */
-util.displayError = function(msg) {
-  util.displayMsg(msg);
-  $('#butter').addClass('error');
-};
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 

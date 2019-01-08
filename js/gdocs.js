@@ -158,9 +158,9 @@ GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_head
 GDocs.handleError = function(xhr, textStatus) {
   //util.hideMsg();
   if (xhr.status != 0) {
-    util.displayError(xhr.status, ' ', xhr.statusText);
+    Util.displayError(xhr.status, ' ', xhr.statusText);
   } else {
-    util.displayError("No internet connection.");
+    Util.displayError("No internet connection.");
   }
   ++requestFailureCount;
 };

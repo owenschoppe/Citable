@@ -35,7 +35,7 @@ body {
 }
 
 a {
-  color: #4E7DC2;
+  color: #4576BF;
   text-decoration: none;
 }
 
@@ -75,15 +75,15 @@ a:hover {
   color: #ccc;
 }
 
-#page-title, .page-title {
+h1, h2, #page-title, .page-title {
   font-size: 24px;
-  font-weight: thin;
+  font-weight: lighter;
   margin-top: 20px;
   margin-bottom: 10px;
 }
 
 #citable {
-  font-weight: regular;
+  font-weight: normal;
   font-size: 30px;
   margin-left: auto;
   margin-right: auto;
@@ -111,7 +111,9 @@ a:hover {
   clear: both;
   position: relative;
 }
-
+dd {
+  margin: 0;
+}
 .ip {
   clear: both;
   position: absolute;
