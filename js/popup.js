@@ -1008,19 +1008,23 @@ Author: Eric Bidelman (ericbidelman@chromium.org)
         console.log('bgPage.createDocument');
         msgService.queue('Creating New Spreadsheet.');
         bgPage.createDocument($scope.data.citation, $scope.data.newDoc.trim(), $scope.cats[0], function(response) {
-          console.log(response.title + ' created!', response, callback); //Works.
-          msgService.queue(response.title + ' created!', 'normal', 3000); //Works.
+          if(response){
+            console.log(response.title + ' created!', response, callback); //Works.
+            msgService.queue(response.title + ' created!', 'normal', 3000); //Works.
 
-          //Cleanup the new doc creation process.
-          $scope.data.newDoc = '';
+            //Cleanup the new doc creation process.
+            $scope.data.newDoc = '';
 
-          //Add doc to the menu.
-          $scope.data.docs.unshift(buildDocEntry(response));
+            //Add doc to the menu.
+            $scope.data.docs.unshift(buildDocEntry(response));
 
-          //Set doc as default.
-          $scope.data.defaultDoc = $scope.data.docs[0];
+            //Set doc as default.
+            $scope.data.defaultDoc = $scope.data.docs[0];
 
-          if (callback) callback(); //Doesn't get called...?
+            if (callback) callback(); //Doesn't get called...?
+          } else {
+            msgService.queue('Please try again.', 'error', 3000);
+          }
         });
       } else {
         console.log('destination: ', destination.id, destination.title);

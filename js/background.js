@@ -344,7 +344,7 @@ var createDocument = function(data, fileName, parentFolder, callback) {
       if (requestFailureCount < requestLimit) {
         gdocs.makeRequest('POST', url, handleSuccess, multipartRequestBody, headers);
       } else {
-        return;
+        if(callback) callback();
       }
     } else {
       //Make the new doc the default doc next time we open citable. Fully background so it won't update live.
