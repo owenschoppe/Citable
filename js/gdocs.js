@@ -44,15 +44,17 @@ function GDocs(selector) {
 
 GDocs.prototype.auth = function(interactive, opt_callback) {
   try {
-    chrome.identity.getAuthToken({interactive: interactive}, function(token) {
+    chrome.identity.getAuthToken({
+      interactive: interactive
+    }, function(token) {
       if (token) {
         this.accessToken = token;
         console.log(token);
       }
       opt_callback && opt_callback(token);
     }.bind(this));
-  } catch(e) {
-    console.log('Authorization Error',e);
+  } catch (e) {
+    console.log('Authorization Error', e);
     opt_callback && opt_callback();
   }
 };
@@ -77,7 +79,7 @@ GDocs.prototype.revokeAuthToken = function(opt_callback) {
     // Make a request to revoke token
     var xhr = new XMLHttpRequest();
     xhr.open('GET', 'https://accounts.google.com/o/oauth2/revoke?token=' +
-             this.accessToken);
+      this.accessToken);
     xhr.send();
     this.removeCachedAuthToken(opt_callback);
   }
@@ -102,15 +104,15 @@ GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_head
   }
 
   xhr.onload = function(e) {
-    console.log('onload',this,e.target);
+    console.log('onload', this, e.target);
     this.lastResponse = this.response;
     callback(e.target.response, e.target);
   }.bind(this);
   xhr.onerror = function(e) {
     console.log(this, this.status, this.response,
-                this.getAllResponseHeaders());
+      this.getAllResponseHeaders());
   };
-  console.log('send data',xhr);
+  console.log('send data', xhr);
   xhr.send(data);
 };
 

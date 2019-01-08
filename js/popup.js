@@ -30,11 +30,10 @@ Author: Eric Bidelman (ericbidelman@chromium.org)
   //Original
   var citable = angular.module('gDriveApp', []);
 
-  citable.config( [
+  citable.config([
     '$compileProvider',
-    function( $compileProvider )
-    {
-        $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|chrome-extension):/);
+    function($compileProvider) {
+      $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|chrome-extension):/);
     }
   ]);
 
@@ -78,7 +77,7 @@ Author: Eric Bidelman (ericbidelman@chromium.org)
           //Checks the current value of the model/selector to set focus.
           console.log('selFocus', newValue, !newValue, element.focus());
           $timeout(function() {
-            if(!newValue) element.focus();
+            if (!newValue) element.focus();
           }, 0);
         }, true);
     }
@@ -234,7 +233,7 @@ Author: Eric Bidelman (ericbidelman@chromium.org)
             butter.status = '';
             butter.message = '';
             //TODO: Add fadout animation using ngAnimage and $animate?
-            if(callback) callback();
+            if (callback) callback();
           }, delay);
 
           //Callbacks using $timeout promises
@@ -249,7 +248,7 @@ Author: Eric Bidelman (ericbidelman@chromium.org)
         } else {
           //Resets the queue without clearing persistant messages. The next message will still replace it after the defaultDelay.
           $timeout(function() {
-            if(callback) callback();
+            if (callback) callback();
           }, defaultDelay);
         }
 
@@ -735,7 +734,7 @@ Author: Eric Bidelman (ericbidelman@chromium.org)
         msgService.queue('Offline', 'error');
       } else if ($scope.data.online && oldValue === false) {
         msgService.queue('Online', 'normal', 1500);
-        if($scope.data.auth) $scope.fetchFolder(false);
+        if ($scope.data.auth) $scope.fetchFolder(false);
         //TODO: check $scope.data.docs or some other variable to insure that we don't already have the select menu loaded.
       }
     });
@@ -744,7 +743,7 @@ Author: Eric Bidelman (ericbidelman@chromium.org)
     $scope.$watch('data.auth', function(newValue, oldValue) {
       console.log('$scope.$watch(data.auth) docCtrl', newValue);
       if ($scope.data.auth) {
-        if($scope.data.online) $scope.fetchFolder(false);
+        if ($scope.data.online) $scope.fetchFolder(false);
       }
     });
 
@@ -867,7 +866,7 @@ Author: Eric Bidelman (ericbidelman@chromium.org)
         };
 
         $http.get(gdocs.DOCLIST_FEED, config).
-        then(function onSuccess(response){
+        then(function onSuccess(response) {
           var data = response.data;
           var status = response.status;
           var statusText = response.statusText;
@@ -881,14 +880,14 @@ Author: Eric Bidelman (ericbidelman@chromium.org)
           var statusText = response.statusText;
           var headers = response.headers;
           var config = response.config;
-            if (status == 401 && retry) {
-              gdocs.removeCachedAuthToken(
-                gdocs.auth.bind(gdocs, true,
-                  $scope.fetchDocs.bind($scope, false)));
-            } else {
-              msgService.queue(status, 'error');
-            }
-          });
+          if (status == 401 && retry) {
+            gdocs.removeCachedAuthToken(
+              gdocs.auth.bind(gdocs, true,
+                $scope.fetchDocs.bind($scope, false)));
+          } else {
+            msgService.queue(status, 'error');
+          }
+        });
       }
     };
 
@@ -967,7 +966,7 @@ Author: Eric Bidelman (ericbidelman@chromium.org)
         };
 
         $http.get(gdocs.DOCLIST_FEED, config).
-        then(function onSuccess(response){
+        then(function onSuccess(response) {
           var data = response.data;
           var status = response.status;
           var statusText = response.statusText;
@@ -1021,10 +1020,9 @@ Author: Eric Bidelman (ericbidelman@chromium.org)
           //Set doc as default.
           $scope.data.defaultDoc = $scope.data.docs[0];
 
-          if(callback) callback(); //Doesn't get called...?
+          if (callback) callback(); //Doesn't get called...?
         });
-      }
-      else {
+      } else {
         console.log('destination: ', destination.id, destination.title);
         amendDocHandler(retry, destination.id, callback); //Call the handler passing in the formatted values.
       }
@@ -1065,7 +1063,7 @@ Author: Eric Bidelman (ericbidelman@chromium.org)
         var url = bgPage.SPREAD_SCOPE + '/list/' + docId + '/' + worksheetId + '/private/full';
 
         $http.post(url, data, config).
-        then(function onSuccess(response){
+        then(function onSuccess(response) {
           var data = response.data;
           var status = response.status;
           var statusText = response.statusText;

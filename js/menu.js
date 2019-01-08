@@ -444,7 +444,7 @@ gdocs.getFolder = function(title, callback, opt_config) {
         bgPage.cat.push(new gdocs.Category(entry));
       }
       console.log('folder Id: ', bgPage.cat[bgPage.cat.length - 1].resourceId);
-      if(callback) {
+      if (callback) {
         callback(bgPage.cat[bgPage.cat.length - 1].resourceId);
       }
     } else {
