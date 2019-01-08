@@ -17,7 +17,7 @@
 	<!--<script type="text/javascript" src="https://apis.google.com/js/client.js"></script>-->
 	<script type="text/javascript" src="js/analytics.js"></script>
 
-	<script type="text/javascript" src="js/angular-1.2.16.min.js"></script>
+	<script type="text/javascript" src="js/angular-1.7.5.min.js"></script>
 	<script type="text/javascript" src="js/util.js"></script>
 	<!--<script type="text/javascript" src="js/gdocs.js"></script>-->
 	<script type="text/javascript" src="js/queue.js"></script>
@@ -83,7 +83,8 @@
 							<!--Loading-->
 							<div data-ng-show="data.loading && data.online">
 								<span class="docName">{{data.defaultDoc.title}}</span>
-								<img id="loading" class="docName" src="css/img/loading.gif" title="loading"/>
+								<img id="loading" class="docName" src="css/img/loading.gif" title="Loading documents." alt"Loading documents."/>
+								<!-- <span id="loading" class="docName loading" title="loading"></span> -->
 							</div>
 
 							<!--Document Selector-->
