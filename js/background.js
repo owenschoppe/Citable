@@ -327,121 +327,126 @@ getDocument = function(param, docId, retry, callback) {
 
 /////////////////////////////////////////////////////////
 var createDocument = function(data, fileName, parentFolder, callback) {
-  console.log('createDocument', data, fileName, callback);
-  _gaq.push(['_trackEvent', 'Auto', 'Create Document']);
-  // JSON to CSV Converter
+    return new Promise(function(resolve, reject){
+        console.log('createDocument', data, fileName, callback);
+        _gaq.push(['_trackEvent', 'Auto', 'Create Document']);
+        // JSON to CSV Converter
 
-  //TODO: use "for(var i in o){console.log(i,o[i]);}" to traverse a single object instead of an array of objects. i=key o[1]=value
+        //TODO: use "for(var i in o){console.log(i,o[i]);}" to traverse a single object instead of an array of objects. i=key o[1]=value
 
 
-  var handleSuccess = function(response, xhr) {
-    console.log('doc returned: ', response, xhr);
+        var handleSuccess = function(response, xhr) {
+            console.log('doc returned: ', response, xhr);
 
-    if (xhr.status != 201 && xhr.status != 200) {
-      console.log('ERROR', xhr);
-      _gaq.push(['_trackEvent', 'Auto', 'Create Document Error']);
-      requestFailureCount++;
-      if (requestFailureCount < requestLimit) {
+            if (xhr.status != 201 && xhr.status != 200) {
+            console.log('ERROR', xhr);
+            _gaq.push(['_trackEvent', 'Auto', 'Create Document Error']);
+            requestFailureCount++;
+            if (requestFailureCount < requestLimit) {
+                gdocs.makeRequest('POST', url, handleSuccess, multipartRequestBody, headers);
+            } else {
+                reject(new Error(xhr.status + ' Please try again.'));
+                // if(callback) callback();
+            }
+            } else {
+            //Make the new doc the default doc next time we open citable. Fully background so it won't update live.
+            var entry = JSON.parse(response);
+            var doc = {
+                title: entry.title,
+                id: entry.id,
+                updatedDate: Util.formatDate(entry.modifiedDate),
+                updatedDateFull: entry.modifiedDate,
+                icon: entry.iconLink,
+                alternateLink: entry.alternateLink,
+                size: entry.fileSize ? '( ' + entry.fileSize + ' bytes)' : null
+            };
+
+            chrome.storage.sync.set({
+                'defaultDoc': doc
+            }, function() {
+                // Log that we saved.
+                chrome.storage.sync.get('defaultDoc', function(items) {
+                console.log('storage.sync.get', items);
+                });
+            });
+            requestFailureCount = 0;
+            //   if (callback) callback(JSON.parse(response));
+                resolve(entry);
+            }
+
+            //var resourceId = JSON.parse(response).entry.gd$resourceId.$t;
+
+            //callback(resourceId);
+
+        };
+
+        const boundary = '-------314159265358979323846';
+        const delimiter = "\r\n--" + boundary + "\r\n";
+        const close_delim = "\r\n--" + boundary + "--";
+
+        //Alt: 'text/plain';
+        var contentType = 'text/csv';
+
+        var parent = {
+            //"kind": "drive#parentReference",
+            "id": parentFolder.id //,
+            //"selfLink": parentFolder.selfLink,
+            //"parentLink": parentFolder.parents[0].parentLink,
+            //"isRoot": false
+        };
+
+        /*var properties = {
+            'key': key,
+            'value': value,
+            'visibility': visibility
+        }*/
+
+        var metadata = {
+            'title': fileName,
+            'mimeType': contentType,
+            //'properties': [properties],
+            'parents': [parent]
+        };
+
+        //Base64 encode the JSON object array
+        var base64Data = btoa(Util.JSONToCSV([data]));
+
+        var multipartRequestBody =
+            delimiter +
+            'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+            JSON.stringify(metadata) +
+            delimiter +
+            'Content-Type: ' + contentType + '\r\n' +
+            'Content-Transfer-Encoding: base64\r\n' +
+            '\r\n' +
+            base64Data +
+            close_delim;
+
+        /* 'path': '/upload/drive/v2/files',
+        'method': 'POST', */
+        var params = {
+            'uploadType': 'multipart',
+            'convert': 'true'
+        };
+
+        //Alt: 'multipart/mixed'
+        var headers = {
+            'Authorization': 'Bearer ' + gdocs.accessToken,
+            'GData-Version': '3.0',
+            'Content-Type': 'multipart/related; boundary="' + boundary + '"'
+        };
+        //'body': multipartRequestBody});
+
+        //Sends the params to the background page to get delivered to gDocs.
+        var url = 'https://www.googleapis.com/upload/drive/v2/files?' + Util.stringify(params);
+
+        //TODO: make this angular and use $http
+        //Reference: GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_headers)
         gdocs.makeRequest('POST', url, handleSuccess, multipartRequestBody, headers);
-      } else {
-        if(callback) callback();
-      }
-    } else {
-      //Make the new doc the default doc next time we open citable. Fully background so it won't update live.
-      var entry = JSON.parse(response);
-      var doc = {
-        title: entry.title,
-        id: entry.id,
-        updatedDate: Util.formatDate(entry.modifiedDate),
-        updatedDateFull: entry.modifiedDate,
-        icon: entry.iconLink,
-        alternateLink: entry.alternateLink,
-        size: entry.fileSize ? '( ' + entry.fileSize + ' bytes)' : null
-      };
 
-      chrome.storage.sync.set({
-        'defaultDoc': doc
-      }, function() {
-        // Log that we saved.
-        chrome.storage.sync.get('defaultDoc', function(items) {
-          console.log('storage.sync.get', items);
-        });
-      });
-      requestFailureCount = 0;
-      if (callback) callback(JSON.parse(response));
-    }
+        console.log('New File:', url, headers);
 
-    //var resourceId = JSON.parse(response).entry.gd$resourceId.$t;
-
-    //callback(resourceId);
-
-  };
-
-  const boundary = '-------314159265358979323846';
-  const delimiter = "\r\n--" + boundary + "\r\n";
-  const close_delim = "\r\n--" + boundary + "--";
-
-  //Alt: 'text/plain';
-  var contentType = 'text/csv';
-
-  var parent = {
-    //"kind": "drive#parentReference",
-    "id": parentFolder.id //,
-    //"selfLink": parentFolder.selfLink,
-    //"parentLink": parentFolder.parents[0].parentLink,
-    //"isRoot": false
-  };
-
-  /*var properties = {
-      'key': key,
-  	'value': value,
-  	'visibility': visibility
-  }*/
-
-  var metadata = {
-    'title': fileName,
-    'mimeType': contentType,
-    //'properties': [properties],
-    'parents': [parent]
-  };
-
-  //Base64 encode the JSON object array
-  var base64Data = btoa(Util.JSONToCSV([data]));
-
-  var multipartRequestBody =
-    delimiter +
-    'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
-    JSON.stringify(metadata) +
-    delimiter +
-    'Content-Type: ' + contentType + '\r\n' +
-    'Content-Transfer-Encoding: base64\r\n' +
-    '\r\n' +
-    base64Data +
-    close_delim;
-
-  /* 'path': '/upload/drive/v2/files',
-   'method': 'POST', */
-  var params = {
-    'uploadType': 'multipart',
-    'convert': 'true'
-  };
-
-  //Alt: 'multipart/mixed'
-  var headers = {
-    'Authorization': 'Bearer ' + gdocs.accessToken,
-    'GData-Version': '3.0',
-    'Content-Type': 'multipart/related; boundary="' + boundary + '"'
-  };
-  //'body': multipartRequestBody});
-
-  //Sends the params to the background page to get delivered to gDocs.
-  var url = 'https://www.googleapis.com/upload/drive/v2/files?' + Util.stringify(params);
-
-  //TODO: make this angular and use $http
-  //Reference: GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_headers)
-  gdocs.makeRequest('POST', url, handleSuccess, multipartRequestBody, headers);
-
-  console.log('New File:', url, headers);
+    });
 };
 
 /////////////////////////////////////////////////////////
