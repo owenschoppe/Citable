@@ -345,7 +345,7 @@ var createDocument = function(data, fileName, parentFolder, callback) {
             if (requestFailureCount < requestLimit) {
                 gdocs.makeRequest('POST', url, handleSuccess, multipartRequestBody, headers);
             } else {
-                reject(new Error(xhr.status + ' Please try again.'));
+                reject(new Error('Oops ' + xhr.status + ' Please Try Again'));
                 // if(callback) callback();
             }
             } else {

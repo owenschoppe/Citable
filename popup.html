@@ -59,8 +59,8 @@
 			<!--Auth-->
 			<div class="auth" ng-hide="data.auth||data.loading">
 				<!--<div id="citable" class="page-title"><img src="icon48.png"/>Citable</div>-->
-				<div class="">
-					<a class="center authBtn" ng-class="{fade:!data.online,active:getAuthFlow}" ng-disabled="!data.online" ng-click='data.online&&getAuth()' tabindex="{{data.auth?'-1':0}}" href><span class="btnText">Sign in with Google</span></a>
+				<div class="center">
+					<a class="authBtn" ng-class="{fade:!data.online,active:getAuthFlow}" ng-disabled="!data.online" ng-click='data.online&&getAuth()' tabindex="{{data.auth?'-1':0}}" href><span class="btnText">Sign in with Google</span></a>
 				</div>
 			</div>
 
@@ -70,7 +70,7 @@
 				<form name="controls" novalidate>
 					<div>
 						<!--Label-->
-						<label for="destination" id="destination_label" class="space lg" ng-class="{fade:data.menu}" aria-hidden="true">save note in</label>
+						<label for="destination" id="destination_label" class="space lg" ng-class="{fade:data.menu}" aria-hidden="true">Save Note In Sheet</label>
 
 						<label for="submit" id="shortcut" class="addNoteLabel lg right-space" ng-class="{fade:data.menu}" aria-hidden="true">alt+return</label>
 					</div>
@@ -83,19 +83,19 @@
 							<!--Loading-->
 							<div data-ng-show="data.loading && data.online">
 								<span class="docName">{{data.defaultDoc.title}}</span>
-								<img id="loading" class="docName" src="css/img/loading.gif" title="Loading documents." alt"Loading documents." />
+								<img id="loading" class="docName" src="css/img/loading.gif" title="Loading Sheets" alt"Loading Sheets" />
 								<!-- <span id="loading" class="docName loading" title="loading"></span> -->
 							</div>
 
 							<!--Document Selector-->
 							<select class="Droid destination" name="destination" id="destination" aria-labelledby="destination_label" ng-model="data.defaultDoc" ng-change="storeDefault()" data-ng-show="!data.loading" ng-options="doc.title for doc in data.docs track by doc.id"
 							  sel-focus="!data.defaultDoc.id">
-								<option value="" ng-disabled="data.menu">Create New Document...</option>
+								<option value="" ng-disabled="data.menu">Create New Spreadsheet...</option>
 							</select>
 
 							<!--New Doc Title Input-->
 							<div class="new_doc_container" ng-hide="data.defaultDoc.id || data.loading" ng-class="{'error':ng-dirty&&ng-invalid}">
-								<label for="docTitle" id="docTitle_label" class="visuallyhidden">New Document Title</label>
+								<label for="docTitle" id="docTitle_label" class="visuallyhidden">New Spreadsheet Title</label>
 								<input type="text" class="" name="docTitle" aria-labelledby="destination docTitle_label" placeholder="Enter a document title" ng-model="data.newDoc" ng-show="!data.defaultDoc.id" shown-validation sel-focus="data.defaultDoc.id" required>
 								<!--ng-required="{{!data.defaultDoc.id?true:false}}" -->
 							</div>
@@ -123,24 +123,15 @@
 						<div class="controls controlBar" ng-hide="!data.defaultDoc.title">
 
 							<!--View Doc-->
-							<a id="viewDoc" class="action  space" ng-click="viewDoc(data.defaultDoc.id,data.defaultDoc.alternateLink)" href>view document</a>
+                            <div class="item"><a id="viewDoc" class="action  space" ng-click="viewDoc(data.defaultDoc.id,data.defaultDoc.alternateLink)" href>View Sheet</a></div>
 
-							<div ng-controller="menuController" class="center menu_box">
-								<!--Menu Button-->
-								<button name="menu" id="menu_toggle" class="Droid menu" ng-click="toggleMenu($event)" ng-hide="!data.defaultDoc.title" ng-class="{fade:!data.defaultDoc.title, closed:!data.menu, open:data.menu}" tabindex="{{!data.defaultDoc.title?'-1':$index}}"
-								  aria-expanded="{{data.menu}}"><span class="visuallyhidden">Toggle Menu</span></button>
-							</div>
+                            <div class="divider"></div>
+                            <!--Print Doc-->
+                            <div class="item"><a id="printDoc" class="action space" ng-click="getDocument('print')" href>Print Sheet</a></div>
 
-							<div class="" ng-show="data.menu">
-
-								<div class="divider"></div>
-								<!--Print Doc-->
-								<div class="item"><a id="printDoc" class="action space" ng-click="getDocument('print')" href>print on stickies</a></div>
-
-								<div class="divider"></div>
-								<!--Export Doc-->
-								<div class="item"><a id="exportDoc" class="action space" ng-click="getDocument('export')" href>export citations</a></div>
-							</div>
+                            <div class="divider"></div>
+                            <!--Export Doc-->
+                            <div class="item"><a id="exportDoc" class="action space" ng-click="getDocument('export')" href>Export Sheet</a></div>
 						</div>
 
 					</div>

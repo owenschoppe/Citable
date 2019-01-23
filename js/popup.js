@@ -505,7 +505,7 @@ Code may not be used without written and express permission.
           //We never reach this code because the popup closes when the auth flow launches.
           $scope.data.auth = false;
           console.log('getAuth callback else', token);
-          msgService.queue('Authorization Failed.', 'error');
+          msgService.queue('Authorization Failed', 'error');
         }
         $scope.$digest();
       });
@@ -595,11 +595,11 @@ Code may not be used without written and express permission.
       bgPage.getDocument(param, $scope.data.defaultDoc.id, true, function(response) {
         if (response != null) {
           //success
-          msgService.queue(param.toProperCase() + ' ' + $scope.data.defaultDoc + '!'.title, 'normal', 5000);
+          msgService.queue(param.toProperCase() + ' ' + $scope.data.defaultDoc.title, 'normal', 5000);
           $scope.closeWindow();
         } else {
           //failure
-          msgService.queue(status + "Couldn't get document.", 'error');
+          msgService.queue(status + "Couldn't Get Document", 'error');
         }
         $scope.data.requesting = false; //Reset the variable.
       });
@@ -693,7 +693,7 @@ Code may not be used without written and express permission.
           });
           _gaq.push(['_trackEvent', 'Shortcut', 'CTRL RETURN']);
         } else {
-          msgService.queue('Please add a title.', 'error', 5000);
+          msgService.queue('Please Add a Title', 'error', 5000);
         }
       }
     });
@@ -706,7 +706,7 @@ Code may not be used without written and express permission.
           $scope.saveNote(e, $scope.closeWindow);
           _gaq.push(['_trackEvent', 'Shortcut', 'ALT RETURN']);
         } else {
-          msgService.queue('Please add a title.', 'error', 5000);
+          msgService.queue('Please Add a Title', 'error', 5000);
         }
       }
     });
@@ -873,7 +873,7 @@ Code may not be used without written and express permission.
               gdocs.auth.bind(gdocs, true,
                 $scope.fetchDocs.bind($scope, false)));
           } else {
-            msgService.queue(status, 'error');
+            msgService.queue('Oops ' + status, 'error');
           }
         });
       }
@@ -903,7 +903,7 @@ Code may not be used without written and express permission.
             bgPage.insertProperties($scope.cats[0], $scope.data.driveProperties, function() {
               //Rename the folder.
               bgPage.renameFolder($scope.cats[0], folderName, function() {
-                msgService.queue('Folder updated!', 'normal', 1000);
+                msgService.queue('Folder Updated', 'normal', 1000);
               });
             });
           }
@@ -915,7 +915,7 @@ Code may not be used without written and express permission.
 
         } else {
           if (bgPage.firstRun == true) {
-            msgService.queue('Updating folder.');
+            msgService.queue('Updating Folder...');
             var config = {
               params: {
                 'alt': 'json',
@@ -927,7 +927,7 @@ Code may not be used without written and express permission.
             };
             $scope.fetchFolder(false, config);
           } else {
-            msgService.queue('Creating folder.');
+            msgService.queue('Creating Folder...');
             //No folders found, check for the old folder or create the folder
             bgPage.createFolder(folderName, $scope.data.driveProperties, successCallbackFolderId);
           }
@@ -979,7 +979,7 @@ Code may not be used without written and express permission.
               //$scope.data.loading = false;
               //return false;
             } else {
-              msgService.queue(status, 'error');
+              msgService.queue('Oops ' + status, 'error');
             }
           }
         });
@@ -994,12 +994,12 @@ Code may not be used without written and express permission.
       //In the new scheme, new doc selected and no default on init are indistinguishable... this might be ok.
       if ((destination === null || destination.id == '')) { // && $scope.data.newDoc //Manual validation... icky.
         console.log('bgPage.createDocument');
-        msgService.queue('Creating New Spreadsheet.');
+        msgService.queue('Creating New Spreadsheet...');
 
         bgPage.createDocument($scope.data.citation, $scope.data.newDoc.trim(), $scope.cats[0])
         .then(function (response) {
             console.log(response.title + ' created!', response, callback); //Works.
-            msgService.queue(response.title + ' created!', 'normal', 3000); //Works.
+            msgService.queue(response.title + ' Created', 'normal', 3000); //Works.
 
             //Cleanup the new doc creation process.
             $scope.data.newDoc = '';
@@ -1028,7 +1028,7 @@ Code may not be used without written and express permission.
         console.log('gdocs.amendDoc handleSuccess');
         if (status != 201) {
           console.log('AMEND ERROR', resp);
-          msgService.queue('Error' + status, 'error');
+          msgService.queue('Oops ' + status + ' Please Try Again', 'error');
         } else {
           requestFailureCount = 0;
           console.log('Amend: ', status, resp);
@@ -1037,7 +1037,7 @@ Code may not be used without written and express permission.
       };
 
       if (gdocs.accessToken) {
-        msgService.queue('Adding note...');
+        msgService.queue('Saving Note...');
 
         var data = constructCitation();
 
@@ -1087,7 +1087,8 @@ Code may not be used without written and express permission.
               } else {
                 $scope.data.requesting = false; //Reset the variable.
                 //Don't close the window.
-                msgService.queue(error + ' Check your document columns.', 'error');
+                //TODO: should we really queue the error?
+                msgService.queue(error + ' Check Your Document Columns', 'error');
 
                 //Exit the amend sequence and throw the error.
                 //$scope.saveNote.saveNoteFailure(error); //Not a function within this scope...
@@ -1100,7 +1101,7 @@ Code may not be used without written and express permission.
             console.log('amend note error', status, data);
             //$scope.saveNote.saveNoteFailure(status);
             $scope.data.requesting = false; //Reset the variable.
-            msgService.queue(status + ' Problem with the citation.', 'error');
+            msgService.queue(status + ' Problem With the Note', 'error');
           }
         });
 
@@ -1163,7 +1164,7 @@ Code may not be used without written and express permission.
 
     $scope.updateHeaderSuccess = function(callback) {
       console.log('updateHeaderSuccess', callback);
-      msgService.queue('Headers Updated!');
+      msgService.queue('Headers Updated');
       $scope.amendDoc(false, $scope.data.defaultDoc, callback); //Resubmit the add note request, without the retry flag.
     };
 
@@ -1210,7 +1211,7 @@ Code may not be used without written and express permission.
       _gaq.push(['_trackEvent', 'Auto', 'Save Note']);
       var saveNoteSuccess = function() {
         console.log('SaveNote success', $scope.data, callback);
-        msgService.queue('Note added!', 'success', 2000);
+        msgService.queue('Note Saved', 'success', 2000);
         $scope.data.requesting = false; //Reset the variable.
 
         //Remove citation from queue/log.
@@ -1226,7 +1227,7 @@ Code may not be used without written and express permission.
       //TODO: should I push errors in the amend process to this function or just handle them individually?
       var saveNoteFailure = function(error) {
         console.log('SaveNote failure', $scope.data);
-        msgService.queue('Opps '.concat(error, ' , retry?'), 'error');
+        msgService.queue('Oops '.concat(error, ' Please Try Again'), 'error');
         $scope.data.requesting = false; //Reset the variable.
         //Don't close the window.
       };

@@ -26,6 +26,17 @@ function revokeToken() {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', 'https://accounts.google.com/o/oauth2/revoke?token=' +
           current_token);
+
+
+        xhr.onload = function (e) {
+            console.log('onload', this, e.target);
+            this.lastResponse = this.response;
+        }.bind(this);
+        
+        xhr.onerror = function (e) {
+            console.log(this, this.status, this.response);
+        };
+
         xhr.send();
         // @corecode_end removeAndRevokeAuthToken
 
@@ -34,13 +45,30 @@ function revokeToken() {
         document.getElementById('revoke').disabled = true;
         console.log('Token revoked and removed from cache. ' +
           'Check chrome://identity-internals to confirm.');
+        initUI();
       }
     });
 }
 
+function initCommands() {
+    chrome.commands.getAll((all) => { 
+        console.log(all);
+        document.getElementById('browser_action').innerText = browserAction(all);
+    });
+}
+
+function browserAction(all) {
+    for(var i of all){
+        if (i.name = "_execute_browser_action") {
+            return i.shortcut;
+        }
+    }
+    return null;
+}
+
 function initUI() {
   chrome.identity.getAuthToken({
-    'interactive': true
+    'interactive': false
   }, function(token) {
     // Use the token.
     if (!token) {
@@ -49,6 +77,10 @@ function initUI() {
     } else {
       console.log('Success!', token);
       access_token = token;
+      document.getElementById('revoke').disabled = false;
+    }
+    if (chrome.runtime.lastError) {
+        console.log('Oops', chrome.runtime.lastError);
     }
 
   });
@@ -57,4 +89,8 @@ function initUI() {
 //Inital function fired on page load.
 window.onload = function() {
   initUI();
+  initCommands();
+  document.getElementById('configure').addEventListener('click',(e)=>{
+      chrome.tabs.create({ url: "chrome://extensions/configureCommands" });
+  });
 };

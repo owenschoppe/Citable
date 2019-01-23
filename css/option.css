@@ -1,0 +1,56 @@
+.options {
+  font-family: 'Roboto', Arial, Verdana, Sans-Serif;
+  font-size: 14px;
+  background-color: #ccc;
+  margin: 0px;
+  color: #444;
+  text-align: left;
+  overflow: auto;
+}
+
+.card {
+  width: 600px;
+  margin: 40px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 20px;
+  background-color: #fff;
+  -webkit-border-radius: 4px;
+  -webkit-box-shadow: 0px 0px 10px #888;
+}
+
+h1, h2, #page-title, .page-title {
+  font-size: 24px;
+  font-weight: lighter;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+}
+
+.break {
+  margin-bottom: 10px;
+}
+
+dd {
+  margin: 0;
+}
+.ip {
+  font-size: 10px;
+  margin-top: 10px;
+}
+
+a {
+    padding: initial;
+}
+
+.divider {
+  margin: 20px 0 20px 0;
+  clear: both;
+  position: relative;
+}
+
+#revoke {
+    width: 150px;
+}
