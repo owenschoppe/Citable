@@ -115,7 +115,7 @@
   font-style: italic;
 }
 
-#shadow, .shadow {
+.shadow {
   background-image: url(img/shadow_small.png);
   background-size: 3in;
   width: 3in;
@@ -123,22 +123,18 @@
   height: 30px;
 }
 
-#clear, .clear {
+/* .clear {
   clear: both;
-}
+} */
 
-#content, .content {
+.content {
   margin: 0px;
   padding: 0px;
 }
 
-.fade {
+/* .fade {
   opacity: .25;
-}
-
-.hidden {
-  display: none;
-}
+} */
 
 /*.left{
 	float: left;

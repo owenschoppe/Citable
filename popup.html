@@ -10,6 +10,7 @@
 	<title>Citable</title>
 	<meta name="viewport" content="width=288, initial-scale=1.0">
 	<meta name="Description" content="Save citations to Google Spreadsheets">
+	<link rel="stylesheet" type="text/css" href="/css/index.css">
 	<link rel="stylesheet" type="text/css" href="/css/pop.css">
 	<link rel="stylesheet" type="text/css" href="/css/notes.css">
 	<link rel="stylesheet" type="text/css" href="/css/angular-csp.css">
@@ -53,7 +54,7 @@
 						<!--Hack the citation validation by having a hidden required input with the date value. This would cause the form to be invalid if missing. Or we could require the url, or some other field... -->
 					</form>
 				</div>
-				<div id="shadow"></div>
+				<div class="shadow"></div>
 			</div>
 
 			<!--Auth-->
@@ -70,15 +71,15 @@
 				<form name="controls" novalidate>
 					<div>
 						<!--Label-->
-						<label for="destination" id="destination_label" class="space lg" ng-class="{fade:data.menu}" aria-hidden="true">Save Note In Sheet</label>
+						<label for="destination" id="destination_label" class="p-left--small lg" ng-class="{fade:data.menu}" aria-hidden="true">Save Note In Sheet</label>
 
-						<label for="submit" id="shortcut" class="addNoteLabel lg right-space" ng-class="{fade:data.menu}" aria-hidden="true">alt+return</label>
+						<label for="submit" id="shortcut" class="addNoteLabel lg p-right--small" ng-class="{fade:data.menu}" aria-hidden="true">alt+return</label>
 					</div>
 
 					<div id="selection_box" class="clear">
 
 						<!--Document Selector and Loading Module-->
-						<div id="selection" name="selection" class="space">
+						<div id="selection" name="selection" class="p-left--small">
 
 							<!--Loading-->
 							<div data-ng-show="data.loading && data.online">
@@ -103,9 +104,9 @@
 						</div>
 
 						<!--Save Button-->
-						<div class="right relative addNoteContainer right-space">
+						<div class="right relative addNoteContainer p-right--small">
 							<!--<a class="button Droid addNote right" ng-click="saveNote($event)" ng-disabled="data.menu || data.requesting || controls.$invalid" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" href>Save</a>-->
-							<input type="submit" name="submit" aria-labelledby="shortcut" ng-disabled="data.menu || data.requesting || controls.$invalid || !data.online" class="button Droid addNote right" ng-class="{fade:data.menu||!data.online}" tabindex="{{data.menu || data.requesting?'-1':$index}}"
+							<input type="submit" name="submit" aria-labelledby="shortcut" ng-disabled="data.menu || data.requesting || controls.$invalid || !data.online" class="button primary-button Droid addNote right" ng-class="{fade:data.menu||!data.online}" tabindex="{{data.menu || data.requesting?'-1':$index}}"
 							  value="Save" ng-click="controls.$valid && focused && data.online && saveNoteButton($event,closeWindow)" ng-focus="focused = true" ng-blur="focused = false" />
 
 							<!--works-->
@@ -123,15 +124,15 @@
 						<div class="controls controlBar" ng-hide="!data.defaultDoc.title">
 
 							<!--View Doc-->
-                            <div class="item"><a id="viewDoc" class="action  space" ng-click="viewDoc(data.defaultDoc.id,data.defaultDoc.alternateLink)" href>View Sheet</a></div>
+                            <div class="item"><a id="viewDoc" class="action  p-left--small" ng-click="viewDoc(data.defaultDoc.id,data.defaultDoc.alternateLink)" href>View Sheet</a></div>
 
-                            <div class="divider"></div>
+                            <div class="divider m-vertical--xxsmall"></div>
                             <!--Print Doc-->
-                            <div class="item"><a id="printDoc" class="action space" ng-click="getDocument('print')" href>Print Sheet</a></div>
+                            <div class="item"><a id="printDoc" class="action p-left--small" ng-click="getDocument('print')" href>Print Sheet</a></div>
 
-                            <div class="divider"></div>
+                            <div class="divider m-vertical--xxsmall"></div>
                             <!--Export Doc-->
-                            <div class="item"><a id="exportDoc" class="action space" ng-click="getDocument('export')" href>Export Sheet</a></div>
+                            <div class="item"><a id="exportDoc" class="action p-left--small" ng-click="getDocument('export')" href>Export Sheet</a></div>
 						</div>
 
 					</div>

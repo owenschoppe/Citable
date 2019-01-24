@@ -13,6 +13,7 @@
 	<link rel="stylesheet" type="text/css" href="/css/landscape.css" media="print">
 	<link rel="stylesheet" type="text/css" href="/css/portrait.css" media="print">
 	<link rel="stylesheet" type="text/css" href="/css/print.css" media="print">
+	<link rel="stylesheet" type="text/css" href="/css/index.css" media="all">
 	<link rel="stylesheet" type="text/css" href="/css/view.css" media="screen">
 	<link rel="stylesheet" type="text/css" href="/css/notes.css" media="all">
 
@@ -34,22 +35,21 @@
 
 		<div id="output" class="offset">
 		</div>
-		<div id="controls-wrapper">
-			<div id="controls">
-				<h1 id="page-title">Print</h1>
+		<div id="controls-wrapper" class="controls-wrapper">
+			<div id="controls" class="controls">
+				<h1 id="page-title" class="page-title">Print</h1>
 				<div id="display">
-					<div id="butter"></div>
-					<div id="selection"></div>
+					<div id="butter" class="butter"></div>
+					<div id="selection" class="selection"></div>
 				</div>
 				<div id="total"></div>
 				<div id="button-wrapper">
-					<button id="print-button" class="button" disabled>Print</button>
-					<button id="template-button" class="button">Print Template</button>
-					<button id="cancel-button" class="button">Cancel</button>
+					<button id="print-button" class="button primary-button" disabled>Print</button>
+					<button id="template-button" class="button secondary-button">Print Template</button>
+					<button id="cancel-button" class="button secondary-button right">Cancel</button>
 
 				</div>
-				<div class="clear"></div>
-				<div class="divider"></div>
+				<div class="divider m-vertical--large"></div>
 				<form id="note-wrapper" class="left">
 					<fieldset>
 						<legend class="instructions"><span>Select Columns to Print</span></legend>
@@ -57,12 +57,11 @@
 							<div id="elements" name="elements">
 							</div>
 						</div>
-						<div id="shadow"></div>
+						<div class="shadow"></div>
 					</fieldset>
 				</form>
-
-				<div class="clear"></div>
-				<form id="radioControls">
+				<div class></div>
+				<form id="radioControls" class="clear">
 					<fieldset>
 						<legend class="instructions"><span>Format Printing</span></legend>
 						<div id="fonts">
@@ -78,12 +77,13 @@
 							<img class="pageIcon portraitIcon" src="/css/img/Portrait128.png" />
 							<span class="fontIcon">A</span>
 						</span>
-					</fieldset </form> <div class="clear">
-			</div>
-			<div class="divider"></div>
-			<div id="instructions" class="instructions clear">
-				<p>Place stickies on templates as indicated.</p>
-				<p>Adjust your printer settings as needed.</p>
+					</fieldset>
+				</form>
+				<div class="divider m-vertical--large clear"></div>
+				<div id="instructions" class="instructions clear">
+					<p>Place stickies on templates as indicated.</p>
+					<p>Adjust your printer settings as needed.</p>
+				</div>
 			</div>
 			<div id="control-shadow"></div>
 		</div>
