@@ -79,6 +79,9 @@ var rows = []; //From printexport.js
 var renderCallback = function(container, pages, callback) {
   console.log('renderCallback', container, pages, callback);
   //Loads the right number in to the controlbar.
+
+  document.title = 'Citable - ' + title;
+
   setTotal(pages);
   var output = document.getElementById('output');
   //output.appendChild(container);
@@ -398,8 +401,8 @@ changeElement = function(formName, elementName) {
 	//console.log(classElement,elementName);
 	$(classElement).toggle(localStorage[elementName]=='true' ? true : false);
 	//console.log('changeElement ', formName, elementName, localStorage[elementName]=='true', localStorage[elementName]);
-	if(classElement == '.url'){ $('.author').toggleClass(function(){return 'fullWidth'},(localStorage[elementName]=='true'?false:true)); };//Toggle width 100%
-	if(classElement == '.author'){ $('.url').toggleClass(function(){return 'fullWidth'},(localStorage[elementName]=='true'?false:true)); };
+	if(classElement == '.url'){ $('.author').toggleClass(function(){return 'full'},(localStorage[elementName]=='true'?false:true)); };//Toggle width 100%
+	if(classElement == '.author'){ $('.url').toggleClass(function(){return 'full'},(localStorage[elementName]=='true'?false:true)); };
 }
 
 //Initialize checkbox controls.
@@ -576,7 +579,7 @@ function buildSelect(cols, defaultFields, callback) {
   //TODO: Change this to i<defaultFields.length for a fully generalized function.
   var valuesArray = [];
   for (var i = 0; i < 5; i++) {
-    var j = (i == 2 || i == 3) ? 'half' : 'full';
+    var j = (i == 2 || i == 3) ? 'split' : 'full';
     var name = "field" + i;
     var div = document.createElement('div');
     div.innerHTML = ('<label for="' + name + '" class="visuallyhidden">Area ' + (parseInt(i) + 1) + '</label><select id="' + name + '" class="Droid select ' + j + '" name="' + name + '" ><option value="none">None</option>' + html.join('') + '</select>');

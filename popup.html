@@ -30,38 +30,37 @@
 		<main id="frame">
 			<h1 class="visuallyhidden">Citable</h1>
 			<!--Note-->
-			<div class="note" ng-controller='CitationController' ng-class="{fade:data.menu}" ng-keyup="myEvent($event)">
-				<div id="citation">
-					<form id="addbookmark" name="citation" class="inset-20">
+			<div class="note_wrapper shadow" ng-controller='CitationController' ng-class="{fade:data.menu}" ng-keyup="myEvent($event)">
+				<div id="citation" class="note">
+					<form id="addbookmark" name="citation" class="form">
 						<fieldset>
 							<legend class="visuallyhidden">Citation</legend>
 							<!--Summary Field-->
 							<label for="summary" class="visuallyhidden">Summary</label>
-							<textarea id="summary" class="Droid input" name="summary" placeholder="Select some text or type a note" ng-model="data.citation.Summary" ng-disabled="data.menu"></textarea>
+							<textarea id="summary" class="Droid input summary" name="summary" placeholder="Select some text or type a note" ng-model="data.citation.Summary" ng-disabled="data.menu"></textarea>
 							<!--Title Field-->
 							<label for="title" class="visuallyhidden">Title</label>
-							<input type="text" id="title" class="Droid input" name="title" value="" placeholder="Enter a title" ng-model="data.citation.Title" ng-disabled="data.menu" />
+							<input type="text" id="title" class="Droid input title" name="title" value="" placeholder="Enter a title" ng-model="data.citation.Title" ng-disabled="data.menu" />
 							<!--Author Field-->
 							<label for="author" class="visuallyhidden">Author</label>
-							<input type="text" id="author" class="Droid input" name="author" value="" placeholder="Enter an author" ng-model="data.citation.Author" ng-disabled="data.menu" />
+							<input type="text" id="author" class="Droid input author" name="author" value="" placeholder="Enter an author" ng-model="data.citation.Author" ng-disabled="data.menu" />
 							<!--Url Field-->
 							<label for="url" class="visuallyhidden">Url</label>
-							<input type="text" id="url" class="Droid input" name="url" value="" placeholder="URL" ng-model="data.citation.Url" ng-disabled="data.menu" />
+							<input type="text" id="url" class="Droid input url" name="url" value="" placeholder="URL" ng-model="data.citation.Url" ng-disabled="data.menu" />
 							<!--Tags Field-->
 							<label for="tags" class="visuallyhidden">Tags</label>
-							<input type="text" id="tags" class="Droid input" name="tags" value="" placeholder="Enter some tags" ng-model="data.citation.Tags" ng-disabled="data.menu" />
+							<input type="text" id="tags" class="Droid input tags" name="tags" value="" placeholder="Enter some tags" ng-model="data.citation.Tags" ng-disabled="data.menu" />
 						</fieldset>
 						<!--Hack the citation validation by having a hidden required input with the date value. This would cause the form to be invalid if missing. Or we could require the url, or some other field... -->
 					</form>
 				</div>
-				<div class="shadow"></div>
 			</div>
 
 			<!--Auth-->
 			<div class="auth" ng-hide="data.auth||data.loading">
 				<!--<div id="citable" class="page-title"><img src="icon48.png"/>Citable</div>-->
 				<div class="center">
-					<a class="authBtn" ng-class="{fade:!data.online,active:getAuthFlow}" ng-disabled="!data.online" ng-click='data.online&&getAuth()' tabindex="{{data.auth?'-1':0}}" href><span class="btnText">Sign in with Google</span></a>
+					<a class="authBtn" ng-class="{fade:!data.online,active:getAuthFlow}" ng-disabled="!data.online" ng-click='data.online&&getAuth()' tabindex="{{data.auth?'-1':0}}" href>Sign in with Google</a>
 				</div>
 			</div>
 
@@ -71,9 +70,9 @@
 				<form name="controls" novalidate>
 					<div>
 						<!--Label-->
-						<label for="destination" id="destination_label" class="p-left--small lg" ng-class="{fade:data.menu}" aria-hidden="true">Save Note In Sheet</label>
+						<label for="destination" id="destination_label" class="p-left--small label" ng-class="{fade:data.menu}" aria-hidden="true">Save Note In Sheet</label>
 
-						<label for="submit" id="shortcut" class="addNoteLabel lg p-right--small" ng-class="{fade:data.menu}" aria-hidden="true">alt+return</label>
+						<label for="submit" id="shortcut" class="addNoteLabel label p-right--small" ng-class="{fade:data.menu}" aria-hidden="true">alt+return</label>
 					</div>
 
 					<div id="selection_box" class="clear">

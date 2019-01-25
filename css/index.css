@@ -7,14 +7,18 @@
   --color-primary--light: #00857c;
   /* rgb(0,133,124) */
   --color-primary--tint: rgba(0,133,124,0.1);
+  --color-primary--tint-alt: rgba(0,133,124,0.25);
   --color-disabled: #e8e8e8;
+  --color-shadow: rgba(0,0,0,0.25);
 
   /* Text */
   --color-text: #333333;
   --color-text--inverse: #ffffff;
+  --color-text--weak: #757575;
 
   /* Background */
   --color-background: #ffffff;
+  --color-background--note: #FFFCA8;
 
   /* Border */
   --color-border: #dddddd;
@@ -23,11 +27,43 @@
   --border-radius: 4px;
 }
 
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto/Roboto-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto/Roboto-Italic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto/Roboto-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto/Roboto-BoldItalic.ttf') format('truetype');
+  font-weight: bold;
+  font-style: italic;
+}
+
+html {
+  padding: 0;
+  margin: 0;
+}
+
 /* Link */
 a {
   color: var(--color-primary--light);
   text-decoration: none;
-  padding:8px;
 }
 
 a:hover,
@@ -73,6 +109,7 @@ a.disabled:hover {
 }
 
 .secondary-button {
+  background-color: transparent;
   color: var(--color-primary);
 }
 
@@ -105,6 +142,10 @@ a.disabled:hover {
   background-color: var(--color-primary--light);
 }
 
+.secondary-button:active {
+  background-color: var(--color-primary--tint-alt);
+}
+
 .button:disabled,
 .button[disabled=disabled],
 .button_disabled,
@@ -119,7 +160,7 @@ a.disabled:hover {
 /* select */
 select {
   background-color: var(--color-background);
-  border: 1px solid var(--color-primary--light);
+  border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
   color: var(--color-text);
   font-size: 14px;
@@ -130,12 +171,9 @@ select {
   cursor: pointer;
   height: 32px;
   box-sizing: border-box;
-  /*outline: none;*/
 }
 
 select:HOVER {
-
-  /* background-color: var(--color-primary--tint); */
   border: 1px solid var(--color-primary);
 }
 
@@ -151,23 +189,27 @@ select:ACTIVE {
 
 /* Inputs */
 textarea, input[type='text'] {
-  /*,#selection,#selection_box*/
-  width: 100%;
-  padding-left: 4px;
-  margin: 0;
+}
+
+.form input, .form textarea {
+  background-color: transparent !important;
+  border: none;
+  padding: 0px;
+  display: block;
 }
 
 .new_doc_container input[type='text']{
   height: 32px;
   font-size: 14px;
   border-radius: 4px;
-  border: 1px solid #00857c;
+  border: 1px solid var(--color-primary--light);
   padding-left: 8px;
+  width: 100%;
 }
 
 .new_doc_container input:focus {
-    box-shadow: 0 0 0 1px #00857c;
-    border: 1px solid #00857c;
+    box-shadow: 0 0 0 1px var(--color-primary--light);
+    border: 1px solid var(--color-primary--light);
     outline: none;
 }
 
@@ -177,11 +219,14 @@ textarea, input[type='text'] {
   background-color: #2B5DD0;
   border-radius: 4px;
   display: inline-block;
-  color: var(--color-text-inverse);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text--inverse);
   white-space: nowrap;
   -webkit-user-select: none;
   padding-left: 36px;
   padding-right: 36px;
+  line-height: 36px;
   text-align: center;
 }
 
@@ -197,6 +242,7 @@ textarea, input[type='text'] {
 .authBtn:focus {
   box-shadow: 0px 2px 0px #0D2044;
   background-color: #4571D9;
+  color: var(--color-text--inverse);
   cursor: hand;
   outline: none;
   margin-top: -2px;
@@ -206,10 +252,11 @@ textarea, input[type='text'] {
 .authBtn:active,
 .authBtn.active {
   background-color: #2249A3;
+  color: var(--color-text--inverse);
 }
 
 /* Typography */
-.page-title {
+h1, .page-title {
   font-weight: normal;
   margin-top: 20px;
   margin-bottom: 10px;
@@ -220,18 +267,123 @@ textarea, input[type='text'] {
   color: var(--color-text);
 }
 
+.label {
+  font-size: 12px;
+  color: var(--color-text--weak);
+}
+
+.Droid {
+  font-family: 'Roboto', Arial, Sans-Serif;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.italic {
+  font-style: italic;
+}
+
+/* Components */
+
 img.logo {
   margin-right: 10px;
   vertical-align: -30%;
 }
 
 .divider {
-  /* margin: 20px 0 20px 0; */
   border-top: 1px solid var(--color-border);
   clear: both;
   position: relative;
-  /* width: 288px; */
 }
+
+.card {
+  width: 600px;
+  margin: 40px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 20px;
+  background-color: #fff;
+  -webkit-border-radius: var(--border-radius);
+  border-radius: var(--border-radius);
+  -webkit-box-shadow: 0px 0px 10px var(--color-shadow);
+  box-shadow: 0px 0px 10px var(--color-shadow);
+}
+
+.note_wrapper {
+  list-style: none;
+  cursor: default;
+}
+
+.note {
+  width: 3in;
+  height: 3in;
+  padding: 0px;
+  margin: 0px;
+  background-color: var(--color-background--note);
+  overflow: hidden;
+}
+
+.move {
+  cursor: move;
+}
+
+.shadow::after {
+  display: block;
+  background-image: url(img/shadow_small.png);
+  background-size: 3in;
+  width: 3in;
+  height: 30px;
+  background-repeat: no-repeat;
+  content: "";
+}
+
+/* .shadow {
+  background-image: url(img/shadow_small.png);
+  background-size: 3in;
+  width: 3in;
+  background-repeat: no-repeat;
+  height: 20px;
+} */
+
+.form {
+  margin: 12px;
+}
+
+
+.butterbox {
+  text-align: center;
+  margin-top: 15px;
+  margin-bottom: 5px;
+}
+
+.pam {
+  padding: 5px 15px 5px 15px;
+  padding: 5px 15px 5px 15px;
+}
+
+.butter {
+  color: #fff;
+  margin: auto;
+  border-radius: 4px;
+  width: 258px;
+  letter-spacing: 1px;
+  font-variant-ligatures: none;
+}
+
+.error {
+  background-color: #cc1001;
+}
+
+.success {
+  /* background-color: #4C8EF9; */
+  background-color: #333333;
+}
+
+.normal {
+  background-color: #333333;
+}
+
 
 /* Utilities */
 .left {
@@ -253,10 +405,12 @@ img.logo {
   text-align: center;
 }
 
-.inset-20 {
-  padding: 20px;
-  margin: 0px;
-  display: block;
+.full {
+  width: 100%;
+}
+
+.split {
+  width: 95%;
 }
 
 .p-left--small {
@@ -265,6 +419,10 @@ img.logo {
 
 .p-right--small {
   padding-right: 8px;
+}
+
+.m-bottom--medium {
+    margin-bottom: 12px;
 }
 
 .m-vertical--xxsmall {
@@ -309,4 +467,15 @@ fieldset {
   border: none;
   padding: 0;
   margin: 0;
+}
+
+.visuallyhidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
 }

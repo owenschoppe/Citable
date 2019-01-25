@@ -27,8 +27,8 @@ var render = function(rows, callback, passed) {
     var uj = (u == 'none') ? 'hidden' : "";
     var gj = (g == 'none') ? 'hidden' : "";
 
-    var aw = (u == 'none') ? 'fullWidth' : '';
-    var uw = (a == 'none') ? 'fullWidth' : '';
+    var aw = (u == 'none') ? 'full' : '';
+    var uw = (a == 'none') ? 'full' : '';
 
     var index = 0;
 
@@ -41,7 +41,7 @@ var render = function(rows, callback, passed) {
       form.id = "form_"+i;
 			form.className = "form";
       form.setAttribute('data-index', i);
-      div.className = "note_wrapper ui-state-default left"; //+arrangeClass(orientation, index);
+      div.className = "note_wrapper shadow ui-state-default left move"; //+arrangeClass(orientation, index);
       //div.setAttribute('draggable',true); //done later in draggable.js
       note.id = "note_"+i;
 			note.className = "note";
@@ -61,28 +61,28 @@ var render = function(rows, callback, passed) {
 
       var Author = document.createElement('div');
       Author.innerText = (a != 'none') ? r[a] : "";
-      Author.className = "italic author " + font + " " + i + " " + aj + " " + aw;
+      Author.className = "author " + font + " " + i + " " + aj + " " + aw;
       Author.readOnly = true;
       form.appendChild(Author);
 
       var URL = document.createElement('div');
       URL.innerText = (u != 'none') ? r[u] : "";
-      URL.className = "italic url " + font + " " + i + " " + uj + " " + uw;
+      URL.className = "url " + font + " " + i + " " + uj + " " + uw;
       URL.readOnly = true;
       form.appendChild(URL);
 
       var Tags = document.createElement('div');
       Tags.innerText = (g != 'none') ? r[g] : "";
-      Tags.className = "bold tags " + font + " " + i + " " + gj;
+      Tags.className = "tags " + font + " " + i + " " + gj;
       Tags.readOnly = true;
       form.appendChild(Tags);
 
       note.appendChild(form);
       div.appendChild(note);
 
-      shadow.id = "shadow_"+i;
-			shadow.className = "shadow";
-      div.appendChild(shadow);
+    //   shadow.id = "shadow_"+i;
+	// 		shadow.className = "shadow";
+    //   div.appendChild(shadow);
 
       //console.log('i:', i);
       if (i % notesPerPage == 0) {
