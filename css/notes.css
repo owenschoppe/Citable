@@ -3,6 +3,14 @@
   src: url('../fonts/Dekko/Dekko-Regular.ttf') format('truetype');
 }
 
+.form {
+  margin: 12px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+}
+
 .summary {
   font-size: 16px;
   line-height: 19px;
@@ -37,8 +45,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   display: inline-block;
-  clear: none;
-  float: left;
   word-break: break-all;
   white-space: nowrap;
   box-sizing: border-box;
@@ -52,7 +58,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  clear: both;
 }
 
 .handwritten {

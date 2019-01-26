@@ -4,36 +4,46 @@
  * Citable by Owen Schoppe is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License
  *
 -->
-<html>
-<head>
-<title>Citable Printing Template</title>
-<!--<link href="fonts/lithoantique_demibold_macroman/stylesheet.css" rel="stylesheet" type="text/css" charset="utf-8" />
-<link href="fonts/lithoantique_medium_macroman/stylesheet.css" rel="stylesheet" type="text/css" charset="utf-8" />-->
-<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
-<!--A library for creating pdfs-->
-<!-- Add jQuery UI for draggable elements -->
-<link rel="stylesheet" type="text/css" href="/css/landscape.css" media="print, screen">
-<link rel="stylesheet" type="text/css" href="/css/print.css" media="print, screen">
-<link rel="stylesheet" type="text/css" href="/css/notes.css">
+<html lang="en">
 
-<script type="text/javascript" src="js/template.js"></script>
+<head>
+	<title>Citable Printing Template</title>
+	<link rel="stylesheet" type="text/css" href="/css/landscape.css" media="print, screen">
+	<link rel="stylesheet" type="text/css" href="/css/print.css" media="print, screen">
+	<link rel="stylesheet" type="text/css" href="/css/index.css" media="all">
+	<link rel="stylesheet" type="text/css" href="/css/notes.css" media="all">
+
+	<script type="text/javascript" src="js/template.js"></script>
 
 </head>
-<body>
-	<div id="template" class="offset">
-			<div id="page" class="page landscape">
-				<div id="content">
-					<div id="note_wrapper" class="left"><div id="note"><div class="divider"></div></div></div>
-					<div id="note_wrapper" class="middle"><div id="note"><div class="divider"></div></div></div>
-					<div id="note_wrapper" class="right"><div id="note"><div class="divider"></div></div></div>
-					<div id="note_wrapper" class="left"><div id="note"><div class="divider"></div></div></div>
-					<div id="note_wrapper" class="middle"><div id="note"><div class="divider"></div></div></div>
-					<div id="note_wrapper" class="right"><div id="note"><div class="divider"></div></div></div>
-				</div>
-				<div id="clear"></div>
-				<div id="instructions"><img src="/css/img/template_land128.png"/>Place six stickies on the template as indicated. Adjust your printer settings as needed.</div>
 
+<body>
+	<div id="template" class="template offset">
+		<div id="page" class="page landscape">
+			<div id="content" class="content">
+				<div class="note_wrapper m-large">
+					<div class="note">Place sticky here.<div class="divider"></div>
+					</div>
+				</div><div class="note_wrapper m-large">
+					<div class="note">Place sticky here.<div class="divider"></div>
+					</div>
+				</div><div class="note_wrapper m-large">
+					<div class="note">Place sticky here.<div class="divider"></div>
+					</div>
+				</div><div class="note_wrapper m-large">
+					<div class="note">Place sticky here.<div class="divider"></div>
+					</div>
+				</div><div class="note_wrapper m-large">
+					<div class="note">Place sticky here.<div class="divider"></div>
+					</div>
+				</div><div class="note_wrapper m-large">
+					<div class="note">Place sticky here.<div class="divider"></div>
+					</div>
+				</div>
 			</div>
+			<div id="instructions" class="instructions">&#8593; Feed into printer in this direction. &#8593;</div>
 		</div>
+	</div>
 </body>
+
 </html>

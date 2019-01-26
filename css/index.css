@@ -18,7 +18,8 @@
 
   /* Background */
   --color-background: #ffffff;
-  --color-background--note: #FFFCA8;
+  --color-background--alt: #cccccc;
+  --color-background--note: #fffca8;
 
   /* Border */
   --color-border: #dddddd;
@@ -29,7 +30,8 @@
 
 @font-face {
   font-family: 'Roboto';
-  src: url('../fonts/Roboto/Roboto-Regular.ttf') format('truetype');
+  font-display: auto;
+  src: local("Roboto") url('../fonts/Roboto/Roboto-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
@@ -43,7 +45,8 @@
 
 @font-face {
   font-family: 'Roboto';
-  src: url('../fonts/Roboto/Roboto-Bold.ttf') format('truetype');
+  font-display: auto;
+  src: local("Roboto") url('../fonts/Roboto/Roboto-Bold.ttf') format('truetype');
   font-weight: bold;
   font-style: normal;
 }
@@ -310,9 +313,18 @@ img.logo {
   box-shadow: 0px 0px 10px var(--color-shadow);
 }
 
-.content {
+/* .content {
   margin: 0px;
   padding: 0px;
+} */
+
+.content {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin: -24px;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .note_wrapper {
@@ -350,11 +362,6 @@ img.logo {
   background-repeat: no-repeat;
   height: 20px;
 } */
-
-.form {
-  margin: 12px;
-}
-
 
 .butterbox {
   text-align: center;
@@ -418,6 +425,10 @@ img.logo {
   width: 95%;
 }
 
+.half {
+  width: 50%;
+}
+
 .p-left--small {
   padding-left: 8px;
 }
@@ -438,6 +449,10 @@ img.logo {
 .m-vertical--large {
   margin-top: 24px;
   margin-bottom: 24px;
+}
+
+.m-large {
+  margin: 24px;
 }
 
 .indent {

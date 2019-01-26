@@ -10,11 +10,11 @@
 	<title>Citable</title>
 	<meta name="viewport" content="width=1440, initial-scale=1.0">
     <meta name="Description" content="Print Google Spreadsheets on sticky notes.">
-    <link rel="stylesheet" type="text/css" href="css/index.css" media="all">
 	<link rel="stylesheet" type="text/css" href="css/landscape.css" media="print">
 	<link rel="stylesheet" type="text/css" href="css/portrait.css" media="print">
-    <link rel="stylesheet" type="text/css" href="css/print.css" media="print">
-    <link rel="stylesheet" type="text/css" href="css/notes.css" media="all">
+	<link rel="stylesheet" type="text/css" href="css/index.css" media="all">
+	<link rel="stylesheet" type="text/css" href="css/notes.css" media="all">
+  <link rel="stylesheet" type="text/css" href="css/print.css" media="print">
 	<link rel="stylesheet" type="text/css" href="/css/view.css" media="screen">
 
 	<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
@@ -30,15 +30,12 @@
 </head>
 
 <body>
-	<main>
 		<div id="loading" class="loading offset"><img src="css/img/loading.gif" height="16" width="16" /></div>
-
-		<div id="output" class="offset">
-		</div>
-		<div id="controls-wrapper" class="controls-wrapper">
+		<div id="output" class="offset"></div>
+		<main id="controls-wrapper" class="controls-wrapper">
 			<div id="controls" class="controls">
 				<h1 id="page-title" class="page-title">Print</h1>
-				<div id="display">
+				<div id="display" class="m-bottom--medium ">
 					<div id="butter" class="butter"></div>
 					<div id="selection" class="selection"></div>
 				</div>
@@ -47,7 +44,6 @@
 					<button id="print-button" class="button primary-button" disabled>Print</button>
 					<button id="template-button" class="button secondary-button">Print Template</button>
 					<button id="cancel-button" class="button secondary-button right">Cancel</button>
-
 				</div>
 				<div class="divider m-vertical--large"></div>
 				<form id="note-wrapper shadow" class="left">
@@ -86,9 +82,8 @@
 				</div>
 			</div>
 			<div id="control-shadow"></div>
-		</div>
+		</main>
 		<div id="indicator">Page <span id="pageNum">1</span></div>
-	</main>
 </body>
 
 </html>

@@ -1,220 +1,83 @@
-/*For template*/
-@font-face {
-  font-family: 'Roboto';
-  src: url('../fonts/Roboto/Roboto-Regular.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Roboto';
-  src: url('../fonts/Roboto/Roboto-Italic.ttf') format('truetype');
-  font-weight: normal;
-  font-style: italic;
-}
-
-@font-face {
-  font-family: 'Roboto';
-  src: url('../fonts/Roboto/Roboto-Bold.ttf') format('truetype');
-  font-weight: bold;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Roboto';
-  src: url('../fonts/Roboto/Roboto-BoldItalic.ttf') format('truetype');
-  font-weight: bold;
-  font-style: italic;
-}
-
-body {
-  font-size: 14px;
-  font-family: 'Roboto', Sans-Serif;
-  background-color: #ccc;
-  margin: 0px;
-  color: #444;
-  position: absolute;
-}
-
-/*End*/
+/* 1 Inch = 96px for printers and high res displays*/
+/* Reset */
 #controls, #indicator {
   display: none !important;
   width: 0px;
 }
 
+#loading {
+  display: none !important;
+}
+
 .shadow:after {
-    display: none;
+  display: none;
 }
 
 .note {
-    background-color: transparent;
+  background-color: transparent;
 }
 
-/*#print {
-	background: url(img/sprite_black2.png) no-repeat -84px -63px;
-	height: 21px;
-	opacity: .55;
-	width: 21px;
-}*/
-#print_instructions {
-  margin: 40px;
-  width: 208px;
+/*For template*/
+body {
+  font-size: 14px;
+  font-family: 'Roboto', Sans-Serif;
+  background-color: var(--color-background--alt);
+  margin: 0px;
+  color: var(--color-text);
+  position: absolute;
 }
 
-#print_instructions img {
-  margin-right: auto;
-  margin-left: auto;
-  display: block;
+.template .note {
+  width: 288px;
+  height: 288px;
+  border: 2px solid var(--color-border);
+  background-color: transparent;
+  text-align: center;
+  padding-top: 20px;
+  box-sizing: border-box;
 }
 
-/*.landscape #instructions {
-	clear: both;
-	text-align: center;
-}
-.portrait #instructions {
-	clear: none;
-	text-align: center;
-	width: 2.5in;
-	margin-right: auto;
-	margin-left: auto;
-}
-.portrait #instructions img {
-	margin-bottom: 10px;
-}
-.landscape #instructions {
-	position: relative;
-	bottom: -30px;
-}
-.landscape #instructions img {
-	position: absolute;
-	left: 100px;
-	bottom: -30px;
-	width: 100px;
-	height: 100px;
-}*/
-/*-----------------------*/
-#output {
-  float: left;
-  clear: none;
+.template .divider {
+  margin: 20px 0 20px 0;
+  border-top: 1px solid var(--color-border);
 }
 
-.offset {
-  position: relative;
-  left: 0px;
+.landscape .instructions {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  padding-top: 24px;
 }
 
-/*-----------------------*/
+.portrait .instructions {
+  position: absolute;
+  transform: rotate(90deg);
+  transform-origin: 0 0;
+  top: 24px;
+  left: 394px;
+}
+
+/*End Template*/
+
 .landscape {
   width: 10.5in;
   /* page width(11in) = 10.5in + page-margin(.25in*2) */
   height: 8in;
   /* page width(8.5in) = 8in + page-margin(.25in*2) */
+  padding: 24px;
 }
 
 .portrait {
   width: 8in;
   height: 10.5in;
+  padding: 24px 72px;
 }
 
 .page {
-  background-color: #fff;
+  background-color: var(--color-background);
   margin: 0px;
-  padding: 0px;
   page-break-before: always;
-}
-
-/*-----------------------*/
-.content {
-  float: left;
-}
-
-.landscape .content {
-  padding: 16px 0 16px 0;
-}
-
-.portrait .content {
-  padding: 0 16px 0 15px;
-}
-
-/*.m = 3m template*/
-.m.landscape .content {
-  padding: 16px 72px 16px 72px;
-}
-
-.m.portrait .content {
-  padding: 72px 16px 72px 15px;
-}
-
-/*-----------------------*/
-/* .note_wrapper {
-  list-style: none;
-} */
-
-.landscape .note_wrapper {
-  margin: 40px 24px 20px 24px;
-  /* bottom margin(40px) = padding bottom(20px) + 20px */
-  padding: 0 0 20px 0;
-}
-
-.portrait .note_wrapper {
-  margin: 24px 40px 4px 40px;
-  /* bottom margin(24px) = padding bottom(20px) + 4px */
-  padding: 0 0 20px 0;
-}
-
-/*.m = 3m template*/
-.m.landscape .note_wrapper {
-  margin: 40px 0px 20px 0px;
-  /* bottom margin(40px) = padding bottom(20px) + 20px */
-  padding: 0 0 20px 0;
-}
-
-.m.portrait .note_wrapper {
-  margin: 0px 40px 0px 40px;
-  /* bottom margin(24px) = padding bottom(20px) + 4px */
-  padding: 0 0 0px 0;
-}
-
-/*-----------------------*/
-/* .note {
-  width: 3in;
-  height: 3in;
-  padding: 0px;
-  margin: 0px;
-  overflow: hidden;
-} */
-
-#template #note, #template .note {
-  width: 284px;
-  /*96px*3in-2pxborder=284px*/
-  height: 284px;
-  border: 2px #000 solid;
-  background-color: #fff;
-}
-
-/* .left {
-  float: left;
-  padding: 0px;
-} */
-
-/*-----------------------*/
-#form, .form {
-  /* margin: 20px; */
-}
-
-/*textarea,input{
-	width: 100%;
-	background-color: transparent !important;
-	border: none;
-}*/
-.divider {
-  margin: 40px 0 20px 0;
-  border-top: 1px #000 solid;
-  clear: both;
-  position: relative;
-}
-
-/*-----------------------*/
-#loading {
-  display: none !important;
+  break-before: page;
+  box-sizing: border-box;
 }

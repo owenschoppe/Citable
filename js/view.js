@@ -85,7 +85,7 @@ var renderCallback = function(container, pages, callback) {
   setTotal(pages);
   var output = document.getElementById('output');
   //output.appendChild(container);
-  output.replaceChild(container, output.firstChild);
+  output.hasChildNodes() ? output.replaceChild(container, output.firstChild) : output.appendChild(container);
   document.querySelector('#loading').classList.add('hidden'); //Hide the loading gif.
   document.querySelector('#print-button').addEventListener('click', printHandler);
   document.querySelector('#print-button').disabled = false;
