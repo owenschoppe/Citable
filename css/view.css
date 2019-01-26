@@ -288,14 +288,14 @@ div.checkbox {
   float: left;
 }
 
-.landscape #content, .landscape .content {
+.landscape .content {
   /*height: 736px;*/
   /* 8in-(16px*2) height is probably unnecessary */
   /*width: 10.5in;*/
   padding: 16px 0 16px 0;
 }
 
-.portrait #content, .portrait .content {
+.portrait .content {
   /*height: 10.5in;*/
   /*width: 737px;*/
   padding: 0 16px 0 15px;

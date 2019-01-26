@@ -13,7 +13,6 @@
   line-height: 19px;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .title {
@@ -81,34 +80,3 @@
 .tags.handwritten {
   font-size: 10px;
 }
-
-/* .shadow {
-  background-image: url(img/shadow_small.png);
-  background-size: 3in;
-  width: 3in;
-  background-repeat: no-repeat;
-  height: 30px;
-} */
-
-/* .clear {
-  clear: both;
-} */
-
-.content {
-  margin: 0px;
-  padding: 0px;
-}
-
-/* .fade {
-  opacity: .25;
-} */
-
-/*.left{
-	float: left;
-}
-.middle{
-	float:left;
-}
-.right{
-	float: right;
-}*/

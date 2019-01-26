@@ -37,9 +37,17 @@ body {
 }
 
 /*End*/
-#controls, #shadow, .shadow, #indicator {
+#controls, #indicator {
   display: none !important;
   width: 0px;
+}
+
+.shadow:after {
+    display: none;
+}
+
+.note {
+    background-color: transparent;
 }
 
 /*#print {
@@ -116,31 +124,31 @@ body {
 }
 
 /*-----------------------*/
-#content, .content {
+.content {
   float: left;
 }
 
-.landscape #content {
+.landscape .content {
   padding: 16px 0 16px 0;
 }
 
-.portrait #content, .portrait .content {
+.portrait .content {
   padding: 0 16px 0 15px;
 }
 
 /*.m = 3m template*/
-.m.landscape #content, .m.landscape .content {
+.m.landscape .content {
   padding: 16px 72px 16px 72px;
 }
 
-.m.portrait #content, .m.portrait .content {
+.m.portrait .content {
   padding: 72px 16px 72px 15px;
 }
 
 /*-----------------------*/
-.note_wrapper {
+/* .note_wrapper {
   list-style: none;
-}
+} */
 
 .landscape .note_wrapper {
   margin: 40px 24px 20px 24px;
@@ -168,13 +176,13 @@ body {
 }
 
 /*-----------------------*/
-#note, .note {
+/* .note {
   width: 3in;
   height: 3in;
   padding: 0px;
   margin: 0px;
   overflow: hidden;
-}
+} */
 
 #template #note, #template .note {
   width: 284px;
@@ -184,14 +192,14 @@ body {
   background-color: #fff;
 }
 
-.left {
+/* .left {
   float: left;
   padding: 0px;
-}
+} */
 
 /*-----------------------*/
 #form, .form {
-  margin: 20px;
+  /* margin: 20px; */
 }
 
 /*textarea,input{
@@ -208,6 +216,5 @@ body {
 
 /*-----------------------*/
 #loading {
-  display: none;
-   !important
+  display: none !important;
 }
