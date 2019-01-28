@@ -256,13 +256,13 @@ div.checkbox {
 
 
 .landscape .note_wrapper {
-  margin: 24px 24px 4px 24px;
+  /* margin: 24px 24px 4px 24px; */
   /* bottom margin(40px) = shadow(20px) + 20px */
   padding: 0px;
 }
 
 .portrait .note_wrapper {
-  margin: 24px 24px 4px 24px;
+  /* margin: 24px 24px 4px 24px; */
   /* bottom margin(24px) = shadow(20px) + 4px */
   padding: 0px;
 }

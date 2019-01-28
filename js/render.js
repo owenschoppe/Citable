@@ -41,7 +41,7 @@ var render = function(rows, callback, passed) {
       form.id = "form_"+i;
 			form.className = "form";
       form.setAttribute('data-index', i);
-      div.className = "note_wrapper shadow ui-state-default m-large move"; //+arrangeClass(orientation, index);
+      div.className = "note_wrapper shadow ui-state-default move"; //+arrangeClass(orientation, index);
       //div.setAttribute('draggable',true); //done later in draggable.js
       note.id = "note_"+i;
 			note.className = "note";

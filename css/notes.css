@@ -5,56 +5,61 @@
 
 .form {
   margin: 12px;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-
+  display: grid;
+  grid-column-gap: 4px;
+  grid-row-gap: 8px;
+  grid-template-columns: 0.5fr 0.5fr;
+  grid-template-rows: 190px 19px 19px 19px;
+  grid-template-areas:
+    "summary summary"
+    "title title"
+    "author url"
+    "tags tags";
 }
 
 .summary {
+  grid-area: summary;
   font-size: 16px;
   line-height: 19px;
-  height: 190px;
-  width: 100%;
-  margin-bottom: 8px;
   resize: none;
-  line-height: 19px;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 10;
+  -webkit-box-orient: vertical;
 }
 
 .title {
+  grid-area: title;
   font-size: 16px;
   line-height: 19px;
-  height: 19px;
-  width: 100%;
-  margin-bottom: 4px;
   font-weight: bold;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.url {
+  grid-area: url;
+}
+
+.author {
+  grid-area: author;
+}
+
 .url, .author {
   font-size: 12px;
   line-height: 19px;
-  height: 19px;
-  width: 50%;
-  margin-bottom: 4px;
-  padding-right: 4px;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: inline-block;
-  word-break: break-all;
   white-space: nowrap;
-  box-sizing: border-box;
+  word-break: break-all;
 }
 
 .tags {
+  grid-area: tags;
   font-size: 12px;
   line-height: 19px;
-  height: 19px;
-  width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

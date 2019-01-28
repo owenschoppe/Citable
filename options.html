@@ -8,52 +8,68 @@
  * Revised: Owen Schoppe <owen.schoppe@gmail.com>
 -->
 <html lang="en">
-  <head>
-    <title>Citable Options</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="Description" content="Configure Citable">
-    <script type="text/javascript" src="js/analytics.js"></script>
-    <script type="text/javascript" src="js/options.js"></script>
-    <link rel="stylesheet" type="text/css" href="/css/index.css">
-    <link rel="stylesheet" type="text/css" href="/css/option.css">
-  </head>
 
-  <body class="options">
-    <main class="card">
-          <h1 id="citable" class="page-title">
-              <img class="logo" src="icon48.png" alt=""/>
-            <span>Citable</span>
-        </h1>
-  		<h2 class="page-title">Settings</h2>
-  		<p >
-              <button id="revoke" class="button primary-button revoke" disabled>Sign Out</button>
-        </p>
-  		<!--<p class="description" >Refresh rate (seconds): <input id="refresh_rate" value="300" style="width:32px"></p>-->
-  		<div class="divider m-vertical--large"></div>
-  		<div class="helper">
-  			<h2 class="page-title">Shortcuts</h2>
-            <dl>
-                <dt class="bold" id="browser_action">command shift X</dt>
-                <dd class="m-bottom--medium">
-                    <div class="m-bottom--medium">Open Citable to save your selection.</div>
-                    <a href="#" id="configure">Customize</a>
-                </dd>
-                <dt class="bold">tab</dt>
-                <dd class="m-bottom--medium">Navigate between controls in Citable</dd>
-                <dt class="bold">alt return</dt>
-                <dd class="m-bottom--medium">Quickly save note from anywhere in Citable.</dd>
-                <dt class="bold">ctrl return</dt>
-                <dd class="m-bottom--medium">Compose several notes from the same URL.</dd>
-            </dl>
-  		</div>
-  		<div class="divider m-vertical--large"></div>
-  		<h2 class="page-title">Privacy</h2>
-  		<div class="instructions m-bottom--medium">Your data is never shared with Citable or any third parties. <br/>Notes are only transmitted between your computer and the specified Google Drive account using HTTPS.</div>
-        <a href="https://docs.google.com/document/d/1MAcmx7dVydaxejDyi_WEzHaYzimghYtxOVy7JBEucks/edit?usp=sharing" rel="noreferrer">View Policy</a>
-  		<div class="divider m-vertical--large"></div>
-  		<h2 class="page-title">Feedback?</h2>
-        <div><a class="m-bottom--medium" href="mailto:owen.schoppe@gmail.com?subject=Citable feedback">Email me!</a></div>
-  		<div class="ip"><a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/3.0/80x15.png" rel="noreferrer"/></a><br /><span xmlns:dct="https://purl.org/dc/terms/" href="https://purl.org/dc/dcmitype/InteractiveResource" property="dct:title" rel="dct:type">Citable</span> by <span xmlns:cc="https://creativecommons.org/ns#" property="cc:attributionName">Owen Schoppe</span> is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="noreferrer">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License</a></div>
-    </main>
-  </body>
+<head>
+  <title>Citable Options</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="Description" content="Configure Citable">
+  <script type="text/javascript" src="js/analytics.js"></script>
+  <script type="text/javascript" src="js/options.js"></script>
+  <link rel="stylesheet" type="text/css" href="/css/index.css">
+  <link rel="stylesheet" type="text/css" href="/css/option.css">
+</head>
+
+<body class="options">
+  <main class="card">
+    <h1 id="citable" class="page-title">
+      <img class="logo" src="icon48.png" alt="" />
+      <span>Citable</span>
+    </h1>
+    <h2 class="page-title">Settings</h2>
+    <p>
+      <button id="revoke" class="button primary-button revoke" disabled>Sign Out</button>
+    </p>
+    <!--<p class="description" >Refresh rate (seconds): <input id="refresh_rate" value="300" style="width:32px"></p>-->
+    <div class="divider m-vertical--large"></div>
+    <div class="helper">
+      <h2 class="page-title">Shortcuts</h2>
+      <dl>
+        <dt class="bold" id="browser_action">command shift X</dt>
+        <dd class="m-bottom--medium">
+          <div class="m-bottom--medium">Open Citable to save your selection.</div>
+          <a href="#" id="configure">Customize</a>
+        </dd>
+        <dt class="bold">tab</dt>
+        <dd class="m-bottom--medium">Navigate between controls in Citable.</dd>
+        <dt class="bold">alt return</dt>
+        <dd class="m-bottom--medium">Quickly save note from anywhere in Citable.</dd>
+        <dt class="bold">ctrl return</dt>
+        <dd class="m-bottom--medium">Compose several notes from the same URL.</dd>
+      </dl>
+    </div>
+    <div class="divider m-vertical--large"></div>
+    <h2 class="page-title">Privacy</h2>
+    <div class="instructions m-bottom--medium">Your data is never shared with Citable or any third parties. <br />Notes are only transmitted between your computer and the specified Google Drive account using HTTPS.</div>
+    <a href="https://docs.google.com/document/d/1MAcmx7dVydaxejDyi_WEzHaYzimghYtxOVy7JBEucks/edit?usp=sharing" rel="noreferrer">View Policy</a>
+    <div class="divider m-vertical--large"></div>
+    <h2 class="page-title">Donate</h2>
+    <div>
+      <div class="instructions m-bottom--medium">Support the ongoing development of Citable with a donation.</div>
+      <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+        <input type="hidden" name="cmd" value="_s-xclick" />
+        <input type="hidden" name="hosted_button_id" value="CDRX53BPA7KZA" />
+        <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+        <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
+      </form>
+    </div>
+    <div class="divider m-vertical--large"></div>
+
+    <h2 class="page-title">Feedback?</h2>
+    <div><a class="m-bottom--medium" href="mailto:citable.extension@gmail.com?subject=Citable feedback">Email me!</a></div>
+    <div class="ip"><a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/3.0/80x15.png" rel="noreferrer" /></a><br /><span
+        xmlns:dct="https://purl.org/dc/terms/" href="https://purl.org/dc/dcmitype/InteractiveResource" property="dct:title" rel="dct:type">Citable</span> by <span xmlns:cc="https://creativecommons.org/ns#" property="cc:attributionName">Owen Schoppe</span>
+      is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="noreferrer">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License</a></div>
+  </main>
+</body>
+
 </html>

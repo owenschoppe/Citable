@@ -9,12 +9,17 @@
   display: none !important;
 }
 
+/* To account for hidden shadow */
+.page .content {
+  row-gap: 48px;
+}
+
 .shadow:after {
   display: none;
 }
 
 .note {
-  background-color: transparent;
+  /* background-color: transparent; */
 }
 
 /*For template*/
@@ -33,7 +38,6 @@ body {
   border: 2px solid var(--color-border);
   background-color: transparent;
   text-align: center;
-  padding-top: 20px;
   box-sizing: border-box;
 }
 
@@ -54,24 +58,22 @@ body {
   position: absolute;
   transform: rotate(90deg);
   transform-origin: 0 0;
-  top: 24px;
-  left: 394px;
+  top: 0;
+  left: 370px;
 }
 
 /*End Template*/
 
 .landscape {
-  width: 10.5in;
+  width: 10in;
   /* page width(11in) = 10.5in + page-margin(.25in*2) */
-  height: 8in;
+  height: 7.5in;
   /* page width(8.5in) = 8in + page-margin(.25in*2) */
-  padding: 24px;
 }
 
 .portrait {
-  width: 8in;
-  height: 10.5in;
-  padding: 24px 72px;
+  width: 7.5in;
+  height: 10in;
 }
 
 .page {
