@@ -122,7 +122,8 @@ a.disabled:hover {
   outline: none;
 }
 
-.primary-button:hover, .primary-button:focus {
+.primary-button:hover,
+.primary-button:focus {
   background-color: var(--color-primary);
 }
 
