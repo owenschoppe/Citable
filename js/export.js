@@ -158,9 +158,9 @@ function renderDoc(bibtex) {
 
   var content = document.createElement('div');
   content.id = "content";
+  content.className = "export";
 
   var div = document.createElement('div');
-  div.className = "export";
   div.innerText = bibtex;
 
   var title = document.createElement('div');

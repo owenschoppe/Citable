@@ -9,12 +9,12 @@
 <head>
 	<title>Citable</title>
 	<meta name="viewport" content="width=1440, initial-scale=1.0">
-    <meta name="Description" content="Print Google Spreadsheets on sticky notes.">
+	<meta name="Description" content="Print Google Spreadsheets on sticky notes.">
 	<link rel="stylesheet" type="text/css" href="css/landscape.css" media="print">
 	<link rel="stylesheet" type="text/css" href="css/portrait.css" media="print">
 	<link rel="stylesheet" type="text/css" href="css/index.css" media="all">
 	<link rel="stylesheet" type="text/css" href="css/notes.css" media="all">
-  <link rel="stylesheet" type="text/css" href="css/print.css" media="print">
+	<link rel="stylesheet" type="text/css" href="css/print.css" media="print">
 	<link rel="stylesheet" type="text/css" href="/css/view.css" media="screen">
 
 	<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
@@ -26,14 +26,12 @@
 	<script type="text/javascript" src="js/render.js"></script>
 	<script type="text/javascript" src="js/view.js"></script>
 	<script type="text/javascript" src="js/analytics.js"></script>
-
 </head>
 
 <body>
-		<div id="loading" class="loading offset"><img src="css/img/loading.gif" height="16" width="16" /></div>
-		<div id="output" class="offset"></div>
-		<main id="controls-wrapper" class="controls-wrapper">
-			<div id="controls" class="controls">
+	<main>
+		<div id="controls-wrapper" class="scrollable scrollable-y panel">
+			<div id="controls" class="controls p-medium">
 				<h1 id="page-title" class="page-title">Print</h1>
 				<div id="display" class="m-bottom--medium ">
 					<div id="butter" class="butter"></div>
@@ -46,11 +44,11 @@
 					<button id="cancel-button" class="button secondary-button right">Cancel</button>
 				</div>
 				<div class="divider m-vertical--large"></div>
-				<form id="note-wrapper shadow" class="left">
+				<form id="note-wrapper shadow" class="-left">
 					<fieldset>
 						<legend class="instructions label"><span>Select Columns to Print</span></legend>
 						<div id="note" class="controls note">
-							<div id="elements" name="elements">
+							<div id="elements" name="elements" class="p-medium">
 							</div>
 						</div>
 						<div class="shadow"></div>
@@ -82,8 +80,14 @@
 				</div>
 			</div>
 			<div id="control-shadow"></div>
-		</main>
-		<div id="indicator">Page <span id="pageNum">1</span></div>
+		</div>
+
+		<div class="scrollable grow">
+			<div id="loading" class="loading"><img src="css/img/loading.gif" height="16" width="16" /></div>
+			<div id="output" class=""></div>
+		</div>
+	</main>
+	<div id="indicator" class="indicator">Page <span id="pageNum">1</span></div>
 </body>
 
 </html>

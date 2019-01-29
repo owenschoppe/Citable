@@ -20,11 +20,10 @@ Citable is secure and suitable for work. All notes are securely transmitted only
 - Create new spreadsheets on the fly.
 - Spreadsheets are stored in a Google Drive folder, Citable_Documents.
 - Quickly open and view the selected spreadsheet.
-- Print saved notes on post-its using printer template.
+- Print saved notes on stickies using printer template.
 - Sort notes before printing.
 - Export notes in bibtex format for Zotero or your favorite citation manager.
 - Use shortcuts to save several notes quickly.
-- Compatible with Rockmelt.
 
 ## Shortcuts:
 

@@ -22,43 +22,12 @@
 	<script type="text/javascript" src="js/printexport.js"></script>
 	<script type="text/javascript" src="js/export.js"></script>
 	<script type="text/javascript" src="js/analytics.js"></script>
-
-	<style type="text/css">
-		/*add css to style the notes*/
-		#butterbox {
-			width: 100%;
-			margin: auto;
-			padding: auto;
-			padding-top: 5px;
-			clear: both;
-			align: center;
-			display: block;
-		}
-
-		#butter {
-			color: #fff;
-			background-color: #000033;
-			padding: 5px 15px;
-			border-radius: 15px;
-			width: auto;
-			text-align: center;
-			margin: auto;
-			margin-top: 10px;
-			margin-bottom: 5px;
-			display: none;
-		}
-
-		#butter.error {
-			background-color: red;
-		}
-	</style>
 </head>
 
 <body>
 	<main>
-		<div id="output"></div>
-		<div id="controls-wrapper">
-			<div id="controls">
+		<div id="controls-wrapper" class="scrollable scrollable-y panel">
+			<div id="controls" class="controls p-medium">
 				<h1 id="page-title">Export</h1>
 				<div id="total" class="m-bottom--medium"></div>
 				<div id="button-wrapper">
@@ -75,6 +44,9 @@
 				</div>
 			</div>
 			<div id="control-shadow"></div>
+		</div>
+		<div class="scrollable grow">
+			<div id="output"></div>
 		</div>
 	</main>
 </body>
