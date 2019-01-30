@@ -152,9 +152,7 @@ function renderDoc(bibtex) {
   var total = "<span class='Droid regular'>Document: </span><span class='Droid bold'>" + docName + "</span>";
   document.getElementById('total').innerHTML = total;
 
-
   var output = document.getElementById('output');
-  output.className = "offset";
 
   var content = document.createElement('div');
   content.id = "content";
@@ -164,13 +162,12 @@ function renderDoc(bibtex) {
   div.innerText = bibtex;
 
   var title = document.createElement('div');
-  title.className = 'doc_title bold';
+  title.className = 'font-medium bold';
   title.innerText = docName + '.bib';
 
   content.appendChild(title);
   content.appendChild(div);
   output.appendChild(content);
-  //$('#output').replaceWith(content);
 }
 
 //Call function from button.

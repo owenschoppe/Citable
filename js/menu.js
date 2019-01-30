@@ -1,4 +1,4 @@
-var order = ['summary', 'title', 'author', 'url', 'tags', 'destination', 'doc_title', 'addNote']; //the tab order for select fields
+var order = ['summary', 'title', 'author', 'url', 'tags', 'destination', 'docTitle', 'addNote']; //the tab order for select fields
 //var folders = ['Citable_Documents','Citation_Tool_Documents'];
 
 var driveProperties = [{

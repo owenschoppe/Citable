@@ -32,21 +32,21 @@
 	<main>
 		<div id="controls-wrapper" class="scrollable scrollable-y panel">
 			<div id="controls" class="controls p-medium">
-				<h1 id="page-title" class="page-title">Print</h1>
-				<div id="display" class="m-bottom--medium ">
+				<h1 id="page-title" class="page-title m-bottom--small">Print</h1>
+				<div id="display" class="m-bottom--small ">
 					<div id="butter" class="butter"></div>
 					<div id="selection" class="selection"></div>
 				</div>
-				<div id="total" class="m-bottom--medium"></div>
+				<div id="total" class="m-bottom--small"></div>
 				<div id="button-wrapper">
 					<button id="print-button" class="button primary-button" disabled>Print</button>
 					<button id="template-button" class="button secondary-button">Print Template</button>
 					<button id="cancel-button" class="button secondary-button right">Cancel</button>
 				</div>
 				<div class="divider m-vertical--large"></div>
-				<form id="note-wrapper shadow" class="-left">
+				<form id="note-wrapper shadow" class="">
 					<fieldset>
-						<legend class="instructions label"><span>Select Columns to Print</span></legend>
+						<legend class="label p-left--medium m-bottom--small"><span>Select Columns to Print</span></legend>
 						<div id="note" class="controls note">
 							<div id="elements" name="elements" class="p-medium">
 							</div>
@@ -55,14 +55,14 @@
 					</fieldset>
 				</form>
 				<div class></div>
-				<form id="radioControls" class="clear">
+				<form id="radioControls" class="relative p-left--medium">
 					<fieldset>
-						<legend class="instructions label"><span>Format Printing</span></legend>
-						<div id="fonts">
+						<legend class="label m-bottom--small"><span>Format Printing</span></legend>
+						<div id="fonts" class="m-bottom--small">
 							<div><input type="radio" name="font" value="Droid" id="typed" /><label for="typed">Typed</label></div>
 							<div><input type="radio" name="font" value="handwritten" id="hand" /><label for="hand">Handwritten</label></div>
 						</div>
-						<div id="orientation">
+						<div id="orientation" class="m-bottom--small">
 							<div id="radioland"><input type="radio" name="pages" value="landscape" id="landscape" /><label for="landscape">Landscape</label></div>
 							<div id="radioport"><input type="radio" name="pages" value="portrait" id="portrait" /><label for="portrait">Portrait</label></div>
 						</div>
@@ -73,8 +73,8 @@
 						</span>
 					</fieldset>
 				</form>
-				<div class="divider m-vertical--large clear"></div>
-				<div id="instructions" class="instructions clear">
+				<div class="divider m-vertical--large"></div>
+				<div id="instructions" class="p-left--medium">
 					<p>Place stickies on templates as indicated.</p>
 					<p>Adjust your printer settings as needed.</p>
 				</div>

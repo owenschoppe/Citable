@@ -7,7 +7,7 @@ html {
 body {
   background-color: var(--color-background--alt);
   color: var(--color-text);
-  font-size: 14px;
+  font-size: var(--font-small);
   font-family: 'Roboto', Arial, Verdana, Sans-Serif;
   margin: 0px;
   display: flex;
@@ -35,17 +35,10 @@ main {
 }
 
 .panel {
-  /* float: left; */
-  /* width: 288px; */
   height: 100%;
   position: relative;
-  /* margin: 0px; */
-  /* padding-left: 20px;
-  padding-right: 20px; */
-  background-color: #fff;
-  /* overflow-x: hidden;
-  overflow-y: auto; */
-  box-shadow: 0 0 10px rgba(0,0,0,.25);
+  background-color: var(--color-background);
+  box-shadow: 0 0 10px var(--color-shadow);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -66,43 +59,14 @@ main {
 .scrollable-y {
   overflow-x: hidden;
   overflow-y: auto;
+  border-right: 5px solid var(--color-background);
 }
-
-/* #elements, .elements {
-  padding: 20px;
-} */
 
 input[type=checkbox], input[type=radio] {
-  margin-right: 10px;
-  /*margin-bottom: 40px;*/
-}
-
-div.checkbox {
-  width: 100%;
-  margin-bottom: 18px;
-  padding: 15px 0 0 0;
-  background-color: rgb(255, 255, 160);
-  /*border:1px solid #e49f16;*/
-  /*use this for draggable elements*/
-}
-
-#radioControls {
-  position: relative;
-}
-
-#fonts, #orientation, #mForm {
-  /* float: left; */
-  width: 268px;
-  margin: 0px;
-  padding: 0px;
-  margin-bottom: 10px;
-  margin-left: 20px;
-  /* display: block; */
-  /* position: relative; */
+  margin-right: var(--xsmall);
 }
 
 .pageIcon {
-  /* float: left; */
   position: absolute;
   top: -10px;
   left: 190px;
@@ -111,7 +75,6 @@ div.checkbox {
 }
 
 .fontIcon {
-  /* float: left; */
   position: absolute;
   top: 20px;
   left: 228px;
@@ -123,6 +86,7 @@ div.checkbox {
   left: 225px;
 }
 
+/* Column Select Controls */
 .option {
   padding-bottom: 20px;
 }
@@ -140,26 +104,16 @@ div.checkbox {
   padding-bottom: 80px;
 }
 
-.doc_title {
-  /* margin-left: 20px;
-  padding-left: .5in; */
-  /* position: relative;
-  top: 40px;
-  float: left; */
-  font-size: 18px;
-}
-
 .instructions {
   margin-left: 20px;
   padding-bottom: 10px;
-  /* font-size: 14px; */
 }
 
 .instructions._export {
   margin-left: 0px;
 }
 
-.scrollable::-webkit-scrollbar {
+.scrollable-y::-webkit-scrollbar {
   width: 6px;
   height: 6px;
   /* background-color: #ffffff; */
@@ -167,64 +121,64 @@ div.checkbox {
   margin-right: -15px; */
 }
 
-.scrollable::-webkit-scrollbar:hover {
+.scrollable-y::-webkit-scrollbar:hover {
   width: 12px;
   height: 12px;
 }
 
-.scrollable scrollbar-corner {
+.scrollable-y scrollbar-corner {
   display: none;
 }
 
-.scrollable::-webkit-scrollbar-track {
+.scrollable-y::-webkit-scrollbar-track {
   border-right: 5px solid transparent;
   background-clip: padding-box;
   background-color: white;
   border: 5px solid white;
 }
 
-.scrollable::-webkit-scrollbar-track:vertical {
+.scrollable-y::-webkit-scrollbar-track:vertical {
   width: 6px;
 }
 
-.scrollable::-webkit-scrollbar-track:horizontal {
+.scrollable-x::-webkit-scrollbar-track:horizontal {
   height: 6px;
 }
 
-.scrollable::-webkit-scrollbar-thumb {
+.scrollable-y::-webkit-scrollbar-thumb {
   -webkit-box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.3);
   background: #ccc;
   background-clip: padding-box;
   border-radius: 3px;
 }
 
-.scrollable::-webkit-scrollbar-thumb:vertical {
+.scrollable-y::-webkit-scrollbar-thumb:vertical {
   /* border-right: 5px solid transparent; */
   /* width: 5px; */
 }
 
-.scrollable::-webkit-scrollbar-thumb:horizontal {
+.scrollable-x::-webkit-scrollbar-thumb:horizontal {
   /* border-bottom: 5px solid transparent; */
   /* height: 5px; */
 }
 
-.scrollable::-webkit-scrollbar-track:hover {
+.scrollable-y::-webkit-scrollbar-track:hover {
   background-color: rgba(0, 0, 0, 0.035);
   -webkit-box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.14), inset -1px -1px 0 rgba(0, 0, 0, 0.07);
   width: 12px;
   height: 12px;
 }
 
-.scrollable::-webkit-scrollbar-thumb:hover {
+.scrollable-y::-webkit-scrollbar-thumb:hover {
   background-color: rgba(0, 0, 0, 0.3);
 }
 
-.scrollable::-webkit-scrollbar-track:active {
+.scrollable-y::-webkit-scrollbar-track:active {
   background-color: rgba(0, 0, 0, 0.035);
   -webkit-box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.14), inset -1px -1px 0 rgba(0, 0, 0, 0.07);
 }
 
-.scrollable::-webkit-scrollbar-thumb:active {
+.scrollable-y::-webkit-scrollbar-thumb:active {
   background-color: rgba(0, 0, 0, 0.4);
 }
 
@@ -277,18 +231,6 @@ div.checkbox {
   margin: 20px 0px 20px 20px;
   background-color: #fff;
 }
-
-/*---------------------------*/
-/* #output {
-  float: left;
-  clear: none;
-  width: 1404px;
-} */
-
-/* .offset {
-  position: relative;
-  left: 328px;
-} */
 
 /*-----------------------*/
 .loading {
