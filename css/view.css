@@ -63,7 +63,7 @@ main {
 }
 
 input[type=checkbox], input[type=radio] {
-  margin-right: var(--xsmall);
+  margin-right: var(--space-xsmall);
 }
 
 .pageIcon {
