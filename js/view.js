@@ -673,32 +673,33 @@ defaultLayout = function(cols, column, defaultColumns) {
 
 
 ///////////////////////////////////////////////////////
-
-$(window).scroll(function() {
-  $('#indicator').css('top', function() {
-    //current position/total height*window height=percentage of window height.
-    var relHeight = Math.ceil($(window).scrollTop() / $('#output').height() * ($(window).height() - 0));
-    //console.log(relHeight,$(window).scrollTop(),$(document).height(),$(window).height());
-    return relHeight;
-  });
-  //console.log( 'scroll ',$(window).scrollTop() );
-  var pages = $('.page');
-  //console.log($('.page').length);
-  var currentPage = {
-    page: 0,
-    percent: 0
-  };
-  for (var i = 0; i < pages.length; i++) {
-    //console.log(i);
-    percent = percentScrolledIntoView(pages[i]);
-    //console.log('% ',percent);
-    if (percent > currentPage.percent) {
-      currentPage.page = i + 1;
-      currentPage.percent = percent;
+$(document).ready(function() {
+  $('#outputArea').scroll(function() {
+    $('#indicator').css('top', function() {
+      //current position/total height*window height=percentage of window height.
+      var relHeight = Math.ceil($('#outputArea').scrollTop() / $('#container').height() * ($(window).height() - 0));
+      // console.log(relHeight,$('#outputArea').scrollTop(),$('#container').height(),$(window).height(),$('#outputArea').height());
+      return relHeight;
+    });
+    //console.log( 'scroll ',$(window).scrollTop() );
+    var pages = $('.page');
+    //console.log($('.page').length);
+    var currentPage = {
+      page: 0,
+      percent: 0
+    };
+    for (var i = 0; i < pages.length; i++) {
+      //console.log(i);
+      percent = percentScrolledIntoView(pages[i]);
+      //console.log('% ',percent);
+      if (percent > currentPage.percent) {
+        currentPage.page = i + 1;
+        currentPage.percent = percent;
+      }
     }
-  }
-  //console.log(currentPage.page,currentPage.percent);
-  document.querySelector('#pageNum').innerText = currentPage.page;
+    //console.log(currentPage.page,currentPage.percent);
+    document.querySelector('#pageNum').innerText = currentPage.page;
+  });
 });
 
 function percentScrolledIntoView(elem) {

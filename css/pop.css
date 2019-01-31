@@ -1,8 +1,3 @@
-*, *:before, *:after {
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-}
-
 body {
   font-size: 12px;
   font-family: 'Roboto', Arial, Verdana, Sans-Serif;
@@ -15,7 +10,7 @@ body {
   text-align: center;
 }
 
-#frame {
+main {
   width: 288px;
   margin-top: 5px;
   margin-left: auto;
@@ -31,99 +26,8 @@ body {
   cursor: default;
 }
 
-.controlBar {
-  padding: 4px 8px 0 8px;
-  min-height: 16px;
-}
-
 .action {
-  padding: 8px;
   font-size: 14px;
   height: 32px;
   display: block;
-}
-
-.menu_box {
-  width: 18px;
-}
-
-.menu {
-  border: 0px;
-  background-position: center center;
-  background-repeat: no-repeat;
-  width: 18px;
-  height: 14px;
-  margin: 0px;
-  display: block;
-}
-
-.open {
-  background: url(arrow_up_fallback.png);
-  background-image: url(img/arrow_up.svg), none;
-  opacity: .5;
-}
-
-.closed {
-  background: url(arrow_down_fallback.png);
-  background-image: url(img/arrow_down.svg), none;
-  opacity: .5;
-}
-
-.open:HOVER, .open:ACTIVE, .open:FOCUS {
-  opacity: 1;
-}
-
-.closed:HOVER, .closed:ACTIVE, .closed:FOCUS {
-  opacity: 1;
-}
-
-#selection_box {
-  padding-top: 4px;
-  padding-bottom: 6px;
-  height: 20px;
-}
-
-#selection {
-  clear: none;
-  /*display: inline-block;*/
-  float: left;
-}
-
-.docName {
-  clear: none;
-  float: right;
-  margin-left: 5px;
-  margin-top: 2px;
-}
-
-.destination {
-  width: 205px;
-  height: 32px;
-}
-
-.addNote {
-  /* width: 55px; */
-  padding: 0 16px;
-  text-align: center;
-}
-
-.addNoteLabel {
-  float: right;
-  -webkit-user-select: none;
-}
-
-.addNoteContainer {}
-
-.authControl {
-  margin-top: 40px;
-}
-
-.auth {
-  padding-top: 22px;
-  padding-bottom: 21px;
-}
-
-.new_doc_container {
-  width: 205px;
-  margin-top: 8px;
 }

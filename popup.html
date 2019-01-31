@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
- * Author: Owen Schoppe <owen.schoppe@gmail.com>
+ * Author: Owen Schoppe <citable.extension@gmail.com>
  * Citable by Owen Schoppe is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License
  *
 -->
@@ -14,25 +14,23 @@
 	<link rel="stylesheet" type="text/css" href="/css/pop.css">
 	<link rel="stylesheet" type="text/css" href="/css/notes.css">
 	<link rel="stylesheet" type="text/css" href="/css/angular-csp.css">
-	<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
-	<!--<script type="text/javascript" src="https://apis.google.com/js/client.js"></script>-->
+	<!-- <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script> -->
 	<script type="text/javascript" src="js/analytics.js"></script>
 
 	<script type="text/javascript" src="js/angular-1.7.5.min.js"></script>
 	<script type="text/javascript" src="js/util.js"></script>
-	<!--<script type="text/javascript" src="js/gdocs.js"></script>-->
 	<script type="text/javascript" src="js/queue.js"></script>
 	<script type="text/javascript" src="js/popup.js"></script>
 </head>
 
 <body>
-	<div class="" ng-controller='authController'>
+	<div ng-controller='authController'>
 		<main id="frame">
 			<h1 class="visuallyhidden">Citable</h1>
 			<!--Note-->
 			<div class="note_wrapper shadow" ng-controller='CitationController' ng-class="{fade:data.menu}" ng-keyup="myEvent($event)">
 				<div id="citation" class="note">
-					<form id="addbookmark" name="citation" class="">
+					<form id="addbookmark" name="citation">
 						<fieldset>
 							<legend class="visuallyhidden">Citation</legend>
 							<!--Summary Field-->
@@ -59,8 +57,7 @@
 			</div>
 
 			<!--Auth-->
-			<div class="auth" ng-hide="data.auth||data.loading">
-				<!--<div id="citable" class="page-title"><img src="icon48.png"/>Citable</div>-->
+			<div class="m-vertical--large" ng-hide="data.auth||data.loading">
 				<div class="center">
 					<a class="authBtn" ng-class="{fade:!data.online,active:getAuthFlow}" ng-disabled="!data.online" ng-click='data.online&&getAuth()' tabindex="{{data.auth?'-1':0}}" href>Sign in with Google</a>
 				</div>
@@ -70,76 +67,88 @@
 			<!--Controls-->
 			<div class="controls" ng-controller="DocsController" ng-keyup="myEvent($event)" ng-show="data.auth">
 				<form name="controls" novalidate>
-					<div>
-						<!--Label-->
-						<label for="destination" id="destination_label" class="label p-left--xsmall" ng-class="{fade:data.menu}" aria-hidden="true">Save Note In Sheet</label>
-
-						<label for="submit" id="shortcut" class="right label p-right--xsmall" ng-class="{fade:data.menu}" aria-hidden="true">alt+return</label>
-					</div>
-
-					<div id="selection_box" class="clear">
+					<div id="selection_box" class="grid">
 
 						<!--Document Selector and Loading Module-->
-						<div id="selection" name="selection" class="p-left--xsmall">
-
+						<div id="selection" name="selection" class="grid grid-vertical col p-left--xsmall p-right--xsmall">
+							<label for="destination" id="destination_label" class="label p-bottom--xxsmall" ng-class="{fade:data.menu}" aria-hidden="true">Save Note In Sheet</label>
 							<!--Loading-->
-							<div data-ng-show="data.loading && data.online">
-								<span class="docName">{{data.defaultDoc.title}}</span>
-								<img id="loading" class="docName" src="css/img/loading.gif" title="Loading Sheets" alt"Loading Sheets" />
-								<!-- <span id="loading" class="docName loading" title="loading"></span> -->
+							<div data-ng-show="data.loading && data.online" class="grid p-top--xsmall">
+								<img id="loading" src="css/img/loading.gif" title="Loading Sheets" alt"Loading Sheets" />
+								<span class="p-left--xsmall m-vertical--xxxsmall">{{data.defaultDoc.title}}</span>
 							</div>
 
 							<!--Document Selector-->
-							<select class="Droid destination" name="destination" id="destination" aria-labelledby="destination_label" ng-model="data.defaultDoc" ng-change="storeDefault()" data-ng-show="!data.loading" ng-options="doc.title for doc in data.docs track by doc.id"
+							<select
+								class="col Droid destination"
+								name="destination" id="destination"
+								aria-labelledby="destination_label"
+								ng-model="data.defaultDoc"
+								ng-change="storeDefault()"
+								data-ng-show="!data.loading"
+								ng-options="doc.title for doc in data.docs track by doc.id"
 							  sel-focus="!data.defaultDoc.id">
 								<option value="" ng-disabled="data.menu">Create New Spreadsheet...</option>
 							</select>
 
 							<!--New Doc Title Input-->
-							<div class="new_doc_container" ng-hide="data.defaultDoc.id || data.loading" ng-class="{'error':ng-dirty&&ng-invalid}">
+							<div
+							class="p-top--xsmall"
+							ng-hide="data.defaultDoc.id || data.loading"
+							ng-class="{'error':ng-dirty&&ng-invalid}">
 								<label for="docTitle" id="docTitle_label" class="visuallyhidden">New Spreadsheet Title</label>
-								<input type="text" class="" name="docTitle" aria-labelledby="destination docTitle_label" placeholder="Enter a document title" ng-model="data.newDoc" ng-show="!data.defaultDoc.id" shown-validation sel-focus="data.defaultDoc.id" required>
-								<!--ng-required="{{!data.defaultDoc.id?true:false}}" -->
+								<input
+								type="text"
+								class=""
+								name="docTitle"
+								aria-labelledby="destination docTitle_label"
+								placeholder="Enter a document title"
+								ng-model="data.newDoc"
+								ng-show="!data.defaultDoc.id"
+								shown-validation sel-focus="data.defaultDoc.id"
+								required>
 							</div>
 
 						</div>
 
 						<!--Save Button-->
-						<div class="right relative addNoteContainer p-right--xsmall">
-							<!--<a class="button Droid addNote right" ng-click="saveNote($event)" ng-disabled="data.menu || data.requesting || controls.$invalid" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" href>Save</a>-->
-							<input type="submit" name="submit" aria-labelledby="shortcut" ng-disabled="data.menu || data.requesting || controls.$invalid || !data.online" class="button primary-button Droid addNote right" ng-class="{fade:data.menu||!data.online}" tabindex="{{data.menu || data.requesting?'-1':$index}}"
-							  value="Save" ng-click="controls.$valid && focused && data.online && saveNoteButton($event,closeWindow)" ng-focus="focused = true" ng-blur="focused = false" />
-
-							<!--works-->
-							<!--
-							<a ng-disabled="data.menu || data.requesting || controls.$invalid" class="button Droid addNote right" ng-class="{fade:data.menu}" tabindex="{{data.menu || data.requesting?'-1':$index}}" ng-click="controls.$valid && saveNote($event)" href>Save</a>
-							-->
-
+						<div class="grid grid-vertical align-right p-right--xsmall">
+							<label for="submit" id="shortcut" class="label p-bottom--xxsmall" ng-class="{fade:data.menu}" aria-hidden="true">alt+return</label>
+							<input
+								type="submit"
+								name="submit"
+								aria-labelledby="shortcut"
+								ng-disabled="data.menu || data.requesting || controls.$invalid || !data.online"
+								class="button primary-button Droid addNote"
+								tabindex="{{data.menu || data.requesting?'-1':$index}}"
+								value="Save"
+								ng-click="controls.$valid && focused && data.online && saveNoteButton($event,closeWindow)"
+								ng-focus="focused = true"
+								ng-blur="focused = false" />
 						</div>
 
 					</div>
 
 					<!--Actions Menu-->
-					<div id="action_box" class="clear" ng-controller="actionController">
+					<div id="action_box" ng-controller="actionController">
 
 						<div class="p-top--xxsmall p-left--xsmall p-right--xsmall" ng-hide="!data.defaultDoc.title">
-
 							<!--View Doc-->
-                            <div class="item"><a id="viewDoc" class="action  p-left--xsmall" ng-click="viewDoc(data.defaultDoc.id,data.defaultDoc.alternateLink)" href>View Sheet</a></div>
+              <div class="item"><a id="viewDoc" class="action  p-xsmall" ng-click="viewDoc(data.defaultDoc.id,data.defaultDoc.alternateLink)" href>View Sheet</a></div>
 
-                            <div class="divider m-vertical--xxxsmall"></div>
-                            <!--Print Doc-->
-                            <div class="item"><a id="printDoc" class="action p-left--xsmall" ng-click="getDocument('print')" href>Print Sheet</a></div>
+              <div class="divider m-vertical--xxxsmall"></div>
+              <!--Print Doc-->
+              <div class="item"><a id="printDoc" class="action p-xsmall" ng-click="getDocument('print')" href>Print Sheet</a></div>
 
-                            <div class="divider m-vertical--xxxsmall"></div>
-                            <!--Export Doc-->
-                            <div class="item"><a id="exportDoc" class="action p-left--xsmall" ng-click="getDocument('export')" href>Export Sheet</a></div>
+              <div class="divider m-vertical--xxxsmall"></div>
+              <!--Export Doc-->
+              <div class="item"><a id="exportDoc" class="action p-xsmall" ng-click="getDocument('export')" href>Export Sheet</a></div>
 						</div>
 
 					</div>
 				</form>
 			</div>
-			<div class="p-medium" ng-controller="butterController" box-butter aria-live="polite"></div>
+			<div class="p-xsmall" ng-controller="butterController" box-butter aria-live="polite"></div>
 			<!--Frame-->
 		</main>
 		<!--Auth Controller-->

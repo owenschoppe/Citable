@@ -1,5 +1,4 @@
 html {
-  /* overflow: scroll; */
   height: 100%;
   width: 100%;
 }
@@ -116,9 +115,6 @@ input[type=checkbox], input[type=radio] {
 .scrollable-y::-webkit-scrollbar {
   width: 6px;
   height: 6px;
-  /* background-color: #ffffff; */
-  /* position: relative;
-  margin-right: -15px; */
 }
 
 .scrollable-y::-webkit-scrollbar:hover {
@@ -152,16 +148,6 @@ input[type=checkbox], input[type=radio] {
   border-radius: 3px;
 }
 
-.scrollable-y::-webkit-scrollbar-thumb:vertical {
-  /* border-right: 5px solid transparent; */
-  /* width: 5px; */
-}
-
-.scrollable-x::-webkit-scrollbar-thumb:horizontal {
-  /* border-bottom: 5px solid transparent; */
-  /* height: 5px; */
-}
-
 .scrollable-y::-webkit-scrollbar-track:hover {
   background-color: rgba(0, 0, 0, 0.035);
   -webkit-box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.14), inset -1px -1px 0 rgba(0, 0, 0, 0.07);
@@ -183,10 +169,9 @@ input[type=checkbox], input[type=radio] {
 }
 
 .indicator {
-  width: 50px;
-  height: 30px;
+  height: 44px;
   position: fixed;
-  right: 2px;
+  right: 16px;
   top: 0px;
   background: var(--color-background);
   color: var(--color-text);
@@ -225,7 +210,6 @@ input[type=checkbox], input[type=radio] {
 }
 
 .export {
-  /*-webkit-border-radius: 8px;*/
   width: 8.5in;
   padding: .5in;
   margin: 20px 0px 20px 20px;
@@ -235,14 +219,12 @@ input[type=checkbox], input[type=radio] {
 /*-----------------------*/
 .loading {
   padding: 24px;
-  /*.25in*/
 }
 
 .page, .loading {
   background-color: #fff;
   margin: 20px 0px 20px 20px;
   box-sizing: border-box;
-  /*.25in*/
 }
 
 .landscape {
@@ -263,13 +245,9 @@ input[type=checkbox], input[type=radio] {
 
 
 .landscape .note_wrapper {
-  /* margin: 24px 24px 4px 24px; */
-  /* bottom margin(40px) = shadow(20px) + 20px */
   padding: 0px;
 }
 
 .portrait .note_wrapper {
-  /* margin: 24px 24px 4px 24px; */
-  /* bottom margin(24px) = shadow(20px) + 4px */
   padding: 0px;
 }
