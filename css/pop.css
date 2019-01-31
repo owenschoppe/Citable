@@ -26,9 +26,8 @@ body {
 }
 
 .controls {
-  font-size: 12px;
-  padding: 0px 0px 0px 0px;
   -webkit-user-select: none;
+  user-select: none;
   cursor: default;
 }
 

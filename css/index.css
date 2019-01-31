@@ -18,6 +18,7 @@
   /* Background */
   --color-background: #ffffff;
   --color-background--alt: #cccccc;
+  --color-background--inverse: #333333;
   --color-background--note: #fffca8;
   /* Border */
   --color-border: #dddddd;
@@ -35,6 +36,7 @@
   --font-small: .875rem;
   --font-medium: 1rem;
   --font-large: 1.5rem;
+  --font-xlarge: 2rem;
 }
 
 @font-face {
@@ -261,11 +263,19 @@ textarea, input[type='text'] {}
 }
 
 /* Typography */
-h1, .page-title {
+h1 {
+  font-size: var(--font-xlarge);
+  font-weight: 100;
+  color: var(--color-text);
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+h2 {
   font-weight: normal;
   font-size: var(--font-large);
   color: var(--color-text);
-  margin: 0;
 }
 
 .label {
@@ -357,35 +367,6 @@ img.logo {
   content: "";
 }
 
-/* .shadow {
-  background-image: url(img/shadow_small.png);
-  background-size: 3in;
-  width: 3in;
-  background-repeat: no-repeat;
-  height: 20px;
-} */
-/* #butterbox {
-  width: 100%;
-  margin: auto;
-  padding: auto;
-  padding-top: 5px;
-  clear: both;
-  align: center;
-  display: block;
-}
-
-#butter {
-  color: #fff;
-  background-color: #000033;
-  padding: 5px 15px;
-  border-radius: 15px;
-  width: auto;
-  text-align: center;
-  margin: auto;
-  margin-top: 10px;
-  margin-bottom: 5px;
-  display: none;
-} */
 .butterbox {
   text-align: center;
   margin-top: 15px;
@@ -393,18 +374,18 @@ img.logo {
 }
 
 .pam {
-  padding: 5px 15px 5px 15px;
-  padding: 5px 15px 5px 15px;
+  padding: 8px 16px 8px 16px;
 }
 
 .butter {
-  background-color: #333333;
-  color: #fff;
+  background-color: var(--color-background--inverse);
+  color: var(--color-text--inverse);
   margin: auto;
   border-radius: 4px;
   width: 258px;
   letter-spacing: 1px;
   font-variant-ligatures: none;
+  text-align: center;
 }
 
 .error {
@@ -412,12 +393,11 @@ img.logo {
 }
 
 .success {
-  /* background-color: #4C8EF9; */
-  background-color: #333333;
+  background-color: var(--color-background--inverse);
 }
 
 .normal {
-  background-color: #333333;
+  background-color: var(--color-background--inverse);
 }
 
 /* Utilities */
@@ -454,6 +434,10 @@ img.logo {
 
 .half {
   width: 50%;
+}
+
+.p-top--xxsmall {
+  padding-top: var(--space-xxsmall);
 }
 
 .p-xsmall {

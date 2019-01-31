@@ -122,7 +122,7 @@
 					<!--Actions Menu-->
 					<div id="action_box" class="clear" ng-controller="actionController">
 
-						<div class="controls controlBar" ng-hide="!data.defaultDoc.title">
+						<div class="p-top--xxsmall p-left--xsmall p-right--xsmall" ng-hide="!data.defaultDoc.title">
 
 							<!--View Doc-->
                             <div class="item"><a id="viewDoc" class="action  p-left--xsmall" ng-click="viewDoc(data.defaultDoc.id,data.defaultDoc.alternateLink)" href>View Sheet</a></div>
@@ -139,7 +139,7 @@
 					</div>
 				</form>
 			</div>
-			<div class="butterbox" ng-controller="butterController" box-butter aria-live="polite"></div>
+			<div class="p-medium" ng-controller="butterController" box-butter aria-live="polite"></div>
 			<!--Frame-->
 		</main>
 		<!--Auth Controller-->
