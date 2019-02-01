@@ -71,7 +71,7 @@ function getPageInfo(callback) {
       //chrome.tabs.executeScript(null, { file: "content_script.js" });
 
       chrome.tabs.executeScript(null, {
-        file: "js/jquery-1.7.2.min.js"
+        file: "js/jquery-3.3.1.min.js"
       }, function() {
         if (chrome.runtime.lastError) {
           console.log('Scripting error:', chrome.runtime.lastError.message);
