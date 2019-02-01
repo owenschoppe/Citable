@@ -574,7 +574,7 @@ function buildSelect(cols, defaultFields, callback) {
   console.log('buildSelect()');
   var html = [];
   for (var col in cols) {
-    html.push('<option value="', cols[col], '">', cols[col], '</option>');
+    html.push('<option value="', cols[col], '">', capitalize(cols[col]), '</option>');
   }
   //TODO: Change this to i<defaultFields.length for a fully generalized function.
   var valuesArray = [];
@@ -600,6 +600,10 @@ function buildSelect(cols, defaultFields, callback) {
 
 function onChangeHandler(e) {
   changeAction(this.name, this.value, rows);
+}
+
+function capitalize(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 /*------------------------------------------------------------------------------------------*/
