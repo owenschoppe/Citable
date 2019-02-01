@@ -30,23 +30,24 @@
 		<div id="controls-wrapper" class="scrollable scrollable-y panel">
 			<div id="controls" class="controls p-medium">
 				<h1 id="page-title" class="page-title m-bottom--small">Export</h1>
-				<div id="total" class="m-bottom--small"></div>
+				<div id="display" class="m-bottom--small ">
+					<div id="butter" class="butter"></div>
+					<div id="total" class=""></div>
+				</div>
 				<div id="button-wrapper">
 					<button id="print-button" class="button primary-button">Download</button>
 					<button id="cancel-button" class="button secondary-button right">Cancel</button>
 				</div>
 				<div class="divider m-vertical--large"></div>
-				<div id="instructions" class="_export p-left--small">
+				<div id="instructions" class="p-left--small">
 					<p>Citations are exported in Bibtex format.</p>
 					<p>Import into <a href="https://www.zotero.org/" rel="noreferrer" target="_blank">Zotero</a> or your favorite citation managment app to generate a bibliography.</p>
-				</div>
-				<div id="butterbox">
-					<div id="butter" style="width:150px;margin:auto;padding:auto;align:center;"></div>
 				</div>
 			</div>
 			<div id="control-shadow"></div>
 		</div>
-		<div class="scrollable grow">
+		<div class="scrollable grow grid grid-vertical">
+			<div id="loading" class="page loading portrait"><img src="css/img/loading.gif" height="16" width="16" title="Loading Document" alt="Loading Document" /></div>
 			<div id="output"></div>
 		</div>
 	</main>
