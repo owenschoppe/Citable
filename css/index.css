@@ -189,13 +189,21 @@ select:ACTIVE {
 }
 
 /* Inputs */
-textarea, input[type='text'] {}
+input[type=checkbox], input[type=radio] {
+  margin-right: var(--space-xsmall);
+}
 
 .form input, .form textarea {
   background-color: transparent !important;
   border: none;
-  padding: 0px;
+  padding: var(--space-xxxsmall);
   display: block;
+}
+
+.form textarea:focus, .form input:not([type="radio"]):focus {
+  outline: 0;
+  box-shadow: 0 0 0 1px var(--color-primary--light);
+  border-radius: 2px;
 }
 
 .new_doc_container input[type='text'] {

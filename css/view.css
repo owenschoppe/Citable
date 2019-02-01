@@ -34,10 +34,6 @@ main {
   flex-basis: 320px;
 }
 
-input[type=checkbox], input[type=radio] {
-  margin-right: var(--space-xsmall);
-}
-
 .pageIcon {
   position: absolute;
   top: -10px;
