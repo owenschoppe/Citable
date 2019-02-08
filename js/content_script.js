@@ -107,27 +107,7 @@ var getAuthor = function() {
     return '';
   };
 
-  function toArray(nodeList){
-    return [].slice.call(nodeList);
-  }
-
-  function distanceToH1(element) {
-    let parent = element;
-    let relatives = [];
-    //Get closest H1 relative.
-    while(parent != document.body && relatives.length <= 0) {
-      parent = parent.parentNode;
-      relatives = parent.querySelectorAll('h1');
-    }
-    //Return the vertical distance to it.
-    return {
-      distance: Math.abs(element.getBoundingClientRect().top - relatives[0].getBoundingClientRect().top + relatives[0].getBoundingClientRect().height),
-      relative: relatives[0],
-      parent: parent
-    };
-  }
-
-  function getRelatedAuthors(element,selector,visibility){
+  function getRelatedAuthors(element,selector,visibility) {
     let parent = element; //should walk up from the selection...instead of the element.
     let relatives = [];
     let siblings = [];
@@ -141,23 +121,15 @@ var getAuthor = function() {
           return (visibility ? element.getBoundingClientRect().height > 1 : true) && element.innerText; //Element must be visible and not blank.
         }); //Will always at least contain the element.
     }
-    console.log(selector,element,parent,relatives,siblings);
+    // console.log(selector,element,parent,relatives,siblings);
     return {
       parent: parent,
       relatives: relatives,
       siblings: siblings
     };
-    //for element(with selector) in Array
-      //find related H1
-      //find elements (with selector) from common parent with H1
-      //for found elements remove from original Array
-      //save found elements as group
-      //save the distance to for the group to the h1
-      //next elements
-    //for found groups, sort by distance to h1, or just take first?
   }
 
-  filterDescendants = function(array) {
+  function filterDescendants(array) {
     return array.filter((element,i) => {
       let leaf = true;
       for (var j = i+1; j < array.length; j++) { //Compare with all following elements.
@@ -180,45 +152,36 @@ var getAuthor = function() {
     let authors = [].slice.call(document.querySelectorAll(selector))
       .map(element => getRelatedAuthors(element,selector,(element.getBoundingClientRect().height > 1 ? true : false)).siblings)
       .filter(element => element.length) //filter out empty arrays
-      .map(array => filterDescendants(array)); //filter out parents from arrays
-    console.log('authors',authors);
-    //TODO move to function StringifyAuthors()
-    authors = authors[0] //take first non-empty array of authors
-    .map(element => element
-      .innerText
-      .split("\n")[0]
-      .split(/\b(?:and)\b/gi) //non-capture group to find 'and' surrounded by breaks and discard them
-      .map(element => element.trim())
-      .join(', ')
-      .replace(/\s{1,}\,/g, ',') //remove whitespace before commas
-      .replace(/\,{2,}/g, ',') //remove repreating commas
-      .replace(/\s{2,}/g, '') //remove repeating whitespace
-      .trim()
-      .replace(/,+$/, "")) //map them to text and only take the text before the return character
-    .filter(element => element) //filter out blank text
-    .join(', ');
-    console.log('authors text',authors);
+      .map(array => filterDescendants(array)) //filter out parents from arrays
+      [0] //take first non-empty array of authors
+      .map(element => element
+        .innerText
+        .split("\n")[0]
+        .split(/\b(?:and)\b/gi) //non-capture group to find 'and' surrounded by breaks and discard them
+        .map(element => element.trim())
+        .join(', ')
+        .replace(/\s{1,}\,/g, ',') //remove whitespace before commas
+        .replace(/\,{2,}/g, ',') //remove repreating commas
+        .replace(/\s{2,}/g, '') //remove repeating whitespace
+        .trim()
+        .replace(/,+$/, "")) //map them to text and only take the text before the return character
+      .filter(element => element) //filter out blank text
+      .join(', ');
+    // console.log('authors text',authors);
     return authors;
   }
 
   var authors = [];
 
-  //Get the .author element that are related to the first h1.
-  //Bloomberg
-  // try {
-  //   authors.push([].slice.call(document.getElementsByTagName('h1')[0].parentNode.querySelectorAll('.author')).map(element => element.innerText,'').join(', '));
-  // } catch (e) {
-  //   console.log('h1.parent .author',e);
-  // }
   selectors = [
-    'cite', //Fast Company
-    '[rel*="author"]',
-    '[itemprop*="author"]',
+    '[rel*="author"]', //Huffington, Discover Mag, Wired, WSJ, LA TImes, SF Chronicle
+    '[itemprop*="author"]', //Atlantic, NYT, SciAm
     '.author', //Bloomberg
-    '.byline',
-    '.author-wrapper',
-    '[data-trackable="author"]',
-    '.EnArticleName',
+    '.byline', //WSJ, NYT, Tribune, New Yorker, NPR, Associated Press
+    '.author-wrapper', //Washington Post
+    '[data-trackable="author"]',//Financial Times
+    '.EnArticleName', //Asahi Shinbum
+    'cite', //Fast Company
     '.top-authors [data-ga-track*="byline"]' //Forbes
   ];
 
@@ -228,69 +191,7 @@ var getAuthor = function() {
     authors.push("");
     console.log('findAuthors combined',e);
   }
-  // try {
-  //   authors.push(findAuthors('[rel*="author"]'));
-  // } catch (e) {
-  //   authors.push("");
-  //   console.log('findAuthors [rel*="author"]',e);
-  // }
-  // //Atlantic, not(NYT)
-  // try {
-  //   authors.push(findAuthors('[itemprop*="author"]'));
-  // } catch (e) {
-  //   authors.push("");
-  //   console.log('findAuthors [itemprop*="author"]',e);
-  // }
-  // //NYT, not(Atlantic)
-  // try {
-  //   authors.push(findAuthors('[itemprop="name"]'));
-  // } catch (e) {
-  //   authors.push("");
-  //   console.log('findAuthors [itemprop="name"]',e);
-  // }
-  // //NPR
-  // try {
-  //   authors.push(findAuthors('.byline'));
-  // } catch (e) {
-  //   authors.push("");
-  //   console.log('findAuthors .byline',e);
-  // }
 
-  //Huffington, Discover Mag, Wired, WSJ, LA TImes
-  //Need to trim everything before " by " regex.
-  //:not(aria-hidden="true")
-  // try {
-  //   authors.push([].slice.call(document.querySelectorAll('[rel*="author"]')).map(element => {
-  //     // console.log('siblings:',getRelatedAuthors(element,'[rel*="author"]').siblings);
-  //     return element.innerText
-  //   },'').filter(element => element).join(', '));
-  // } catch (e) {
-  //   console.log('[rel="author"]',e);
-  // }
-  // //NYT, Chicago Tribune, The Atlantic
-  // try {
-  //   authors.push([].slice.call(document.querySelectorAll('[itemprop*="author"]')).map(element => element.innerText,'').join(', '));
-  // } catch (e) {
-  //   console.log('[itemprop="author"]',e);
-  // }
-  // //Businessweek, ACM
-  // try {
-  //   authors.push([].slice.call(document.querySelectorAll('meta[name*="author"]')).map(element => element.getAttribute("content"),'').join(', '));
-  // } catch (e) {
-  //   console.log('meta[name*="author"]',e);
-  // }
-  // //SF Chronicle
-  // try {
-  //   authors.push(document.querySelector('.author').innerText); //Only first since .author is pretty general.
-  // } catch (e) {
-  //   console.log('.author',e);
-  // }
-  // //WSJ, NYT, Tribune, New Yorker, NPR
-  // try {
-  //   authors.push([].slice.call(document.querySelectorAll('.byline')).map(element => element.innerText,'').join(', '));
-  // } catch (e) {
-  //   console.log('.byline',e);
-  // }
   //Google Books
   try {
     authors.push(document.querySelector('.addmd').innerText);
@@ -298,20 +199,7 @@ var getAuthor = function() {
     authors.push("");
     console.log('.addmd',e);
   }
-  //Washington Post
-  // try {
-  //   authors.push([].slice.call(document.querySelectorAll('.author-wrapper')).map(element => element.innerText,'').join(', '));
-  // } catch (e) {
-  //   authors.push("");
-  //   console.log('.author-wrapper',e);
-  // }
-  //Financial Times
-  // try {
-  //   authors.push([].slice.call(document.querySelectorAll('[data-trackable="author"]')).map(element => element.innerText,'').join(', '));
-  // } catch (e) {
-  //   authors.push("");
-  //   console.log('[data-trackable="author"]',e);
-  // }
+
   //Medium
   try {
     authors.push([].slice.call(document.querySelectorAll('.elevateCover .postMetaInline--author, .js-postMetaLockup a:not(.avatar)')).map(element => element.innerText,'').join(', '));
