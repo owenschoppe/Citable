@@ -74,7 +74,7 @@ var getAuthor = function() {
 
   var parseAuthor = function(author) {
     if (author) {
-      console.log('parse',author);
+      console.log('parse', author);
       //Parses out just the author's name. Perhaps including the date of publishing and the authors official title would be good.
       var re6 = '(?:(?!and)\\b[a-z]+\\s|[0-9])'; // First lower case word that isn't 'and' and is followed by a space or number
       var p = new RegExp(re6, ["g"]);
@@ -107,17 +107,17 @@ var getAuthor = function() {
     return '';
   };
 
-  function getRelatedAuthors(element,selector,visibility) {
+  function getRelatedAuthors(element, selector, visibility) {
     let parent = element; //should walk up from the selection...instead of the element.
     let relatives = [];
     let siblings = [];
 
-    while(parent != document.body && relatives.length <= 0 && siblings.length <= 1) {
+    while (parent != document.body && relatives.length <= 0 && siblings.length <= 1) {
       // console.log('parent:',parent);
       parent = parent.parentNode; //Move up one level.
       relatives = parent.querySelectorAll('h1'); //Is there a related H1?
       siblings = [].slice.call(parent.querySelectorAll(selector))
-        .filter(element=>{
+        .filter(element => {
           return (visibility ? element.getBoundingClientRect().height > 1 : true) && element.innerText; //Element must be visible and not blank.
         }); //Will always at least contain the element.
     }
@@ -130,14 +130,14 @@ var getAuthor = function() {
   }
 
   function filterDescendants(array) {
-    return array.filter((element,i) => {
+    return array.filter((element, i) => {
       let leaf = true;
-      for (var j = i+1; j < array.length; j++) { //Compare with all following elements.
+      for (var j = i + 1; j < array.length; j++) { //Compare with all following elements.
         leaf =
-        array[j].compareDocumentPosition(array[i]) & Node.DOCUMENT_POSITION_CONTAINS
-        || array[j] === array[i]
-        ? false
-        : leaf; //OR use array[i].contains(array[j])
+          array[j].compareDocumentPosition(array[i]) & Node.DOCUMENT_POSITION_CONTAINS ||
+          array[j] === array[i] ?
+          false :
+          leaf; //OR use array[i].contains(array[j])
       }
       return leaf;
     });
@@ -150,11 +150,11 @@ var getAuthor = function() {
     //else
     //For each found element, turn it into an array of it's visible sibling authors, filter out null arrays, return the first
     let authors = [].slice.call(document.querySelectorAll(selector))
-      .map(element => getRelatedAuthors(element,selector,(element.getBoundingClientRect().height > 1 ? true : false)).siblings)
+      .map(element => getRelatedAuthors(element, selector, (element.getBoundingClientRect().height > 1 ? true : false)).siblings)
       .filter(element => element.length) //filter out empty arrays
       .map(array => filterDescendants(array)) //filter out parents from arrays
-      [0] //take first non-empty array of authors
-      .map(element => element
+    [0] //take first non-empty array of authors
+    .map(element => element
         .innerText
         .split("\n")[0]
         .split(/\b(?:and)\b/gi) //non-capture group to find 'and' surrounded by breaks and discard them
@@ -179,17 +179,18 @@ var getAuthor = function() {
     '.author', //Bloomberg
     '.byline', //WSJ, NYT, Tribune, New Yorker, NPR, Associated Press
     '.author-wrapper', //Washington Post
-    '[data-trackable="author"]',//Financial Times
+    '[data-trackable="author"]', //Financial Times
     '.EnArticleName', //Asahi Shinbum
     'cite', //Fast Company
-    '.top-authors [data-ga-track*="byline"]' //Forbes
+    '.top-authors [data-ga-track*="byline"]', //Forbes
+    '.elevateCover .postMetaInline--author, .js-postMetaLockup a:not(.avatar)' //Medium
   ];
 
   try {
     authors.push(findAuthors(selectors.join()));
   } catch (e) {
     authors.push("");
-    console.log('findAuthors combined',e);
+    console.log('findAuthors combined', e);
   }
 
   //Google Books
@@ -197,25 +198,15 @@ var getAuthor = function() {
     authors.push(document.querySelector('.addmd').innerText);
   } catch (e) {
     authors.push("");
-    console.log('.addmd',e);
-  }
-
-  //Medium
-  try {
-    authors.push([].slice.call(document.querySelectorAll('.elevateCover .postMetaInline--author, .js-postMetaLockup a:not(.avatar)')).map(element => element.innerText,'').join(', '));
-  } catch (e) {
-    authors.push("");
-    console.log('.elevateCover .postMetaInline--author, .js-postMetaLockup a:not(.avatar)',e);
+    console.log('.addmd', e);
   }
 
   //Get smarter about selecting which one.
   //Filter out empty entries in the array created by joining an empty array.
   var author = authors.filter(element => element)[0];
-  console.log(author, authors);
+  console.log('author', author, authors);
 
   return parseAuthor(author); //Buggy but works 80% of the time.
-
-  //return author.replace(r,' ').trim();
 };
 
 // Object to hold information about the current page
@@ -248,7 +239,7 @@ videoTime = function() {
 try {
   author = getAuthor();
 } catch (e) {
-  console.log('No author',e);
+  console.log('No author', e);
 }
 
 try {
