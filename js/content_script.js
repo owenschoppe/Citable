@@ -74,7 +74,7 @@ var getAuthor = function() {
 
   var parseAuthor = function(author) {
     if (author) {
-      //console.log(author);
+      console.log('parse',author);
       //Parses out just the author's name. Perhaps including the date of publishing and the authors official title would be good.
       var re6 = '(?:(?!and)\\b[a-z]+\\s|[0-9])'; // First lower case word that isn't 'and' and is followed by a space or number
       var p = new RegExp(re6, ["g"]);
@@ -100,24 +100,230 @@ var getAuthor = function() {
       author = (author != '' ? $.trim(author) : '');
       //var r = author.search("\\n");
       //author = author.slice(0,(r!=-1?r:author.length)); //Clear any lines after the first line.
-      author = author.replace(r, ' ');
+      author = author.replace(r, ' ').replace(/\,{2,}/g, ',');
 
       return author.toString();
     }
     return '';
   };
 
-  var author = '';
-  author = (!author && $('[rel*="author"]') ? stringAuthors($('[rel*="author"]')) : author); //NYT, Huffington, Discover Mag, Wired
-  //console.log('[rel*="author"]',author);
-  author = (!author && $('.byline') ? stringAuthors($('.byline')) : author); //WSJ, NYT, Tribune, New Yorker
-  //console.log('.byline',author);
-  author = (!author && $('[class*="author"]') ? stringAuthors($('[class*="author"]')) : author); //SF Chronicle
-  //console.log('[class*="author"]',author);
-  author = (!author && $('.addmd') ? stringAuthors($('.addmd')) : author); //Google Books
-  //console.log('.addmd',author);
-  author = (!author && $('meta[name*="author"]') ? $('meta[name*="author"]').attr("content") : author); //Businessweek, ACM
-  //console.log('meta[name*="author"]',author);
+  function toArray(nodeList){
+    return [].slice.call(nodeList);
+  }
+
+  function distanceToH1(element) {
+    let parent = element;
+    let relatives = [];
+    //Get closest H1 relative.
+    while(parent != document.body && relatives.length <= 0) {
+      parent = parent.parentNode;
+      relatives = parent.querySelectorAll('h1');
+    }
+    //Return the vertical distance to it.
+    return {
+      distance: Math.abs(element.getBoundingClientRect().top - relatives[0].getBoundingClientRect().top + relatives[0].getBoundingClientRect().height),
+      relative: relatives[0],
+      parent: parent
+    };
+  }
+
+  function getRelatedAuthors(element,selector,visibility){
+    let parent = element; //should walk up from the selection...instead of the element.
+    let relatives = [];
+    let siblings = [];
+
+    while(parent != document.body && relatives.length <= 0 && siblings.length <= 1) {
+      // console.log('parent:',parent);
+      parent = parent.parentNode; //Move up one level.
+      relatives = parent.querySelectorAll('h1'); //Is there a related H1?
+      siblings = [].slice.call(parent.querySelectorAll(selector))
+        .filter(element=>{
+          return (visibility ? element.getBoundingClientRect().height > 1 : true) && element.innerText; //Element must be visible and not blank.
+        }); //Will always at least contain the element.
+    }
+    console.log(selector,element,parent,relatives,siblings);
+    return {
+      parent: parent,
+      relatives: relatives,
+      siblings: siblings
+    };
+    //for element(with selector) in Array
+      //find related H1
+      //find elements (with selector) from common parent with H1
+      //for found elements remove from original Array
+      //save found elements as group
+      //save the distance to for the group to the h1
+      //next elements
+    //for found groups, sort by distance to h1, or just take first?
+  }
+
+  filterDescendants = function(array) {
+    return array.filter((element,i) => {
+      let leaf = true;
+      for (var j = i+1; j < array.length; j++) { //Compare with all following elements.
+        leaf =
+        array[j].compareDocumentPosition(array[i]) & Node.DOCUMENT_POSITION_CONTAINS
+        || array[j] === array[i]
+        ? false
+        : leaf; //OR use array[i].contains(array[j])
+      }
+      return leaf;
+    });
+  }
+
+  function findAuthors(selector, selectionElement) {
+    //if selection elements
+    //return getRelatedAuthors(selectionElement,selector) try various
+
+    //else
+    //For each found element, turn it into an array of it's visible sibling authors, filter out null arrays, return the first
+    let authors = [].slice.call(document.querySelectorAll(selector))
+      .map(element => getRelatedAuthors(element,selector,(element.getBoundingClientRect().height > 1 ? true : false)).siblings)
+      .filter(element => element.length) //filter out empty arrays
+      .map(array => filterDescendants(array)); //filter out parents from arrays
+    console.log('authors',authors);
+    //TODO move to function StringifyAuthors()
+    authors = authors[0] //take first non-empty array of authors
+    .map(element => element
+      .innerText
+      .split("\n")[0]
+      .split(/\b(?:and)\b/gi) //non-capture group to find 'and' surrounded by breaks and discard them
+      .map(element => element.trim())
+      .join(', ')
+      .replace(/\s{1,}\,/g, ',') //remove whitespace before commas
+      .replace(/\,{2,}/g, ',') //remove repreating commas
+      .replace(/\s{2,}/g, '') //remove repeating whitespace
+      .trim()
+      .replace(/,+$/, "")) //map them to text and only take the text before the return character
+    .filter(element => element) //filter out blank text
+    .join(', ');
+    console.log('authors text',authors);
+    return authors;
+  }
+
+  var authors = [];
+
+  //Get the .author element that are related to the first h1.
+  //Bloomberg
+  // try {
+  //   authors.push([].slice.call(document.getElementsByTagName('h1')[0].parentNode.querySelectorAll('.author')).map(element => element.innerText,'').join(', '));
+  // } catch (e) {
+  //   console.log('h1.parent .author',e);
+  // }
+  selectors = [
+    'cite', //Fast Company
+    '[rel*="author"]',
+    '[itemprop*="author"]',
+    '.author', //Bloomberg
+    '.byline',
+    '.author-wrapper',
+    '[data-trackable="author"]',
+    '.EnArticleName',
+    '.top-authors [data-ga-track*="byline"]' //Forbes
+  ];
+
+  try {
+    authors.push(findAuthors(selectors.join()));
+  } catch (e) {
+    authors.push("");
+    console.log('findAuthors combined',e);
+  }
+  // try {
+  //   authors.push(findAuthors('[rel*="author"]'));
+  // } catch (e) {
+  //   authors.push("");
+  //   console.log('findAuthors [rel*="author"]',e);
+  // }
+  // //Atlantic, not(NYT)
+  // try {
+  //   authors.push(findAuthors('[itemprop*="author"]'));
+  // } catch (e) {
+  //   authors.push("");
+  //   console.log('findAuthors [itemprop*="author"]',e);
+  // }
+  // //NYT, not(Atlantic)
+  // try {
+  //   authors.push(findAuthors('[itemprop="name"]'));
+  // } catch (e) {
+  //   authors.push("");
+  //   console.log('findAuthors [itemprop="name"]',e);
+  // }
+  // //NPR
+  // try {
+  //   authors.push(findAuthors('.byline'));
+  // } catch (e) {
+  //   authors.push("");
+  //   console.log('findAuthors .byline',e);
+  // }
+
+  //Huffington, Discover Mag, Wired, WSJ, LA TImes
+  //Need to trim everything before " by " regex.
+  //:not(aria-hidden="true")
+  // try {
+  //   authors.push([].slice.call(document.querySelectorAll('[rel*="author"]')).map(element => {
+  //     // console.log('siblings:',getRelatedAuthors(element,'[rel*="author"]').siblings);
+  //     return element.innerText
+  //   },'').filter(element => element).join(', '));
+  // } catch (e) {
+  //   console.log('[rel="author"]',e);
+  // }
+  // //NYT, Chicago Tribune, The Atlantic
+  // try {
+  //   authors.push([].slice.call(document.querySelectorAll('[itemprop*="author"]')).map(element => element.innerText,'').join(', '));
+  // } catch (e) {
+  //   console.log('[itemprop="author"]',e);
+  // }
+  // //Businessweek, ACM
+  // try {
+  //   authors.push([].slice.call(document.querySelectorAll('meta[name*="author"]')).map(element => element.getAttribute("content"),'').join(', '));
+  // } catch (e) {
+  //   console.log('meta[name*="author"]',e);
+  // }
+  // //SF Chronicle
+  // try {
+  //   authors.push(document.querySelector('.author').innerText); //Only first since .author is pretty general.
+  // } catch (e) {
+  //   console.log('.author',e);
+  // }
+  // //WSJ, NYT, Tribune, New Yorker, NPR
+  // try {
+  //   authors.push([].slice.call(document.querySelectorAll('.byline')).map(element => element.innerText,'').join(', '));
+  // } catch (e) {
+  //   console.log('.byline',e);
+  // }
+  //Google Books
+  try {
+    authors.push(document.querySelector('.addmd').innerText);
+  } catch (e) {
+    authors.push("");
+    console.log('.addmd',e);
+  }
+  //Washington Post
+  // try {
+  //   authors.push([].slice.call(document.querySelectorAll('.author-wrapper')).map(element => element.innerText,'').join(', '));
+  // } catch (e) {
+  //   authors.push("");
+  //   console.log('.author-wrapper',e);
+  // }
+  //Financial Times
+  // try {
+  //   authors.push([].slice.call(document.querySelectorAll('[data-trackable="author"]')).map(element => element.innerText,'').join(', '));
+  // } catch (e) {
+  //   authors.push("");
+  //   console.log('[data-trackable="author"]',e);
+  // }
+  //Medium
+  try {
+    authors.push([].slice.call(document.querySelectorAll('.elevateCover .postMetaInline--author, .js-postMetaLockup a:not(.avatar)')).map(element => element.innerText,'').join(', '));
+  } catch (e) {
+    authors.push("");
+    console.log('.elevateCover .postMetaInline--author, .js-postMetaLockup a:not(.avatar)',e);
+  }
+
+  //Get smarter about selecting which one.
+  //Filter out empty entries in the array created by joining an empty array.
+  var author = authors.filter(element => element)[0];
+  console.log(author, authors);
 
   return parseAuthor(author); //Buggy but works 80% of the time.
 
@@ -154,7 +360,7 @@ videoTime = function() {
 try {
   author = getAuthor();
 } catch (e) {
-  console.log(e);
+  console.log('No author',e);
 }
 
 try {
