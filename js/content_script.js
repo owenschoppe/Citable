@@ -174,7 +174,7 @@ var getAuthor = function() {
   var authors = [];
 
   selectors = [
-    '[rel*="author"]', //Huffington, Discover Mag, Wired, WSJ, LA TImes, SF Chronicle
+    '[rel*="author"]', //Huffington, Wired, WSJ, LA TImes, SF Chronicle
     '[itemprop*="author"]', //Atlantic, NYT, SciAm
     '.author', //Bloomberg
     '.byline', //WSJ, NYT, Tribune, New Yorker, NPR, Associated Press
@@ -183,7 +183,9 @@ var getAuthor = function() {
     '.EnArticleName', //Asahi Shinbum
     'cite', //Fast Company
     '.top-authors [data-ga-track*="byline"]', //Forbes
-    '.elevateCover .postMetaInline--author, .js-postMetaLockup a:not(.avatar)' //Medium
+    '.elevateCover .postMetaInline--author, .js-postMetaLockup a:not(.avatar)', //Medium
+    '.article-topper__meta-item a' //Technology Review
+    //Discover Mag, Politico, Bangor Daily, NBC, Fox
   ];
 
   try {
