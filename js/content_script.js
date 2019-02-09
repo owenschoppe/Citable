@@ -203,13 +203,41 @@ var getAuthor = function() {
     console.log('.addmd', e);
   }
 
+  function getJsonLd() {
+    //New York Times
+    return [].slice.call(document.querySelectorAll('[type="application/ld+json"]')).map((element)=>{return JSON.parse(element.innerText).author.name});
+  }
+
+  function getDataAuthor() {
+    //Wall Street Journal
+    return [].slice.call(document.querySelectorAll("[data-scrim]")).map((element)=>{let data = JSON.parse(element.dataset.scrim); if(data.type == "author"){return data.header;} else {return null;}});
+  }
+
+  function getMetaAuthor() {
+    //Politico
+    return [].slice.call(document.querySelectorAll('[itemtype*="Article"] [itemprop*="author"] meta[itemprop*="name"]')).map(element => element.content);
+  }
+
+  function JsonAuthor() {
+    try {
+      return getJsonLd.author.name; //Schema.org
+    } catch (e) {
+      return null;
+    }
+  }
+
   //Get smarter about selecting which one.
   //Filter out empty entries in the array created by joining an empty array.
-  var author = authors.filter(element => element)[0];
+  var author = JsonAuthor() || authors.filter(element => element)[0];
   console.log('author', author, authors);
 
   return parseAuthor(author); //Buggy but works 80% of the time.
 };
+
+var getDatePublished = function() {
+  new Date(document.querySelectorAll('[itemprop="datePublished"], [property*="published"]')[0].content).toDateString();
+  new Date(JSON.parse(document.querySelectorAll('[type="application/ld+json"]')[0].innerText).dateCreated).toDateString();
+}
 
 // Object to hold information about the current page
 var author;
