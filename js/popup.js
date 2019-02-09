@@ -57,20 +57,25 @@ Code may not be used without written and express permission.
   //Focus//
   //-----//
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
-  citable.directive('selFocus', ['$timeout', function($timeout) {
-    function focus(scope, element, attrs) {
-      //Watches the referenced model from the context of the element with the attached directive.
-      scope.$watch(attrs.selFocus,
-        function(newValue) {
-          //Checks the current value of the model/selector to set focus.
-          console.log('selFocus', newValue, !newValue, element.focus());
-          $timeout(function() {
-            if (!newValue) element.focus();
-          }, 0);
-        }, true);
-    }
+  citable.directive('selFocus', ['$timeout', '$parse', function($timeout, $parse) {
     return {
-      focus: focus
+        //scope: true,   // optionally create a child scope
+        link: function (scope, element, attrs) {
+            var model = $parse(attrs.selFocus);
+            scope.$watch(model, function (value) {
+                console.log('value=', value);
+                if (value === true) {
+                    $timeout(function () {
+                      debugger;
+                        element[0].focus();
+                    });
+                }
+            });
+            element.bind('blur', function () {
+                console.log('blur');
+                scope.$apply(model.assign(scope, false));
+            });
+        }
     };
   }]);
 
