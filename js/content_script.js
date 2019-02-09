@@ -107,6 +107,26 @@ var getAuthor = function() {
     return '';
   };
 
+  function stringifyElements(elements) {
+    return stringifyAuthors(elements.map(element => element
+        .innerText) //map them to text and only take the text before the return character
+      .filter(element => element)); //filter out blank text
+  }
+
+  function stringifyAuthors(authors) {
+    return authors.map(author => author
+        .split("\n")[0]
+        .split(/\b(?:and)\b/gi) //non-capture group to find 'and' surrounded by breaks and discard them
+        .map(element => element.trim())
+        .join(', ')
+        .replace(/\s{1,}\,/g, ',') //remove whitespace before commas
+        .replace(/\,{2,}/g, ',') //remove repreating commas
+        .replace(/\s{2,}/g, '') //remove repeating whitespace
+        .trim()
+        .replace(/,+$/, "")) //map them to text and only take the text before the return character
+      .join(', ');
+  }
+
   function getRelatedAuthors(element, selector, visibility) {
     let parent = element; //should walk up from the selection...instead of the element.
     let relatives = [];
@@ -143,6 +163,10 @@ var getAuthor = function() {
     });
   }
 
+  function dedupe(array) {
+    return [...new Set(array)];
+  }
+
   function findAuthors(selector, selectionElement) {
     //if selection elements
     //return getRelatedAuthors(selectionElement,selector) try various
@@ -152,21 +176,9 @@ var getAuthor = function() {
     let authors = [].slice.call(document.querySelectorAll(selector))
       .map(element => getRelatedAuthors(element, selector, (element.getBoundingClientRect().height > 1 ? true : false)).siblings)
       .filter(element => element.length) //filter out empty arrays
-      .map(array => filterDescendants(array)) //filter out parents from arrays
-    [0] //take first non-empty array of authors
-    .map(element => element
-        .innerText
-        .split("\n")[0]
-        .split(/\b(?:and)\b/gi) //non-capture group to find 'and' surrounded by breaks and discard them
-        .map(element => element.trim())
-        .join(', ')
-        .replace(/\s{1,}\,/g, ',') //remove whitespace before commas
-        .replace(/\,{2,}/g, ',') //remove repreating commas
-        .replace(/\s{2,}/g, '') //remove repeating whitespace
-        .trim()
-        .replace(/,+$/, "")) //map them to text and only take the text before the return character
-      .filter(element => element) //filter out blank text
-      .join(', ');
+      .map(array => filterDescendants(array)); //filter out parents from arrays
+    authors = stringifyElements(authors[0]); //take first non-empty array of authors
+
     // console.log('authors text',authors);
     return authors;
   }
@@ -204,23 +216,63 @@ var getAuthor = function() {
   }
 
   function getJsonLd() {
-    //New York Times
-    return [].slice.call(document.querySelectorAll('[type="application/ld+json"]')).map((element)=>{return JSON.parse(element.innerText).author.name});
+    //Fox, Bloomberg, Medium, not(Wired)
+    return [].slice.call(document.querySelectorAll('[type="application/ld+json"]'))
+    .filter((element)=>{return JSON.parse(element.innerText).author ? true : false})
+    .reduce((result,element)=>{
+      let author = JSON.parse(element.innerText).author;
+      if (author instanceof Array){
+        //Multiple authors @type=person, spread result
+        result.push(...author.map(person => person.hasOwnProperty('name') ? person.name.toString() : person));
+      } else if (author.hasOwnProperty('name')) {
+        //Single author @type=person
+        result.push(author.name.toString());
+      } else {
+        //Invalid author === string
+        result.push(author);
+      }
+      return result;
+    },[]);
   }
 
   function getDataAuthor() {
     //Wall Street Journal
-    return [].slice.call(document.querySelectorAll("[data-scrim]")).map((element)=>{let data = JSON.parse(element.dataset.scrim); if(data.type == "author"){return data.header;} else {return null;}});
+    return [].slice.call(document.querySelectorAll("[data-scrim]"))
+    .map((element)=>{
+      let data = JSON.parse(element.dataset.scrim);
+      if(data.type == "author"){
+        return data.header;
+      }
+      else {
+        return null;
+      }
+    });
   }
 
-  function getMetaAuthor() {
-    //Politico
-    return [].slice.call(document.querySelectorAll('[itemtype*="Article"] [itemprop*="author"] meta[itemprop*="name"]')).map(element => element.content);
+  function getMicrodataAuthor() {
+    //Politico, NYT, not(Atlantic sometimes, take first and find siblings...)
+    return dedupe(
+      [].slice.call(document.querySelectorAll('[itemtype*="Article"] [itemprop*="author"] [itemprop*="name"]'))
+        .map(element => element.content || element.innerText)
+    );
   }
 
-  function JsonAuthor() {
+  function getRDFaAuthor() {
+    //coffeecode
+    return [].slice.call(document.querySelectorAll('[property*="author"] [property*="name"]'))
+    .map(element => element.innerText);
+  }
+
+  function getDataPropAuthor() {
+    //Washington Post
+    return [].slice.call(document.querySelectorAll('[itemprop*="article"] [data-authorname]'))
+    .map(element => element.dataset.authorname);
+  }
+
+  function structuredAuthor() {
     try {
-      return getJsonLd.author.name; //Schema.org
+      console.log('structured', getJsonLd(), getDataAuthor(), getMicrodataAuthor(), getRDFaAuthor(), getDataPropAuthor());
+      return stringifyAuthors([getJsonLd(), getDataAuthor(), getMicrodataAuthor(), getRDFaAuthor(), getDataPropAuthor()].sort((a,b)=>{return b.length - a.length})[0]); //Schema.org
     } catch (e) {
       return null;
     }
@@ -228,8 +280,8 @@ var getAuthor = function() {
 
   //Get smarter about selecting which one.
   //Filter out empty entries in the array created by joining an empty array.
-  var author = JsonAuthor() || authors.filter(element => element)[0];
-  console.log('author', author, authors);
+  var author = structuredAuthor() || authors.filter(element => element)[0];
+  console.log('author', author, 'structured:',structuredAuthor(), 'authors:',authors);
 
   return parseAuthor(author); //Buggy but works 80% of the time.
 };
