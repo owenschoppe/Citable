@@ -60,17 +60,17 @@ var getSelectedText = function() {
 
 var getAuthor = function() {
 
-  var stringAuthors = function(a) {
-    //console.log('stringAuthors ',a);
-    var authors = '';
-    for (var i = 0; i < a.length; i++) {
-      console.log('author', i, ': ', a[i]);
-      authors += $(a[i]).text();
-      authors += (i < (a.length - 1) ? '; ' : '');
-    }
-    console.log('authors: ', authors);
-    return authors;
-  };
+  // var stringAuthors = function(a) {
+  //   //console.log('stringAuthors ',a);
+  //   var authors = '';
+  //   for (var i = 0; i < a.length; i++) {
+  //     console.log('author', i, ': ', a[i]);
+  //     authors += $(a[i]).text();
+  //     authors += (i < (a.length - 1) ? '; ' : '');
+  //   }
+  //   console.log('authors: ', authors);
+  //   return authors;
+  // };
 
   var parseAuthor = function(author) {
     if (author) {
@@ -121,7 +121,7 @@ var getAuthor = function() {
         .join(', ')
         .replace(/\s{1,}\,/g, ',') //remove whitespace before commas
         .replace(/\,{2,}/g, ',') //remove repreating commas
-        .replace(/\s{2,}/g, '') //remove repeating whitespace
+        .replace(/\s{2,}/g, ' ') //remove repeating whitespace
         .trim()
         .replace(/,+$/, "")) //map them to text and only take the text before the return character
       .join(', ');
@@ -167,24 +167,6 @@ var getAuthor = function() {
     return [...new Set(array)];
   }
 
-  function findAuthors(selector, selectionElement) {
-    //if selection elements
-    //return getRelatedAuthors(selectionElement,selector) try various
-
-    //else
-    //For each found element, turn it into an array of it's visible sibling authors, filter out null arrays, return the first
-    let authors = [].slice.call(document.querySelectorAll(selector))
-      .map(element => getRelatedAuthors(element, selector, (element.getBoundingClientRect().height > 1 ? true : false)).siblings)
-      .filter(element => element.length) //filter out empty arrays
-      .map(array => filterDescendants(array)); //filter out parents from arrays
-    authors = stringifyElements(authors[0]); //take first non-empty array of authors
-
-    // console.log('authors text',authors);
-    return authors;
-  }
-
-  var authors = [];
-
   selectors = [
     '[rel*="author"]', //Huffington, Wired, WSJ, LA TImes, SF Chronicle
     '[itemprop*="author"]', //Atlantic, NYT, SciAm
@@ -196,99 +178,144 @@ var getAuthor = function() {
     'cite', //Fast Company
     '.top-authors [data-ga-track*="byline"]', //Forbes
     '.elevateCover .postMetaInline--author, .js-postMetaLockup a:not(.avatar)', //Medium
-    '.article-topper__meta-item a' //Technology Review
+    '.article-topper__meta-item a', //Technology Review
+    '.highwire-citation-author', //JNeurosci
+    '.addmd' //Google Books
     //Discover Mag, Politico, Bangor Daily, NBC, Fox
   ];
 
-  try {
-    authors.push(findAuthors(selectors.join()));
-  } catch (e) {
-    authors.push("");
-    console.log('findAuthors combined', e);
+  function findAuthors(selector, selectionElement) {
+    var authors = [];
+    //if selection elements
+    //return getRelatedAuthors(selectionElement,selector) try various
+
+    //else
+    //For each found element, turn it into an array of it's visible sibling authors, filter out null arrays, return the first
+    try {
+      authors.push(
+        stringifyElements(
+          [].slice.call(document.querySelectorAll(selector))
+            .map(element => getRelatedAuthors(element, selector, (element.getBoundingClientRect().height > 1 ? true : false)).siblings)
+            .filter(element => element.length) //filter out empty arrays
+            .map(array => filterDescendants(array))[0]//Take the first non-empty array
+          )
+        ); //filter out parents from arrays
+    } catch (e) {
+      authors.push("");
+      console.log('findAuthors combined', e);
+    }
+    console.log('authors:',authors);
+    return authors[0]; //take first non-empty array of authors
   }
 
-  //Google Books
-  try {
-    authors.push(document.querySelector('.addmd').innerText);
-  } catch (e) {
-    authors.push("");
-    console.log('.addmd', e);
-  }
-
-  function getJsonLd() {
-    //Fox, Bloomberg, Medium, not(Wired)
-    return [].slice.call(document.querySelectorAll('[type="application/ld+json"]'))
-    .filter((element)=>{return JSON.parse(element.innerText).author ? true : false})
-    .reduce((result,element)=>{
-      let author = JSON.parse(element.innerText).author;
-      if (author instanceof Array){
-        //Multiple authors @type=person, spread result
-        result.push(...author.map(person => person.hasOwnProperty('name') ? person.name.toString() : person));
-      } else if (author.hasOwnProperty('name')) {
-        //Single author @type=person
-        result.push(author.name.toString());
-      } else {
-        //Invalid author === string
-        result.push(author);
+  let structuredSelectors = [
+    {
+      //ld+JSON
+      //Fox, Bloomberg, Medium, not(Wired)
+      selector: '[type="application/ld+json"]',
+      parser: function(array){
+        return array.filter((element)=>{return JSON.parse(element.innerText).author ? true : false})
+        .reduce((result,element)=>{
+          let author = JSON.parse(element.innerText).author;
+          if (author instanceof Array){
+            //Multiple authors @type=person, spread result
+            result.push(...author.map(person => person.hasOwnProperty('name') ? person.name.toString() : person));
+          } else if (author.hasOwnProperty('name')) {
+            //Single author @type=person
+            result.push(author.name.toString());
+          } else {
+            //Invalid author === string
+            result.push(author);
+          }
+          return result;
+        },[]);
       }
-      return result;
-    },[]);
-  }
-
-  function getDataAuthor() {
-    //Wall Street Journal
-    return [].slice.call(document.querySelectorAll("[data-scrim]"))
-    .map((element)=>{
-      let data = JSON.parse(element.dataset.scrim);
-      if(data.type == "author"){
-        return data.header;
+    },
+    {
+      //DublinCore
+      //Science, New England Journal of Medicine, Google Scholar
+      selector: '[name="dc.creator"], [name="DC.creator"], [name="dc.Creator"], [name="citation_author"]',
+      parser: function(array){
+        return array.map(element => element.content);
       }
-      else {
+    },
+    {
+      //Microdata
+      //Politico, NYT, not(Atlantic sometimes, take first and find siblings...)
+      selector: '[itemtype*="Article"] [itemprop*="author"] [itemprop*="name"]',
+      parser: function(array){
+        return array.map(element => element.content || element.innerText);
+      }
+    },
+    {
+      //RDFa
+      //Coffeecode
+      selector: '[property*="author"] [property*="name"]',
+      parser: function(array){
+        return array.map(element => element.innerText);
+      }
+    },
+    {
+      //DataProp
+      //Washington Post
+      selector: '[itemprop*="article"] [data-authorname]',
+      parser: function(array){
+        return array.map(element => element.innerText);
+      }
+    },
+    {
+      //data-scrim
+      //Wall Street Journal
+      selector: '[data-scrim]',
+      parser: function(array){
+        return array.map((element)=>{
+          let data = JSON.parse(element.dataset.scrim);
+          if(data.type == "author"){
+            return data.header;
+          }
+          else {
+            return null;
+          }
+        });
+      }
+    }
+  ];
+
+  function getStructuredAuthor(selectors){
+    let authors = [];
+    for( var selector of selectors) {
+      try {
+        authors.push(
+          selector.parser(
+            [].slice.call(
+              document.querySelectorAll(selector.selector)
+            )
+          )
+        );
+      } catch (e) {
+        console.log(selector.selector,e);
         return null;
       }
-    });
-  }
-
-  function getMicrodataAuthor() {
-    //Politico, NYT, not(Atlantic sometimes, take first and find siblings...)
-    return dedupe(
-      [].slice.call(document.querySelectorAll('[itemtype*="Article"] [itemprop*="author"] [itemprop*="name"]'))
-        .map(element => element.content || element.innerText)
-    );
-  }
-
-  function getRDFaAuthor() {
-    //coffeecode
-    return [].slice.call(document.querySelectorAll('[property*="author"] [property*="name"]'))
-    .map(element => element.innerText);
-  }
-
-  function getDataPropAuthor() {
-    //Washington Post
-    return [].slice.call(document.querySelectorAll('[itemprop*="article"] [data-authorname]'))
-    .map(element => element.dataset.authorname);
-  }
-
-  function structuredAuthor() {
-    try {
-      console.log('structured', getJsonLd(), getDataAuthor(), getMicrodataAuthor(), getRDFaAuthor(), getDataPropAuthor());
-      return stringifyAuthors([getJsonLd(), getDataAuthor(), getMicrodataAuthor(), getRDFaAuthor(), getDataPropAuthor()].sort((a,b)=>{return b.length - a.length})[0]); //Schema.org
-    } catch (e) {
-      return null;
     }
+    console.log('structured:',authors);
+    return stringifyAuthors(authors.sort((a,b)=>{return b.length - a.length})[0]); //Schema.org
   }
 
   //Get smarter about selecting which one.
   //Filter out empty entries in the array created by joining an empty array.
-  var author = structuredAuthor() || authors.filter(element => element)[0];
-  console.log('author', author, 'structured:',structuredAuthor(), 'authors:',authors);
+  var author = getStructuredAuthor(structuredSelectors);
+  if(!author) {
+    author = findAuthors(selectors.join());
+  }
+  console.log('author', author);
 
   return parseAuthor(author); //Buggy but works 80% of the time.
 };
 
 var getDatePublished = function() {
-  new Date(document.querySelectorAll('[itemprop="datePublished"], [property*="published"]')[0].content).toDateString();
-  new Date(JSON.parse(document.querySelectorAll('[type="application/ld+json"]')[0].innerText).dateCreated).toDateString();
+  new Date(document.querySelectorAll('[itemprop="datePublished"], [property*="published"]')[0].content).toDateString(); //Microdata
+  new Date(JSON.parse(document.querySelectorAll('[type="application/ld+json"]')[0].innerText).dateCreated).toDateString(); //ld+json
+  new Date(document.querySelectorAll('[name="dc.issued"], [name="DC.issued"],[name="dc.Issued"], [name="citation_publication"]')[0].content).toDateString(); //DublinCore
 }
 
 // Object to hold information about the current page
