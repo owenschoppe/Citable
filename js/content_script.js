@@ -204,7 +204,7 @@ var getAuthor = function() {
       authors.push("");
       console.log('findAuthors combined', e);
     }
-    console.log('authors:',authors);
+    console.log('unstructured:',authors);
     return authors[0]; //take first non-empty array of authors
   }
 
@@ -286,9 +286,11 @@ var getAuthor = function() {
     for( var selector of selectors) {
       try {
         authors.push(
-          selector.parser(
-            [].slice.call(
-              document.querySelectorAll(selector.selector)
+          dedupe(
+            selector.parser(
+              [].slice.call(
+                document.querySelectorAll(selector.selector)
+              )
             )
           )
         );
