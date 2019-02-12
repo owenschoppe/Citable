@@ -139,19 +139,13 @@ chrome.extension.onConnect.addListener(function(port) {
       //callPrintable('export');
     }
 
-    //Updates the dummy url to the actual url of the tab.
-    var pageInfo = {
-      'Title': info.title ? info.title.trim() : "",
-      'Url': tab.url,
-      'Summary': info.summary ? info.summary.trim() : "",
-      'Author': info.authorName ? info.authorName.trim() : "",
-      'Tags': info.tags ? info.tags.trim() : "",
-    };
+    //Add correct URL
+    info.url = tab.url;
 
     var callback = callbacks[0]; //callbacks.shift();
     // Call the callback function
     if (callback) {
-      callback(pageInfo);
+      callback(info);
     }
     //executeMailto(tab.id, info.title, tab.url, info.selection);
   });

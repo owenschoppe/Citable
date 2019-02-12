@@ -55,7 +55,7 @@ var getSelectedText = function() {
   var t = g(document);
   //Return the results.
   if (!t || t == '') return ''; //Nothing found.
-  else return t.toString(); //Returns selected text.
+  else return t.toString().trim(); //Returns selected text.
 };
 
 var getAuthor = function() {
@@ -452,10 +452,10 @@ try {
 }
 
 var pageInfo = {
-  "title": document.title,
-  "url": 'test',
+  "title": document.title.trim(),
+  "url": '',
   "summary": summary,
-  "authorName": author,
+  "author": author,
   "tags": tags,
   "datePublished": getDatePublished()
 };

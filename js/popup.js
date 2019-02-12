@@ -59,23 +59,22 @@ Code may not be used without written and express permission.
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
   citable.directive('selFocus', ['$timeout', '$parse', function($timeout, $parse) {
     return {
-        //scope: true,   // optionally create a child scope
-        link: function (scope, element, attrs) {
-            var model = $parse(attrs.selFocus);
-            scope.$watch(model, function (value) {
-                console.log('value=', value);
-                if (value === true) {
-                    $timeout(function () {
-                      debugger;
-                        element[0].focus();
-                    });
-                }
+      //scope: true,   // optionally create a child scope
+      link: function(scope, element, attrs) {
+        var model = $parse(attrs.selFocus);
+        scope.$watch(model, function(value) {
+          console.log('value=', value);
+          if (value === true) {
+            $timeout(function() {
+              element[0].focus();
             });
-            element.bind('blur', function () {
-                console.log('blur');
-                scope.$apply(model.assign(scope, false));
-            });
-        }
+          }
+        });
+        element.bind('blur', function() {
+          console.log('blur');
+          scope.$apply(model.assign(scope, false));
+        });
+      }
     };
   }]);
 
@@ -127,12 +126,12 @@ Code may not be used without written and express permission.
     //set init values
     //ORDER: 'Title','Url','Date','Author','Summary','Tags'
     props.citation = {
-      'Title': '',
-      'Url': '',
-      'Date': '',
-      'Author': '',
-      'Summary': '',
-      'Tags': ''
+      'title': '',
+      'url': '',
+      'date': '',
+      'author': '',
+      'summary': '',
+      'tags': ''
     };
     props.citationMeta = {
       'fresh': false,
@@ -641,7 +640,9 @@ Code may not be used without written and express permission.
         return curr_year + '/' + curr_month + '/' + curr_date;
       }
 
-      $scope.data.citation.Date = currDate();
+      $scope.data.citation.date = currDate();
+
+      console.log('citation', $scope.data.citation);
 
       //Super simple function queue, should I implement a full queue?
       if ($scope.data.citationMeta.callback) {
@@ -1002,7 +1003,7 @@ Code may not be used without written and express permission.
         msgService.queue('Creating New Spreadsheet...');
 
         bgPage.createDocument($scope.data.citation, $scope.data.newDoc.trim(), $scope.cats[0])
-        .then(function (response) {
+          .then(function(response) {
             console.log(response.title + ' created!', response, callback); //Works.
             msgService.queue(response.title + ' Created', 'normal', 3000); //Works.
 
@@ -1016,11 +1017,11 @@ Code may not be used without written and express permission.
             $scope.data.defaultDoc = $scope.data.docs[0];
 
             if (callback) callback(); //Doesn't get called...?
-        })
-        .catch(function (error) {
+          })
+          .catch(function(error) {
             console.log('unable to create document');
             msgService.queue(error.message, 'error', 3000);
-        });
+          });
       } else {
         console.log('destination: ', destination.id, destination.title);
         amendDocHandler(retry, destination.id, callback); //Call the handler passing in the formatted values.
@@ -1116,55 +1117,16 @@ Code may not be used without written and express permission.
 
     var constructCitation = function() {
 
-      //TODO: rewrite these funtions to iterate through the citation object to create entry. Makes this code more reusable for future additions.
-      constructSpreadBody_ = function(entryTitle, entryUrl, entrySummary, entryTags, entryAuthor, entryDate) {
-
-        constructSpreadAtomXml_ = function(entryTitle, entryUrl, entrySummary, entryTags, entryAuthor, entryDate) {
-          /*var d = new Date();
-          var curr_date = d.getDate();
-          var curr_month = d.getMonth() + 1; //months are zero based
-          var curr_year = d.getFullYear();
-          var entryDate = curr_year + '/' + curr_month + '/' + curr_date;*/
-
-          var atom = ["<?xml version='1.0' encoding='UTF-8'?>",
-            '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gsx="http://schemas.google.com/spreadsheets/2006/extended">', //'--END_OF_PART\r\n',
-            '<gsx:title>', entryTitle, '</gsx:title>', //'--END_OF_PART\r\n',
-            '<gsx:url>', entryUrl, '</gsx:url>', //'--END_OF_PART\r\n',
-            '<gsx:summary>', entrySummary, '</gsx:summary>', //'--END_OF_PART\r\n',
-            '<gsx:tags>', entryTags, '</gsx:tags>',
-            '<gsx:date>', entryDate, '</gsx:date>',
-            '<gsx:author>', entryAuthor, '</gsx:author>',
-            '</entry>'
-          ].join('');
-          return atom;
-        };
-
-        entryTitle = Util.parseForHTML(entryTitle);
-        entrySummary = Util.parseForHTML(entrySummary);
-        entryUrl = Util.parseForHTML(entryUrl);
-        entryTags = Util.parseForHTML(entryTags);
-        entryAuthor = Util.parseForHTML(entryAuthor);
-        //No need to parse the date since it's already formatted correctly.
-
-        var body = [
-          constructSpreadAtomXml_(entryTitle, entryUrl, entrySummary, entryTags, entryAuthor, entryDate), '\r\n',
-        ].join('');
-
-        return body;
-      };
-
-      var summary = $scope.data.citation.Summary;
-      var title = $scope.data.citation.Title;
-      var url = $scope.data.citation.Url;
-      var tags = $scope.data.citation.Tags;
-      var author = $scope.data.citation.Author;
-      var date = $scope.data.citation.Date;
-
-      var data = constructSpreadBody_(title, url, summary, tags, author, date);
-
-      //Main return
-      data = data.trim().replace("^([\\W]+)<", "<"); //There are evidently bad characters in the XML that this regex removes.
-      return data;
+      return ["<?xml version='1.0' encoding='UTF-8'?>",
+          '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gsx="http://schemas.google.com/spreadsheets/2006/extended">',
+          Object.entries($scope.data.citation).map((entry, index, array) => {
+            return ['<gsx:', entry[0].toLowerCase(), '>', entry[1], '</gsx:', entry[0].toLowerCase(), '>'].join('');
+          }),
+          '</entry>'
+        ]
+        .join('')
+        .trim()
+        .replace("^([\\W]+)<", "<"); //There are evidently bad characters in the XML that this regex removes.
     };
 
     $scope.updateHeaderSuccess = function(callback) {
