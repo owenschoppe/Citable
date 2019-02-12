@@ -278,6 +278,14 @@ var getAuthor = function() {
           }
         });
       }
+    },
+    {
+      //meta tag
+      //Chicago Tribune
+      selector: '[name="author"]',
+      parser: function(array){
+        return array.map(element => element.content);
+      }
     }
   ];
 
@@ -314,10 +322,88 @@ var getAuthor = function() {
   return parseAuthor(author); //Buggy but works 80% of the time.
 };
 
-var getDatePublished = function() {
-  new Date(document.querySelectorAll('[itemprop="datePublished"], [property*="published"]')[0].content).toDateString(); //Microdata
-  new Date(JSON.parse(document.querySelectorAll('[type="application/ld+json"]')[0].innerText).dateCreated).toDateString(); //ld+json
-  new Date(document.querySelectorAll('[name="dc.issued"], [name="DC.issued"],[name="dc.Issued"], [name="citation_publication"]')[0].content).toDateString(); //DublinCore
+function getDatePublished() {
+  var selectors = [
+    {
+      //ld+json
+      //https://schema.org/
+      selector: '[type="application/ld+json"]',
+      parser: function(array){
+        return array.filter((element)=>{return JSON.parse(element.innerText).datePublished ? true : false})
+        .reduce((result,element)=>{
+          let date = JSON.parse(element.innerText).datePublished;
+          if (date instanceof Array){
+            //Multiple dates, just take the first one
+            result.push(date[0]);
+          } else {
+            //Invalid author === string
+            result.push(date);
+          }
+          return result;
+        },[]);
+      }
+    },
+    {
+      //Microdata
+      //https://schema.org/
+      selector: '[itemprop="datePublished"], [property*="published"]',
+      parser: function(array) {
+        return array.map(element => element.getAttribute("content"));
+      }
+    },
+    {
+      //DublinCore
+      //http://dublincore.org/documents/usageguide/#html
+      selector: '[name="dc.issued"], [name="DC.issued"], [name="dc.Issued"], [name="dc.date"], [name="DC.date"], [name="dc.Date"], [name="dc.date.issued"]',
+      parser: function(array) {
+        return array.map(element => element.getAttribute("content"));
+      }
+    },
+    {
+      //Google Scholar
+      //https://scholar.google.com/intl/en/scholar/inclusion.html#indexing
+      selector: '[name="citation_publication"], [name="citation_publication_date"], [name="citation_date"]',
+      parser: function(array) {
+        return array.map(element => element.getAttribute("content"));
+      }
+    },
+    {
+      //Meta tag
+      //https://www.w3schools.com/tags/tag_meta.asp
+      //NPR, Chicago Tribune
+      selector: 'meta[name="date"]',
+      parser: function(array) {
+        return array.map(element => element.getAttribute("content"));
+      }
+    },
+    {
+      //PRISM
+      //https://www.idealliance.org/prism-metadata
+      selector: '[name="prism:coverDate"], [name="prism:publicationDate"]',
+      parser: function(array) {
+        return array.map(element => element.getAttribute("content"));
+      }
+    }
+  ];
+
+  let dates = [];
+  for( var selector of selectors) {
+    try {
+      dates.push(
+          ...selector.parser(
+            [].slice.call(
+              document.querySelectorAll(selector.selector)
+            )
+          )
+        );
+    } catch (e) {
+      console.log(selector.selector,e);
+      return null;
+    }
+  }
+  console.log('structured dates:',dates,dates.filter(element => element)[0]);
+  let date = new Date(dates.filter(element => element)[0]).toUTCString(); //Schema.org
+  return date == "Invalid Date" ? "" : date;
 }
 
 // Object to hold information about the current page
@@ -371,6 +457,7 @@ var pageInfo = {
   "summary": summary,
   "authorName": author,
   "tags": tags,
+  "datePublished": getDatePublished()
 };
 
 console.log('page info: ', pageInfo);
