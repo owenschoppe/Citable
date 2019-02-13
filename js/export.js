@@ -227,18 +227,16 @@ function splitAuthor(author) {
 }
 
 function splitDate(dateString) {
-  //console.log('splitDate ', dateString);
-  var date = [];
-  var parts = dateString.split('/');
-  //console.log('parts ',parts);
-  // need to use non-localized abbreviation
-  if (parts[0]) {
-    date.month = months[parseInt(parts[0]) - 1];
-    //console.log('month ',date["month"],parseInt(parts[0])-1);
-  }
-  if (parts[2]) {
-    date.year = parseInt(parts[2]);
-    //console.log('year ',date["year"],parseInt(parts[2]));
+  var date = {}
+  var d = new Date(dateString);
+  if (d != "Invalid Date") {
+    date.year = d.getFullYear();
+    date.month = d.getMonth(); //Returns index for months text array.
+    date.day = d.getDate();
+  } else {
+    date.year = "";
+    date.month = "";
+    date.day = "";
   }
   return date;
 }
@@ -266,7 +264,7 @@ function doExport() {
     item.creators = splitAuthor(item.author);
     var date = splitDate(item.date);
     item.year = date.year;
-    item.month = date.month;
+    item.month = months[date.month];
     // create a unique citation key
     var citekey = buildCiteKey(item, citekeys);
 
