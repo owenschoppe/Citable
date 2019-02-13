@@ -118,13 +118,13 @@ var getAuthor = function() {
         .split("\n")[0]
         .split(/\b(?:and)\b/gi) //non-capture group to find 'and' surrounded by breaks and discard them
         .map(element => element.trim())
-        .join(', ')
+        .join('; ')
         .replace(/\s{1,}\,/g, ',') //remove whitespace before commas
         .replace(/\,{2,}/g, ',') //remove repreating commas
         .replace(/\s{2,}/g, ' ') //remove repeating whitespace
         .trim()
         .replace(/,+$/, "")) //map them to text and only take the text before the return character
-      .join(', ');
+      .join('; ');
   }
 
   function getRelatedAuthors(element, selector, visibility) {
