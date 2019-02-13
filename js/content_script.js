@@ -281,8 +281,8 @@ var getAuthor = function() {
     },
     {
       //meta tag
-      //Chicago Tribune
-      selector: '[name="author"]',
+      //Chicago Tribune, Science Mag
+      selector: '[name="author"], [name="news_authors"]',
       parser: function(array){
         return array.map(element => element.content);
       }
