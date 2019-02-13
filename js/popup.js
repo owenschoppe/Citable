@@ -1120,7 +1120,7 @@ Code may not be used without written and express permission.
       return ["<?xml version='1.0' encoding='UTF-8'?>",
           '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gsx="http://schemas.google.com/spreadsheets/2006/extended">',
           Object.entries($scope.data.citation).map((entry, index, array) => {
-            return ['<gsx:', entry[0].toLowerCase(), '>', entry[1], '</gsx:', entry[0].toLowerCase(), '>'].join('');
+            return ['<gsx:', entry[0].toLowerCase(), '>', Util.escapeHTML(entry[1]), '</gsx:', entry[0].toLowerCase(), '>'].join('');
           }),
           '</entry>'
         ]

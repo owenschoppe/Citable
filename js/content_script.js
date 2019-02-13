@@ -460,6 +460,23 @@ var pageInfo = {
   "datePublished": getDatePublished()
 };
 
+//Is this necessary? It messes up the formatting on selected text.
+// pageInfo = escapeObject(pageInfo);
+
+function escapeObject(object) {
+  for(var element in object) {
+    object[element] = escapeHTML(object[element]);
+  }
+  return object;
+}
+
+function escapeHTML(content) {
+  //Use browsers built-in functionality to quickly and safely escape strings.
+  var div = document.createElementNS('http://www.w3.org/199/xhtml', 'div');
+  div.appendChild(document.createTextNode(content));
+  return div.innerHTML;
+}
+
 console.log('page info: ', pageInfo);
 
 chrome.extension.connect().postMessage(pageInfo);

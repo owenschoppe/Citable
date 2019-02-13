@@ -143,6 +143,19 @@ Util.sortByTitle = function(a, b) {
   return 0;
 };
 
+Util.escapeHTML = function(content) {
+  //Use browsers built-in functionality to quickly and safely escape strings.
+  var div = document.createElementNS('http://www.w3.org/199/xhtml', 'div');
+  div.appendChild(document.createTextNode(content));
+  return div.innerHTML;
+};
+
+Util.encodeURLParam = function(content) {
+  return encodeURIComponent(component).replace(/[!'()*]/g, function(c) {
+    return '%' + c.charCodeAt(0).toString(16);
+  });
+};
+
 Util.parseForHTML = function(content) {
   //regular expression to find characters not accepted in XML.
   var rx = /(<)|(>)|(&)|(")|(')/g;
