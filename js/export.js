@@ -190,7 +190,7 @@ function splitAuthor(author) {
     for (var k = 0; k < authors.length; k++) {
       if (authors[k]) {
         //console.log('comma search ',authors[k].indexOf(","));
-        var creator = [];
+        var creator = {};
         parts = authors[k].split(" ");
         if (authors[k].indexOf(",") > -1) { //Is the author properly formatted?
           if (parts[0].indexOf(",") > -1) { //If the first word is not followed by a comma, then the comma means we have two different names.
