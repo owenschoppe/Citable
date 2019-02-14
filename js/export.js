@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 //Crashes when the number of records is too large. or for some other reason.
 //Crashes if two export windows are open at the same time.
 //Crashes occasionally for unknown reasons.
@@ -193,7 +194,12 @@ function splitAuthor(author) {
           if (parts[0].indexOf(",") > -1) {
             //If the first word is not followed by a comma, then the comma means we have two different names.
             creator.lastName = parts[0].replace(",", "").trim();
-            creator.firstName = parts[1] + String(parts.length == 3 ? (" " + parts[2]) : ""); //Assumes 3 name parts max. Not a reasonable assumption but acceptable for now.
+            creator.firstName = parts.reduce((accumulator, item, index, array) => {
+              if (index != 0) {
+                accumulator.push(item);
+              }
+                return accumulator;
+              }, []).join(" ");
           } else {
             //Authors contains a comma but it's not used correctly. Assume multiple authors.
             authors = splitComma(authors);
