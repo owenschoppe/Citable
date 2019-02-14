@@ -131,7 +131,12 @@ function startup() {
 function initSelect(format){
   document.getElementById('format').value = format; //Init format select menu.
   document.getElementById('format').addEventListener('change',changeSelection);
-  chrome.storage.onChanged.addListener((changes,area)=>{if(area == 'local' && changes.exportFormat){makeFile();}}); //If the user changes the select, rerender.
+  chrome.storage.onChanged.addListener((changes,area)=>{
+    if(area == 'local' && changes.exportFormat){
+      document.getElementById('format').value = changes.exportFormat.newValue; //If multiple export pages are in use.
+      makeFile();
+    }
+  }); //If the user changes the select, rerender.
 
   function changeSelection(e) {
     chrome.storage.local.set({
