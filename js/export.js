@@ -182,36 +182,36 @@ function splitAuthor(author) {
     return author;
   }
 
-  //console.log('splitAuthor ',authors);
   function getAuthors(authors) {
     var creators = [];
     for (var k = 0; k < authors.length; k++) {
       if (authors[k]) {
-        //console.log('comma search ',authors[k].indexOf(","));
         var creator = {};
         parts = authors[k].split(" ");
-        if (authors[k].indexOf(",") > -1) { //Is the author properly formatted?
-          if (parts[0].indexOf(",") > -1) { //If the first word is not followed by a comma, then the comma means we have two different names.
-          creator.lastName = parts[0].replace(",", "").trim();
-          creator.firstName = parts[1] + String(parts.length == 3 ? (" " + parts[2]) : ""); //Assumes 3 name parts max. Not a reasonable assumption but acceptable for now.
-        } else { //Authors contains a comma but it's not used correctly. Assume multiple authors.
-          authors = splitComma(authors);
-          return getAuthors(authors);
-        }
-      } else { //Authors aren't formatted (last, first) and also don't contain commas. Assume (first last) formatting.
-          //console.log('no comma found: ',parts,authors[k].indexOf(/(and)/i) );
-
+        if (authors[k].indexOf(",") > -1) {
+          //Is the author properly formatted?
+          if (parts[0].indexOf(",") > -1) {
+            //If the first word is not followed by a comma, then the comma means we have two different names.
+            creator.lastName = parts[0].replace(",", "").trim();
+            creator.firstName = parts[1] + String(parts.length == 3 ? (" " + parts[2]) : ""); //Assumes 3 name parts max. Not a reasonable assumption but acceptable for now.
+          } else {
+            //Authors contains a comma but it's not used correctly. Assume multiple authors.
+            authors = splitComma(authors);
+            return getAuthors(authors);
+          }
+        } else {
+          //Authors aren't formatted (last, first) and also don't contain commas. Assume (first last) formatting.
           if (authors[k].indexOf(/(and)/i) > -1) {
             //should be impossible given that we already split on 'and' above.
           } else {
             creator.lastName = parts[parts.length - 1];
             //Get all other words.
-            creator.firstName = parts.reduce((accumulator,item,index,array) => {
-              if(index != array.length - 1){
+            creator.firstName = parts.reduce((accumulator, item, index, array) => {
+              if (index != array.length - 1) {
                 accumulator.push(item);
               }
               return accumulator;
-            },[]).join(" ");
+            }, []).join(" ");
           }
         }
         creator.creatorType = 'author';
@@ -262,7 +262,7 @@ function exportZotero(rows) {
     item.creators = splitAuthor(item.author);
     var date = splitDate(item.date);
     item.year = date.year;
-    item.month = toMonths(date.month,"lower");
+    item.month = toMonths(date.month, "lower");
     // create a unique citation key
     var citekey = buildCiteKey(item, citekeys);
 
@@ -418,8 +418,8 @@ var months = {
   ]
 };
 
-function toMonths(index,format){
-  return (format) ? months[format][index] : (index+1);
+function toMonths(index, format) {
+  return (format) ? months[format][index] : (index + 1);
 }
 
 // a little substitution function for BibTeX keys, where we don't want LaTeX
