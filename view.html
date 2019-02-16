@@ -37,9 +37,9 @@
 					<div id="selection" class="selection"></div>
 				</div>
 				<div id="total" class="m-bottom--small"></div>
-				<div id="button-wrapper">
-					<button id="print-button" class="button primary-button" disabled>Print</button>
-					<button id="template-button" class="button secondary-button">Print Template</button>
+				<div id="button-wrapper" class="grid">
+					<button id="print-button" class="button primary-button m-right--xsmall" disabled>Print</button>
+					<button id="template-button" class="button secondary-button m-right--xsmall">Print Template</button>
 					<button id="cancel-button" class="button secondary-button right">Cancel</button>
 				</div>
 				<div class="divider m-vertical--large"></div>
@@ -55,7 +55,7 @@
 				</form>
 				<div class></div>
 				<form id="radioControls" class="relative p-left--medium">
-					<fieldset>
+					<fieldset class="relative">
 						<legend class="label m-bottom--small"><span>Format Printing</span></legend>
 						<div id="fonts" class="m-bottom--small">
 							<div><input type="radio" name="font" value="Droid" id="typed" /><label for="typed">Typed</label></div>
@@ -83,7 +83,7 @@
 
 		<div id="outputArea" class="scrollable grow grid grid-vertical">
 			<div id="loading" class="page loading"><img src="css/img/loading.gif" height="16" width="16" title="Loading Document" alt="Loading Document" /></div>
-			<div id="output" class=""></div>
+			<div id="output" class="grid"></div>
 		</div>
 	</main>
 	<div id="indicator" class="indicator">Page <span id="pageNum">1</span></div>

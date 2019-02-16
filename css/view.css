@@ -36,22 +36,22 @@ main {
 
 .pageIcon {
   position: absolute;
-  top: -10px;
-  left: 190px;
+  top: -8px;
+  right: -7px;
   width: 100px;
   height: 100px;
 }
 
 .fontIcon {
   position: absolute;
-  top: 20px;
-  left: 228px;
+  top: 22px;
+  right: 31px;
   font-size: 36px;
 }
 
 .fontIcon.handwritten {
-  top: 13px;
-  left: 225px;
+  top: 20px;
+  right: 32px;
 }
 
 /* Column Select Controls */
@@ -146,7 +146,7 @@ main {
 
 .page, .loading {
   background-color: var(--color-background);
-  margin: 24px 0px 24px 24px;
+  margin: 24px 24px 24px 24px;
   box-sizing: border-box;
 }
 
