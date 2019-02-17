@@ -140,7 +140,7 @@ chrome.extension.onConnect.addListener(function(port) {
     }
 
     //Add correct URL
-    info.url = tab.url;
+    info.Url = tab.url;
 
     var callback = callbacks[0]; //callbacks.shift();
     // Call the callback function
@@ -176,7 +176,7 @@ function callPrintable(action, callback) {
 
     chrome.storage.sync.get(null, function(response) {
       chrome.tabs.create({
-        'url': 'export.html?key=' + response.defaultDoc.id + '&title=' + response.defaultDoc.title
+        'url': 'export.html?key=' + encodeURIComponent(response.defaultDoc.id) + '&title=' + encodeURIComponent(response.defaultDoc.title)
       });
       if (callback) {
         callback();
@@ -203,13 +203,12 @@ processDocContent = function(response, xhr, callback) {
     }
     console.log('row: ', row);
 
-    //Uses local storage to pass data to export and print. The only downside is we can only hold one document of data at a time so refreshing the old page gets the new data. TODO: move the request to the export/print page and store the results there. Pass in the info via a url param?
-
+    //Uses local storage to pass data to export and print as a default if no URL param.
     chrome.storage.local.set({
       'row': row
     }, function(response) {
       chrome.storage.local.get('row', function(response) {
-        console.log("chrome.storage.sync.get('row')", response);
+        console.log("chrome.storage.local.get('row')", response);
       });
     });
 
@@ -237,12 +236,12 @@ processDocContent = function(response, xhr, callback) {
 };
 
 Row = function(entry) {
-  this.title = (entry.gsx$title ? entry.gsx$title.$t : '');
-  this.url = (entry.gsx$url ? entry.gsx$url.$t : '');
-  this.summary = (entry.gsx$summary ? entry.gsx$summary.$t : '');
-  this.tags = (entry.gsx$tags ? entry.gsx$tags.$t : '');
-  this.author = (entry.gsx$author ? entry.gsx$author.$t : '');
-  this.date = (entry.gsx$date ? entry.gsx$date.$t : '');
+  this.Title = (entry.gsx$title ? entry.gsx$title.$t : '');
+  this.Url = (entry.gsx$url ? entry.gsx$url.$t : '');
+  this.Summary = (entry.gsx$summary ? entry.gsx$summary.$t : '');
+  this.Tags = (entry.gsx$tags ? entry.gsx$tags.$t : '');
+  this.Author = (entry.gsx$author ? entry.gsx$author.$t : '');
+  this.Date = (entry.gsx$date ? entry.gsx$date.$t : '');
 };
 
 String.prototype.toProperCase = function() {
@@ -634,6 +633,7 @@ var updateDocument = function(callback, docToUpdate) {
   var docId = '';
   //var worksheetId = 'od6';
   var worksheetId = 'default'; //Switch to default to support documents created through the Drive API.
+  //TODO Do this per document, iterate through columns? At least add DatePublished...
   var order = ['Title', 'Url', 'Date', 'Author', 'Summary', 'Tags']; //'Title,Url,Date,Author,Summary,Tags'
   var Cells = [];
   var Cell = function(entry) {

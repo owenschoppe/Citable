@@ -126,12 +126,12 @@ Code may not be used without written and express permission.
     //set init values
     //ORDER: 'Title','Url','Date','Author','Summary','Tags'
     props.citation = {
-      'title': '',
-      'url': '',
-      'date': '',
-      'author': '',
-      'summary': '',
-      'tags': ''
+      'Title': '',
+      'Url': '',
+      'Date': '',
+      'Author': '',
+      'Summary': '',
+      'Tags': ''
     };
     props.citationMeta = {
       'fresh': false,
@@ -640,7 +640,7 @@ Code may not be used without written and express permission.
         return curr_year + '/' + curr_month + '/' + curr_date;
       }
 
-      $scope.data.citation.date = currDate();
+      $scope.data.citation.Date = currDate();
 
       console.log('citation', $scope.data.citation);
 

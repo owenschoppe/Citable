@@ -406,6 +406,132 @@ function getDatePublished() {
   return date == "Invalid Date" ? "" : date;
 }
 
+function getPublication() {
+  var selectors = [
+    {
+      //ld+JSON
+      //Fox, Bloomberg, Medium, not(Wired)
+      selector: '[type="application/ld+json"]',
+      parser: function(array){
+        return array.filter((element)=>{return JSON.parse(element.innerText).publisher ? true : false})
+        .reduce((result,element)=>{
+          let publisher = JSON.parse(element.innerText).publisher;
+          if (publisher instanceof Array){
+            //Multiple authors @type=person, spread result
+            result.push(...publisher.map(org => org.hasOwnProperty('name') ? org.name.toString() : org));
+          } else if (publisher.hasOwnProperty('name')) {
+            //Single author @type=person
+            result.push(publisher.name.toString());
+          } else {
+            //Invalid author === string
+            result.push(publisher);
+          }
+          return result;
+        },[]);
+      }
+    },
+    {
+      //Microdata
+      //https://schema.org/
+      selector: '[itemtype="http://schema.org/Periodical"] > [itemprop="name"], [itemtype="http://schema.org/Website"] > [itemprop="name"], [itemprop="isPartOf"] > [itemprop="name"], [itemprop="publisher"] > [itemprop="name"]',
+      parser: function(array) {
+        return array.map(element => {
+          if (element.getAttribute("content")){
+            return element.getAttribute("content");
+          } else {
+            element.getAttribute("innerText")
+          }
+        });
+      }
+    },
+    {
+      //DublinCore
+      //http://dublincore.org/documents/usageguide/#html
+      selector: '[name="dc.relation.ispartof"], [name="DC.relation.ispartof"], [name="dc.Relation.Ispartof"]',
+      parser: function(array) {
+        return array.map(element => element.getAttribute("content"));
+      }
+    },
+    {
+      //Google Scholar
+      //https://scholar.google.com/intl/en/scholar/inclusion.html#indexing
+      selector: '[name="citation_journal_title"], [name="citation_volume"], [name="citation_date"]',
+      parser: function(array) {
+        return array.map(element => element.getAttribute("content"));
+      }
+    },
+    {
+      //Data attribute
+      //Chicago Tribune
+      selector: '[data-sc-nn]',
+      parser: function(array) {
+        return array.map(element => element.dataset.scNn);
+      }
+    },
+    {
+      //PRISM
+      //https://www.idealliance.org/prism-metadata
+      selector: '[name="prism:publicationName"]',
+      parser: function(array) {
+        return array.map(element => element.getAttribute("content"));
+      }
+    },
+    {
+      //OpenGraph
+      //http://ogp.me/
+      selector: '[property="og:site_name"]',
+      parser: function(array) {
+        return array.map(element => element.getAttribute("content"));
+      }
+    },
+    {
+      //DublinCore ALT - Technically not correct. This is the publishing house not the publication.
+      //http://dublincore.org/documents/usageguide/#html
+      selector: '[name="dc.publisher"], [name="DC.publisher"], [name="dc.Publisher"]',
+      parser: function(array) {
+        return array.map(element => element.getAttribute("content"));
+      }
+    }
+    // ,
+    // {
+    //   //Wikimedia - This is an abuse of this metadata.
+    //   //http://dublincore.org/documents/usageguide/#html
+    //   selector: '[type="application/opensearchdescription+xml"]',
+    //   parser: function(array) {
+    //     return array.map(element => element.getAttribute("title"));
+    //   }
+    // }
+    //,
+    // {
+    //   //DublinCore ALT - If the creator(author) and publisher are the same, then the publisher will be here.
+    //   //http://dublincore.org/documents/usageguide/#html
+    //   selector: '[name="dc.creator"], [name="DC.creator"], [name="dc.Creator"]',
+    //   parser: function(array) {
+    //     return array.map(element => element.getAttribute("content"));
+    //   }
+    // }
+  ];
+
+  let found = [];
+  for( var selector of selectors) {
+    try {
+      found.push(
+          ...selector.parser(
+            [].slice.call(
+              document.querySelectorAll(selector.selector)
+            )
+          )
+        );
+    } catch (e) {
+      console.log(selector.selector,e);
+      return null;
+    }
+  }
+  console.log('structured publication:',found,found.filter(element => element)[0]);
+  let final = found.filter(element => element)[0];
+  return final;
+}
+
 // Object to hold information about the current page
 var author;
 var summary;
@@ -452,13 +578,19 @@ try {
 }
 
 var pageInfo = {
-  "title": document.title.trim(),
-  "url": '',
-  "summary": summary,
-  "author": author,
-  "tags": tags,
-  "datePublished": getDatePublished()
+  "Title": document.title.trim(),
+  "Url": '',
+  "Summary": summary,
+  "Author": author,
+  "Tags": tags,
+  "DatePublished": getDatePublished(),
+  "Publication": getPublication()
 };
+
+//TODO:
+//gather website/publisher/organization name
+//gather media type
+
 
 //Is this necessary? It messes up the formatting on selected text.
 // pageInfo = escapeObject(pageInfo);
