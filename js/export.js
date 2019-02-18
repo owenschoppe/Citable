@@ -60,7 +60,7 @@ function printHandler(e) {
   chrome.storage.local.get('exportFormat', function(response) {
     console.log("chrome.storage.local.get('exportFormat')", response);
     var extension = extensions[response.exportFormat];
-    _gaq.push(['_trackEvent', 'Button', 'Download '+extension]);
+    _gaq.push(['_trackEvent', 'Button', 'Download ' + extension]);
     saveFile(extension);
   });
   return false;
@@ -116,7 +116,9 @@ function startup() {
         docName = defaultDoc.title;
       }
       console.log('localStorage["defaultDoc"] ', docName, docKey);
-      gdocs.exportDocument(null, ()=>{makeFile(items.exportFormat).bind(this);}); //In printexport.js
+      gdocs.exportDocument(null, () => {
+        makeFile(items.exportFormat).bind(this);
+      }); //In printexport.js
       showInstructions(items.exportFormat);
     } else {
       //There is no default document set.
@@ -127,11 +129,11 @@ function startup() {
   chrome.storage.local.get(null, onStorage);
 }
 
-function initSelect(format){
+function initSelect(format) {
   document.getElementById('format').value = format; //Init format select menu.
-  document.getElementById('format').addEventListener('change',changeSelection);
-  chrome.storage.onChanged.addListener((changes,area)=>{
-    if(area == 'local' && changes.exportFormat){
+  document.getElementById('format').addEventListener('change', changeSelection);
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area == 'local' && changes.exportFormat) {
       document.getElementById('format').value = changes.exportFormat.newValue; //If multiple export pages are in use.
       console.log(changes.exportFormat.newValue);
       makeFile(changes.exportFormat.newValue);
@@ -154,7 +156,7 @@ function makeFile(format) {
   var citations;
   var headline = document.createElement('center');
 
-  switch(format) {
+  switch (format) {
     case 'apa':
       citations = exportAPA(escapeRowData(rows));
       headline.innerText = "References";
@@ -189,7 +191,7 @@ function makeFile(format) {
   content.className = "export";
 
   var file = document.createElement('div');
-  if(format == 'bibtex') {
+  if (format == 'bibtex') {
     file.innerText = citations;
   } else {
     file.innerHTML = citations;
@@ -207,7 +209,7 @@ function makeFile(format) {
 
 function showInstructions(format) {
   var instructions;
-  switch(format) {
+  switch (format) {
     case 'apa':
       instructions = `<p>Citations use <a href="https://www.apastyle.org/" rel="noreferrer" target="_blank">APA</a> 6th Edition format.</p>
       <p>Be sure to check the formatting and completeness of citations.</p>`;
@@ -275,19 +277,23 @@ function formatURL(url, protocol) {
   return url ? `${urlString}` : '';
 }
 
-function sortAlpha(a, b){
+function sortAlpha(a, b) {
   first = a.split(' ')[0]
-    .replace(/[.,\/#!$%\^&\*;:{}=\-_`"'~()]/g,"") //Punctuation
-    .replace(/<(.|\n)*?>/g,"") //HTML tags
+    .replace(/[.,\/#!$%\^&\*;:{}=\-_`"'~()]/g, "") //Punctuation
+    .replace(/<(.|\n)*?>/g, "") //HTML tags
     .trim();
 
   second = b.split(' ')[0]
-    .replace(/[.,\/#!$%\^&\*;:{}=\-_`"'~()]/g,"")
-    .replace(/<(.|\n)*?>/g,"")
+    .replace(/[.,\/#!$%\^&\*;:{}=\-_`"'~()]/g, "")
+    .replace(/<(.|\n)*?>/g, "")
     .trim();
 
-  if(first < second) { return -1; }
-  if(first > second) { return 1; }
+  if (first < second) {
+    return -1;
+  }
+  if (first > second) {
+    return 1;
+  }
   return 0;
 }
 
@@ -338,12 +344,12 @@ function splitAuthor(authorString) {
   var el = document.createElement('div');
   el.innerHTML = authorString;
   authorString = el.innerText;
-  if(hasHTML(authorString)){
-    return [ {
+  if (hasHTML(authorString)) {
+    return [{
       lastName: Util.escapeHTML(authorString),
       firstName: '',
       creatorType: 'author'
-    } ];
+    }];
   }
 
   //Proceed as normal
@@ -388,8 +394,8 @@ function splitAuthor(authorString) {
               if (index != 0) {
                 accumulator.push(item);
               }
-                return accumulator;
-              }, []).join(" ");
+              return accumulator;
+            }, []).join(" ");
           } else {
             //Authors contains a comma but it's not used correctly. Assume multiple authors.
             authors = splitComma(authors);
@@ -411,7 +417,7 @@ function splitAuthor(authorString) {
           }
         }
         creator.creatorType = 'author';
-        for(var key in creator) {
+        for (var key in creator) {
           creator[key] = Util.escapeHTML(creator[key]); //Escape the name parts.
         }
         creators.push(creator);
@@ -424,15 +430,15 @@ function splitAuthor(authorString) {
 
 function hasHyperlinks(string) {
   if (!(typeof string === "string" && string)) {
-      return null;
+    return null;
   }
   string = string.replace(
-      /<a(?:\s+[^>]*)?(?:\s+href=(["'])(?:javascript:void\(0?\);?|#|return false;?|void\(0?\);?|)\1)(?:\s+[^>]*)?>/ig,
-      "{{{\n");
+    /<a(?:\s+[^>]*)?(?:\s+href=(["'])(?:javascript:void\(0?\);?|#|return false;?|void\(0?\);?|)\1)(?:\s+[^>]*)?>/ig,
+    "{{{\n");
   var tmpString = string;
   string = string.replace(
-      /<a(?:\s+[^>]*)?(?:\s+href=(["'])(.+)\1)(?:\s+[^>]*)?>/ig,
-      "{\\field{\\*\\fldinst{HYPERLINK\n \"$2\"\n}}{\\fldrslt{\\ul\\cf1\n");
+    /<a(?:\s+[^>]*)?(?:\s+href=(["'])(.+)\1)(?:\s+[^>]*)?>/ig,
+    "{\\field{\\*\\fldinst{HYPERLINK\n \"$2\"\n}}{\\fldrslt{\\ul\\cf1\n");
   return string !== tmpString;
 }
 
