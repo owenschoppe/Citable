@@ -201,6 +201,10 @@ select:ACTIVE {
 }
 
 /* Inputs */
+input {
+  font-family: 'Roboto', Arial, sans-serif;
+}
+
 input[type=checkbox], input[type=radio] {
   margin-right: var(--space-xsmall);
 }
