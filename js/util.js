@@ -28,9 +28,9 @@ Util.merge = function(obj1, obj2) {
     }
   }
 
-  for (var x in obj2) {
-    if (obj2.hasOwnProperty(x)) {
-      obj[x] = obj2[x];
+  for (var y in obj2) {
+    if (obj2.hasOwnProperty(y)) {
+      obj[y] = obj2[y];
     }
   }
 
@@ -71,7 +71,7 @@ Util.unstringify = function(paramStr) {
   var parts = paramStr.split('&');
 
   var params = {};
-  for (var i = 0, pair; pair = parts[i]; ++i) {
+  for (var i = 0, pair = parts[i]; i < parts.length; ++i) {
     var param = pair.split('=');
     params[decodeURIComponent(param[0])] = decodeURIComponent(param[1]);
   }
@@ -131,7 +131,7 @@ Util.sortByDate = function(a, b) {
     return -1;
   }
   return 0;
-}
+};
 
 Util.sortByTitle = function(a, b) {
   if (a.title < b.title) {
@@ -166,22 +166,16 @@ Util.parseForHTML = function(content) {
     switch (m) {
       case '<':
         return '&lt;';
-        break;
       case '>':
         return '&gt;';
-        break;
       case '&':
         return '&amp;';
-        break;
       case '"':
         return '&quot;';
-        break;
       case '\'':
         return '&apos;';
-        break;
       default:
         return m;
-        break;
     }
   });
   return sanitizeStringForXML(content);
@@ -209,8 +203,8 @@ function removeInvalidCharacters(node) {
     }
   }
   if (node.childNodes) {
-    for (var i = 0; i < node.childNodes.length; i++) {
-      var childNode = node.childNodes[i];
+    for (var j = 0; j < node.childNodes.length; j++) {
+      var childNode = node.childNodes[j];
       if (childNode.nodeType == 1 /* ELEMENT_NODE */ ) {
         removeInvalidCharacters(childNode);
       } else if (childNode.nodeType == 3 /* TEXT_NODE */ ) {
