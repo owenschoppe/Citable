@@ -32,7 +32,7 @@ var render = function(rows, callback, passed) {
 
     var index = 0;
 
-    for (var i = 0, r; r = rows[i]; i++) {
+    for (var i = 0, r = rows[i]; i < rows.length; i++) {
       var div = document.createElement('li');
       var note = document.createElement('div');
       var form = document.createElement('div');

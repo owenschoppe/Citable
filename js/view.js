@@ -511,8 +511,8 @@ async function processRowsCallback() {
 
   //Parse column names.
   var cols = [];
-  for (var key in rows[1]) {
-    if (rows[1].hasOwnProperty(key)) {
+  for (var key in rows[0]) {
+    if (rows[0].hasOwnProperty(key)) {
       cols.push(key);
     }
   }
