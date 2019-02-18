@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 console.log('content_script');
 
 var getSelectedText = function() {
