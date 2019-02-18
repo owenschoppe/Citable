@@ -72,7 +72,7 @@ Code may not be used without written and express permission.
         });
         element.bind('blur', function() {
           console.log('blur');
-          scope.$apply(model.assign(scope, false));
+          // scope.$apply(model.assign(scope, false));
         });
       }
     };
