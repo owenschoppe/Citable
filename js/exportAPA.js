@@ -1,11 +1,14 @@
 /*jshint esversion: 6 */
-function exportChicago(rows) {
+// https://www.mendeley.com/guides/mla-citation-guide
+// https://owl.purdue.edu/owl/research_and_citation/mla_style/mla_formatting_and_style_guide/mla_formatting_and_style_guide.html
+function exportAPA(rows) {
 
-  function citeWebsite(type, title, authors, dateAccessed, datePublished, url) {
+  function citeWebsite(type, title, authors, dateAccessed, datePublished, url, publication) {
     //Check that we have the minimum number of attributes for a web citation.
     //Publisher/Site/Organization name should go after the formatted title.
+    //Either `<em>Title</em>` or `"Title." <em>Publication</em>`
     if(url && dateAccessed && (authors || title)) {
-      return `<p>${authors ? `${formatAuthors(authors)} ` : ``}${quote(title)} ${ datePublished ? `Last modified ${formatDate(datePublished)}` : `Accessed ${formatDate(dateAccessed)}`}. ${formatURL(url)}</p>`;
+      return `<p>${formatAuthors(authors)} (${ datePublished ? `${formatDateMLA(datePublished)}` : `n.d.`}). ${emphasize(title)} ${dateAccessed ? ` Accessed ${formatDateMLA(dateAccessed)}.` : ``} ${url ? `Retrieved from ${formatURL(url)}` : ``}</p>`;
     } else {
       console.log('Insufficient information to cite:',type,title,authors,dateAccessed,datePublished,url);
       return '';
@@ -21,15 +24,27 @@ function exportChicago(rows) {
     authors.sort((a,b)=>{return b.lastName - a.lastName;});
 
     et_al = authors.length > 10;
-    stop = et_al ? 7 : authors.length;
+    stop = et_al ? 10 : authors.length;
 
     function otherAuthors(authors) {
       return `${authors.map((author,index) =>
-        (index > 0 && index <= stop) ? `${(index == stop - 1 && !et_al) ? `, and ${firstLast(author)}` : ``}${(index == stop && et_al) ? ', et al' : ''}` : ``
+        (index > 0 && index <= stop) ? `${(index == stop - 1 && !et_al) ? `, & ${lastFirst(author)}` : ``}${(index == stop && et_al) ? ', et al' : ''}` : ``
       ).join('')}`;
     }
 
     return `${lastFirst(authors[0])}${authors.length > 1 ? `${otherAuthors(authors)}` : ''}.`;
+  }
+
+  function formatDateMLA(date) {
+    //format dates: `YYYY, Month DD`
+    date = splitDate(date);
+    return `${date.year}, ${toMonths(date.month, 'long')}${date.day ? ` ${date.day}` : ``}`;
+  }
+
+  function getPublication(url) {
+    //BAD Get Publication from URL parts.
+    var anchor = new URL('', url);
+    return anchor.hostname;
   }
 
   function formatCitation(item) {
