@@ -8,7 +8,7 @@ function exportAPA(rows) {
     //Publisher/Site/Organization name should go after the formatted title.
     //Either `<em>Title</em>` or `"Title." <em>Publication</em>`
     if(url && dateAccessed && (authors || title)) {
-      return `<p>${formatAuthors(authors)} (${ datePublished ? `${formatDateMLA(datePublished)}` : `n.d.`}). ${emphasize(title)} ${dateAccessed ? ` Accessed ${formatDateMLA(dateAccessed)}.` : ``} ${url ? `Retrieved from ${formatURL(url)}` : ``}</p>`;
+      return `<p>${formatAuthors(authors)} (${ datePublished ? `${formatDateMLA(datePublished)}` : `n.d.`}). ${emphasize(title)} ${dateAccessed ? ` Accessed ${formatDateMLA(dateAccessed)}.` : ``} ${url ? `Retrieved from ${formatURL(url,true)}` : ``}</p>`;
     } else {
       console.log('Insufficient information to cite:',type,title,authors,dateAccessed,datePublished,url);
       return '';

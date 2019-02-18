@@ -201,7 +201,24 @@ function renderDoc(citations, format) {
   title.className = 'font-medium bold m-bottom--small';
   title.innerText = docName + extension;
 
+  var headline = document.createElement('center');
+  switch(format){
+    case "apa":
+      headline.innerText = "References";
+      break;
+    case "chicago":
+      headline.innerText = "Bibliography";
+      break;
+    case "mla":
+      headline.innerText = "Works Cited";
+      break;
+    default:
+      headline.innerText = "";
+      break;
+  }
+
   content.appendChild(title);
+  content.appendChild(headline);
   content.appendChild(div);
   output.appendChild(content);
 }
@@ -232,13 +249,24 @@ function emphasize(string) {
   return string ? `<em>${string}</em>` : ``;
 }
 
-function formatURL(url) {
-  return url ? `${url}.` : '';
+function formatURL(url, protocol) {
+  var ref = new URL('', url);
+  var urlString = `${protocol ? `${ref.protocol}` : ``}${ref.hostname}${ref.pathname}`;
+  return url ? `${urlString}.` : '';
 }
 
 function sortAlpha(a, b){
-  first = a.split(' ')[0].replace(/[.,\/#!$%\^&\*;:{}=\-_`"'~()]/g,"").trim();
-  second = b.split(' ')[0].replace(/[.,\/#!$%\^&\*;:{}=\-_`"'~()]/g,"").trim();
+  first = a.split(' ')[0]
+    .replace(/[.,\/#!$%\^&\*;:{}=\-_`"'~()]/g,"") //Punctuation
+    .replace(/<(.|\n)*?>/g,"") //HTML tags
+    .trim();
+
+  second = b.split(' ')[0]
+    .replace(/[.,\/#!$%\^&\*;:{}=\-_`"'~()]/g,"")
+    .replace(/<(.|\n)*?>/g,"")
+    .trim();
+
+  console.log(first,second);
   if(first < second) { return -1; }
   if(first > second) { return 1; }
   return 0;

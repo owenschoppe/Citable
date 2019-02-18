@@ -1,4 +1,5 @@
 /*jshint esversion: 6 */
+// https://columbiacollege-ca.libguides.com/mla/websites
 // https://www.mendeley.com/guides/mla-citation-guide
 // https://owl.purdue.edu/owl/research_and_citation/mla_style/mla_formatting_and_style_guide/mla_formatting_and_style_guide.html
 function exportMLA(rows) {
@@ -8,7 +9,7 @@ function exportMLA(rows) {
     //Publisher/Site/Organization name should go after the formatted title.
     //Either `<em>Title</em>` or `"Title." <em>Publication</em>`
     if(url && dateAccessed && (authors || title)) {
-      return `<p>${formatAuthors(authors)} ${publication ? `${quote(title)} ${emphasize(publication)}` : `${emphasize(title)}` }${ datePublished ? ` ${formatDateMLA(datePublished)}` : ``}, ${formatURL(url)}${dateAccessed ? ` Accessed ${formatDateMLA(dateAccessed)}.` : ``}</p>`;
+      return `<p>${authors ? `${formatAuthors(authors)} ` : ``}${publication ? `${quote(title)} ${emphasize(publication)}` : `${emphasize(title)}` }${ datePublished ? ` ${formatDateMLA(datePublished)}` : ``}, ${formatURL(url,false)}${dateAccessed ? ` Accessed ${formatDateMLA(dateAccessed)}.` : ``}</p>`;
     } else {
       console.log('Insufficient information to cite:',type,title,authors,dateAccessed,datePublished,url);
       return '';
@@ -43,8 +44,8 @@ function exportMLA(rows) {
 
   function getPublication(url) {
     //BAD Get Publication from URL parts.
-    var anchor = new URL('', url);
-    return anchor.hostname;
+    var ref = new URL('', url);
+    return ref.hostname;
   }
 
   function formatCitation(item) {
