@@ -9,7 +9,7 @@ function exportMLA(rows) {
     //Publisher/Site/Organization name should go after the formatted title.
     //Either `<em>Title</em>` or `"Title." <em>Publication</em>`
     if(url && dateAccessed && (authors || title)) {
-      return `<p>${authors ? `${formatAuthors(authors)} ` : ``}${publication ? `${quote(title)} ${emphasize(publication)}` : `${emphasize(title)}` }${ datePublished ? ` ${formatDateMLA(datePublished)}` : ``}, ${formatURL(url,false)}${dateAccessed ? ` Accessed ${formatDateMLA(dateAccessed)}.` : ``}</p>`;
+      return `<p>${authors ? `${formatAuthors(authors)} ` : ``}${publication ? `${quote(title)} ${emphasize(publication)}` : `${emphasize(title)}` }${ datePublished ? ` ${formatDateMLA(datePublished)}` : ``}, ${formatURL(url,false)}.${dateAccessed ? ` Accessed ${formatDateMLA(dateAccessed)}.` : ``}</p>`;
     } else {
       console.log('Insufficient information to cite:',type,title,authors,dateAccessed,datePublished,url);
       return '';

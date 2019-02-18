@@ -1,6 +1,6 @@
 /*jshint esversion: 6 */
-// https://www.mendeley.com/guides/mla-citation-guide
-// https://owl.purdue.edu/owl/research_and_citation/mla_style/mla_formatting_and_style_guide/mla_formatting_and_style_guide.html
+// https://en.wikipedia.org/wiki/Wikipedia:Citing_Wikipedia
+
 function exportAPA(rows) {
 
   function citeWebsite(type, title, authors, dateAccessed, datePublished, url, publication) {

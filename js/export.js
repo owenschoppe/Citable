@@ -11,23 +11,17 @@
 var str = '';
 var util = {};
 var bgPage = '';
-chrome.runtime.getBackgroundPage(function(ref) {
-  bgPage = ref;
-  bgPage.toggleAuth(true, function() {
-    startup();
-  });
-});
 var rows = [];
 var docName = '';
 var docKey = '';
-var content = '';
+// var content = '';
 var defaultFormat = 'bibtex';
 var extensions = {
   apa: '.html',
   chicago: '.html',
   mla: '.html',
   bibtex: '.bib'
-}
+};
 
 var SPREAD_SCOPE = 'https://spreadsheets.google.com/feeds';
 var DOCLIST_SCOPE = 'https://docs.google.com/feeds';
@@ -51,6 +45,12 @@ var FULL_SCOPE = DOCLIST_SCOPE + ' ' + SPREAD_SCOPE;
 
 ////////////////////////////////////////////////////////////////////////////////
 //Listeners
+chrome.runtime.getBackgroundPage(function(ref) {
+  bgPage = ref;
+  bgPage.toggleAuth(true, function() {
+    startup();
+  });
+});
 document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#print-button').addEventListener('click', printHandler);
   document.querySelector('#cancel-button').addEventListener('click', cancelHandler);
@@ -116,13 +116,12 @@ function startup() {
         docName = defaultDoc.title;
       }
       console.log('localStorage["defaultDoc"] ', docName, docKey);
-      gdocs.exportDocument(null, makeFile); //In printexport.js
-      //gdocs.start();
+      gdocs.exportDocument(null, ()=>{makeFile(items.exportFormat).bind(this);}); //In printexport.js
+      showInstructions(items.exportFormat);
     } else {
       //There is no default document set.
       //This page was loaded from the app icon and not from a document.
       console.log('Get doc from menu');
-      //gdocs.start(getDocId);
     }
   }
   chrome.storage.local.get(null, onStorage);
@@ -134,9 +133,9 @@ function initSelect(format){
   chrome.storage.onChanged.addListener((changes,area)=>{
     if(area == 'local' && changes.exportFormat){
       document.getElementById('format').value = changes.exportFormat.newValue; //If multiple export pages are in use.
-      makeFile();
-
-      //Change download button to copy button.
+      console.log(changes.exportFormat.newValue);
+      makeFile(changes.exportFormat.newValue);
+      showInstructions(changes.exportFormat.newValue);
     }
   }); //If the user changes the select, rerender.
 
@@ -150,31 +149,30 @@ function initSelect(format){
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-function makeFile() {
+function makeFile(format) {
   rows = row; //from printexport.js
-  chrome.storage.local.get('exportFormat', function(response) {
-    console.log("chrome.storage.local.get('exportFormat')", response);
-    // var content = ''; //TODO: Currently uses global variable... ick.
-    switch(response.exportFormat) {
-      case 'apa':
-        content = exportAPA(rows);
-        break;
-      case 'chicago':
-        content = exportChicago(rows);
-        break;
-      case 'mla':
-        content = exportMLA(rows);
-        break;
-      default:
-        content = exportBibtex(rows);
-    }
-    renderDoc(content, response.exportFormat);
-  });
-}
+  var citations;
+  var headline = document.createElement('center');
 
-function renderDoc(citations, format) {
+  switch(format) {
+    case 'apa':
+      citations = exportAPA(escapeRowData(rows));
+      headline.innerText = "References";
+      break;
+    case 'chicago':
+      citations = exportChicago(escapeRowData(rows));
+      headline.innerText = "Bibliography";
+      break;
+    case 'mla':
+      citations = exportMLA(escapeRowData(rows));
+      headline.innerText = "Works Cited";
+      break;
+    default:
+      citations = exportBibtex(rows);
+      headline.innerText = "";
+  }
 
-  extension = extensions[format];
+  var extension = extensions[format];
 
   document.querySelector('#loading').classList.add('hidden'); //Hide the loading gif.
 
@@ -190,42 +188,58 @@ function renderDoc(citations, format) {
   content.id = "content";
   content.className = "export";
 
-  var div = document.createElement('div');
+  var file = document.createElement('div');
   if(format == 'bibtex') {
-    div.innerText = citations;
+    file.innerText = citations;
   } else {
-    div.innerHTML = citations;
+    file.innerHTML = citations;
   }
+  file.prepend(headline);
 
   var title = document.createElement('div');
   title.className = 'font-medium bold m-bottom--small';
   title.innerText = docName + extension;
 
-  var headline = document.createElement('center');
-  switch(format){
-    case "apa":
-      headline.innerText = "References";
+  content.appendChild(title);
+  content.appendChild(file);
+  output.appendChild(content);
+}
+
+function showInstructions(format) {
+  var instructions;
+  switch(format) {
+    case 'apa':
+      instructions = `<p>Citations use <a href="https://www.apastyle.org/" rel="noreferrer" target="_blank">APA</a> 6th Edition format.</p>
+      <p>Be sure to check the formatting and completeness of citations.</p>`;
       break;
-    case "chicago":
-      headline.innerText = "Bibliography";
+    case 'chicago':
+      instructions = `<p>Citations use <a href="https://www.chicagomanualofstyle.org/" rel="noreferrer" target="_blank">Chicago Manual of Style</a> 17th Edition format.</p>
+      <p>Be sure to check the formatting and completeness of citations.</p>`;
       break;
-    case "mla":
-      headline.innerText = "Works Cited";
+    case 'mla':
+      instructions = `<p>Citations use <a href="https://www.mla.org/MLA-Style" rel="noreferrer" target="_blank">MLA</a> 8th Edition format.</p>
+      <p>Be sure to check the formatting and completeness of citations.</p>`;
       break;
     default:
-      headline.innerText = "";
-      break;
+      instructions = `<p>Citations are exported in BibTeX format.</p>
+      <p>Import into <a href="https://www.zotero.org/" rel="noreferrer" target="_blank">Zotero</a> or your favorite citation managment app to generate a bibliography.</p>`;
   }
-
-  content.appendChild(title);
-  content.appendChild(headline);
-  content.appendChild(div);
-  output.appendChild(content);
+  document.getElementById('instructions').innerHTML = instructions;
 }
 
 ///////////////////////
 // Utility Functions //
 ///////////////////////
+function escapeRowData(array) {
+  array = array.map((row) => {
+    var obj = {}; //Because each row is an instance of a Gdoc.row we have to copy the row to a new object.
+    for (var key in row) {
+      obj[key] = Util.escapeHTML(row[key]);
+    }
+    return obj;
+  });
+  return array;
+}
 
 function lastFirst(author) {
   return `${author.lastName}${author.firstName ? `, ${author.firstName}` : ``}`; //For one word names, skip the first name.
@@ -250,9 +264,15 @@ function emphasize(string) {
 }
 
 function formatURL(url, protocol) {
-  var ref = new URL('', url);
-  var urlString = `${protocol ? `${ref.protocol}` : ``}${ref.hostname}${ref.pathname}`;
-  return url ? `${urlString}.` : '';
+  var urlString;
+  try {
+    var ref = new URL('', url);
+    urlString = `${protocol ? `${ref.protocol}` : ``}${ref.hostname}${ref.pathname}`;
+  } catch (e) {
+    console.log(e);
+    urlString = url.toString();
+  }
+  return url ? `${urlString}` : '';
 }
 
 function sortAlpha(a, b){
@@ -266,7 +286,6 @@ function sortAlpha(a, b){
     .replace(/<(.|\n)*?>/g,"")
     .trim();
 
-  console.log(first,second);
   if(first < second) { return -1; }
   if(first > second) { return 1; }
   return 0;
@@ -311,10 +330,26 @@ function splitDate(dateString) {
   return date;
 }
 
-function splitAuthor(author) {
-  //item{ creators{ creator{ firstName, lastName, creatorType } } }
-  var authors = author.split(";");
+function splitAuthor(authorString) {
+  //item{ creators[ creator{ firstName, lastName, creatorType } ] }
+
+  //Strange things happen if the authorString contains html
+  //Unescape any html since the escaped version contains semicolons
+  var el = document.createElement('div');
+  el.innerHTML = authorString;
+  authorString = el.innerText;
+  if(hasHTML(authorString)){
+    return [ {
+      lastName: Util.escapeHTML(authorString),
+      firstName: '',
+      creatorType: 'author'
+    } ];
+  }
+
+  //Proceed as normal
+  var authors = authorString.split(";");
   authors = splitAnd(authors);
+  return getAuthors(authors);
 
   function splitAnd(authors) {
     var author = [];
@@ -376,13 +411,33 @@ function splitAuthor(author) {
           }
         }
         creator.creatorType = 'author';
+        for(var key in creator) {
+          creator[key] = Util.escapeHTML(creator[key]); //Escape the name parts.
+        }
         creators.push(creator);
         //console.log(creators);
       }
     }
     return creators;
   }
-  return getAuthors(authors);
+}
+
+function hasHyperlinks(string) {
+  if (!(typeof string === "string" && string)) {
+      return null;
+  }
+  string = string.replace(
+      /<a(?:\s+[^>]*)?(?:\s+href=(["'])(?:javascript:void\(0?\);?|#|return false;?|void\(0?\);?|)\1)(?:\s+[^>]*)?>/ig,
+      "{{{\n");
+  var tmpString = string;
+  string = string.replace(
+      /<a(?:\s+[^>]*)?(?:\s+href=(["'])(.+)\1)(?:\s+[^>]*)?>/ig,
+      "{\\field{\\*\\fldinst{HYPERLINK\n \"$2\"\n}}{\\fldrslt{\\ul\\cf1\n");
+  return string !== tmpString;
+}
+
+function hasHTML(string) {
+  return string !== Util.escapeHTML(string);
 }
 
 // function convertHtmlToRtf(html) {
