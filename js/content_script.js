@@ -215,7 +215,7 @@ var getAuthor = function() {
       //Fox, Bloomberg, Medium, not(Wired)
       selector: '[type="application/ld+json"]',
       parser: function(array){
-        return array.filter((element)=>{return JSON.parse(element.innerText).author ? true : false})
+        return array.filter((element)=>{return JSON.parse(element.innerText).author ? true : false;})
         .reduce((result,element)=>{
           let author = JSON.parse(element.innerText).author;
           if (author instanceof Array){
@@ -309,7 +309,7 @@ var getAuthor = function() {
       }
     }
     console.log('structured:',authors);
-    return stringifyAuthors(authors.sort((a,b)=>{return b.length - a.length})[0]); //Schema.org
+    return stringifyAuthors(authors.sort((a,b)=>{return b.length - a.length;})[0]); //Schema.org
   }
 
   //Get smarter about selecting which one.
@@ -330,7 +330,7 @@ function getDatePublished() {
       //https://schema.org/
       selector: '[type="application/ld+json"]',
       parser: function(array){
-        return array.filter((element)=>{return JSON.parse(element.innerText).datePublished ? true : false})
+        return array.filter((element)=>{return JSON.parse(element.innerText).datePublished ? true : false;})
         .reduce((result,element)=>{
           let date = JSON.parse(element.innerText).datePublished;
           if (date instanceof Array){
@@ -414,7 +414,7 @@ function getPublication() {
       //Fox, Bloomberg, Medium, not(Wired)
       selector: '[type="application/ld+json"]',
       parser: function(array){
-        return array.filter((element)=>{return JSON.parse(element.innerText).publisher ? true : false})
+        return array.filter((element)=>{return JSON.parse(element.innerText).publisher ? true : false;})
         .reduce((result,element)=>{
           let publisher = JSON.parse(element.innerText).publisher;
           if (publisher instanceof Array){
@@ -440,7 +440,7 @@ function getPublication() {
           if (element.getAttribute("content")){
             return element.getAttribute("content");
           } else {
-            element.getAttribute("innerText")
+            element.getAttribute("innerText");
           }
         });
       }
