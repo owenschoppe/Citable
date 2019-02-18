@@ -128,8 +128,8 @@ var getAuthor = function() {
       .join('; ');
   }
 
-  function getRelatedAuthors(element, selector, visibility) {
-    let parent = element; //should walk up from the selection...instead of the element.
+  function getRelatedAuthors(startElement, selector, visibility) {
+    let parent = startElement; //should walk up from the selection...instead of the element.
     let relatives = [];
     let siblings = [];
 
