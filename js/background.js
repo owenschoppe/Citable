@@ -1,3 +1,5 @@
+/*jshint esversion: 6 */
+
 var DOCLIST_SCOPE = 'https://docs.google.com/feeds';
 var DOCLIST_FEED = DOCLIST_SCOPE + '/default/private/full/';
 var DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive';
@@ -10,7 +12,7 @@ var refreshRate = localStorage.refreshRate || 300; // 5 min default.
 var pollIntervalMin = 1000 * refreshRate;
 var pollIntervalMax = 10000 * refreshRate;
 var requests = [];
-var requestFailureCount = 0
+var requestFailureCount = 0;
 var requestLimit = 3;
 var docName; //For passing the document name to the export page.
 var docKey;
@@ -39,7 +41,7 @@ toggleAuth = function(interactive, callback) {
     //this.clearDocs();
     callback();
   }*/
-}
+};
 
 
 /////////////////////////////////////////////////////////
