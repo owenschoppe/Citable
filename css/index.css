@@ -300,6 +300,12 @@ h2 {
   font-style: italic;
 }
 
+.truncate {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 /* Components */
 img.logo {
   margin-right: 10px;

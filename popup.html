@@ -72,8 +72,8 @@
 							<label for="destination" id="destination_label" class="label p-bottom--xxsmall" ng-class="{fade:data.menu}" aria-hidden="true">Save Note In Sheet</label>
 							<!--Loading-->
 							<div data-ng-show="data.loading && data.online" class="grid p-top--xsmall">
-								<img id="loading" src="css/img/loading.gif" title="Loading Sheets" alt"Loading Sheets" />
-								<span class="p-left--xsmall m-vertical--xxxsmall">{{data.defaultDoc.title}}</span>
+								<img id="loading" class="loading-gif" src="css/img/loading.gif" title="Loading Sheets" alt"Loading Sheets" />
+								<span class="truncate p-left--xsmall m-vertical--xxxsmall">{{data.defaultDoc.title}}</span>
 							</div>
 
 							<!--Document Selector-->

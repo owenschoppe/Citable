@@ -31,3 +31,10 @@ main {
   height: 32px;
   display: block;
 }
+
+.loading-gif {
+  max-width: 16px;
+  max-height: 16px;
+  width: auto;
+  height: auto;
+}
