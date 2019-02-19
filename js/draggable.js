@@ -183,46 +183,47 @@ var makeDraggable = function() {
   console.timeEnd('draggable');
 
   ////////////////////////////////////////////////////////////////////////////////
-  sortNotes = function(event, ui) {
-    console.log('sortNotes()');
-    console.time('sortNotes');
-    //Remove empty pages.
-    $('ul:empty').parent().remove();
+  function sortNotes(event, ui) {
+    function onStorage(items){
+      console.log('sortNotes()');
+      console.time('sortNotes');
+      //Remove empty pages.
+      $('ul:empty').parent().remove();
 
-    var lists = $('ul');
+      var lists = $('ul');
 
-    //Iterate through every ul and trim to 6 notes.
-    var iterations = 0;
-    //Move 7th notes to the next page on stop.
-    var endNotes = $('ul li:nth-child(7)');
-    while (endNotes.length > 0) {
-      var note = endNotes.eq(0);
-      //console.log(iterations, $('ul li:nth-child(7)').length, note, lists.length, note.parent().index('ul'));
-      var nextPageIndex = note.parent().index('ul') + 1;
-      if (nextPageIndex == lists.length) {
-        //console.log('Add page.');
-        var page = document.createElement('div');
-        page.id = "page";
-        page.className = 'page ' + localStorage.orientation;
-        var content = document.createElement('ul');
-        content.id = "content";
-        content.className = "sortable"; //For jquery UI sortable.
-        page.appendChild(content);
-        //$(page).appendTo('#output');
-        var output = document.getElementById('output');
-        output.appendChild(page);
-        //lists = $('ul'); //Update lists.
-        lists = lists.add(content);
-      }
-      lists.eq(nextPageIndex).prepend(note);
-      //To prevent infinite loops.
-      //if(iterations > pages){
-      iterations++;
-      if (iterations > lists.length) {
-        break;
-      }
-      endNotes = $('ul li:nth-child(7)');
-    } //End of while.
+      //Iterate through every ul and trim to 6 notes.
+      var iterations = 0;
+      //Move 7th notes to the next page on stop.
+      var endNotes = $('ul li:nth-child(7)');
+      while (endNotes.length > 0) {
+        var note = endNotes.eq(0);
+        //console.log(iterations, $('ul li:nth-child(7)').length, note, lists.length, note.parent().index('ul'));
+        var nextPageIndex = note.parent().index('ul') + 1;
+        if (nextPageIndex == lists.length) {
+          //console.log('Add page.');
+          var page = document.createElement('div');
+          page.id = "page_"+nextPageIndex;
+          page.className = 'page ' + items.orientation;
+          var content = document.createElement('ul');
+          content.id = "content_"+nextPageIndex;
+          content.className = "sortable content"; //For jquery UI sortable.
+          page.appendChild(content);
+          //$(page).appendTo('#output');
+          var container = document.getElementById('container');
+          container.appendChild(page);
+          //lists = $('ul'); //Update lists.
+          lists = lists.add(content);
+        }
+        lists.eq(nextPageIndex).prepend(note);
+        //To prevent infinite loops.
+        //if(iterations > pages){
+        iterations++;
+        if (iterations > lists.length) {
+          break;
+        }
+        endNotes = $('ul li:nth-child(7)');
+      }//End of while.
 
     //Iterate through document and add proper spacing.
     /*if(localStorage.orientation == 'landscape'){
@@ -234,5 +235,7 @@ var makeDraggable = function() {
     //Update page total.
     setTotal(lists.length);
     console.timeEnd('sortNotes');
-  };
+  }
+  chrome.storage.local.get(null, onStorage);
+  }
 };
