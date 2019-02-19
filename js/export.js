@@ -45,15 +45,15 @@ var FULL_SCOPE = DOCLIST_SCOPE + ' ' + SPREAD_SCOPE;
 
 ////////////////////////////////////////////////////////////////////////////////
 //Listeners
-chrome.runtime.getBackgroundPage(function(ref) {
-  bgPage = ref;
-  bgPage.toggleAuth(true, function() {
-    startup();
-  });
-});
 document.addEventListener('DOMContentLoaded', function() {
-  document.querySelector('#print-button').addEventListener('click', printHandler);
-  document.querySelector('#cancel-button').addEventListener('click', cancelHandler);
+  chrome.runtime.getBackgroundPage(function(ref) {
+    bgPage = ref;
+    bgPage.toggleAuth(true, function() {
+      startup();
+    });
+    document.querySelector('#print-button').addEventListener('click', printHandler);
+    document.querySelector('#cancel-button').addEventListener('click', cancelHandler);
+  });
 });
 
 function printHandler(e) {
