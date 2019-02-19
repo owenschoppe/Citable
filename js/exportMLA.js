@@ -1,5 +1,5 @@
 /*jshint esversion: 6 */
-// https://www.mla.org/MLA-Style
+// https://style.mla.org/works-cited-a-quick-guide/
 // https://columbiacollege-ca.libguides.com/mla/websites
 // https://www.mendeley.com/guides/mla-citation-guide
 // https://owl.purdue.edu/owl/research_and_citation/mla_style/mla_formatting_and_style_guide/mla_formatting_and_style_guide.html
@@ -10,7 +10,7 @@ function exportMLA(rows) {
     //Publisher/Site/Organization name should go after the formatted title.
     //Either `<em>Title</em>` or `"Title." <em>Publication</em>`
     if(url && dateAccessed && (authors || title)) {
-      return `<p>${authors ? `${formatAuthors(authors)} ` : ``}${publication ? `${quote(title)} ${emphasize(publication)}` : `${emphasize(title)}` }${ datePublished ? ` ${formatDateMLA(datePublished)}` : ``}, ${formatURL(url,false)}.${dateAccessed ? ` Accessed ${formatDateMLA(dateAccessed)}.` : ``}</p>`;
+      return `<p>${authors ? `${formatAuthors(authors)} ` : ``}${publication ? `${quote(title)}. ${emphasize(publication)}` : `${emphasize(title)}.` }${ datePublished ? ` ${formatDateMLA(datePublished)}` : ``}, ${formatURL(url,false)}.${dateAccessed ? ` Accessed ${formatDateMLA(dateAccessed)}.` : ``}</p>`;
     } else {
       console.log('Insufficient information to cite:',type,title,authors,dateAccessed,datePublished,url);
       return '';
