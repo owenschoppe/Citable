@@ -1,8 +1,8 @@
 /*jshint esversion: 6 */
 //Renders the notes. Optimized.
-var render = function(rows, callback, passed) {
+function render(rows, callback, passed) {
 
-  var onStorage = function(items) {
+  function onStorage(items) {
     console.log('render.onStorage', items);
     var notesPerPage = 6;
     var pages = 0;
@@ -82,15 +82,13 @@ var render = function(rows, callback, passed) {
       note.appendChild(form);
       div.appendChild(note);
 
-    //   shadow.id = "shadow_"+i;
-	// 		shadow.className = "shadow";
-    //   div.appendChild(shadow);
+      var page;
+      var content;
 
-      //console.log('i:', i);
       if (i % notesPerPage == 0) {
-        var page = document.createElement('div');
-        var content = document.createElement('ul');
         //initPage();
+        page = document.createElement('div');
+        content = document.createElement('ul');
         pages++;
         page.id = "page_" + i;
         page.className = 'page ' + orientation + ' ' + m;
@@ -102,12 +100,10 @@ var render = function(rows, callback, passed) {
       index++; //Increment the index for setting the position class left,middle,right.
 
       if (((i + 1) % notesPerPage == 0) || i == rows.length - 1) {
-        //appendPage();
         page.appendChild(content);
         container.appendChild(page);
         index = 0; //Reset the index for setting the position class. Necessary?
       }
-
     }
 
     if (callback) {
