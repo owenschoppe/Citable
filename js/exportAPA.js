@@ -1,5 +1,8 @@
 /*jshint esversion: 6 */
+// https://www.apastyle.org/
 // https://en.wikipedia.org/wiki/Wikipedia:Citing_Wikipedia
+
+
 
 function exportAPA(rows) {
 
@@ -8,7 +11,7 @@ function exportAPA(rows) {
     //Publisher/Site/Organization name should go after the formatted title.
     //Either `<em>Title</em>` or `"Title." <em>Publication</em>`
     if(url && dateAccessed && (authors || title)) {
-      return `<p>${formatAuthors(authors)} (${ datePublished ? `${formatDateMLA(datePublished)}` : `n.d.`}). ${emphasize(title)} ${dateAccessed ? ` Accessed ${formatDateMLA(dateAccessed)}.` : ``} ${url ? `Retrieved from ${formatURL(url,true)}` : ``}</p>`;
+      return `<p>${authors ? `${formatAuthors(authors)}` : `${emphasize(title)}`} (${ datePublished ? `${formatDateAPA(datePublished)}` : `n.d.`}).${authors ? ` ${emphasize(title)}` : ``}${url ? ` Retrieved from ${formatURL(url,true)}` : ``}</p>`;
     } else {
       console.log('Insufficient information to cite:',type,title,authors,dateAccessed,datePublished,url);
       return '';
@@ -24,18 +27,30 @@ function exportAPA(rows) {
     authors.sort((a,b)=>{return b.lastName - a.lastName;});
 
     et_al = authors.length > 10;
-    stop = et_al ? 10 : authors.length;
+    stop = et_al ? 9 : authors.length - 1;
 
     function otherAuthors(authors) {
-      return `${authors.map((author,index) =>
-        (index > 0 && index <= stop) ? `${(index == stop - 1 && !et_al) ? `, & ${lastFirst(author)}` : ``}${(index == stop && et_al) ? ', et al' : ''}` : ``
-      ).join('')}`;
+      return `${authors.map((author,index) => {
+        if(index > 0 && index <= stop) {
+          if(index < stop) { //show other authors
+            return `., ${lastInitial(author)}`;
+          } else if(index == stop && !et_al) { //end with last author
+            return `., & ${lastInitial(author)}`;
+          } else if(index == stop && et_al) {
+            return '., et al'; //end with et al
+          } else {
+            return '';
+          }
+        } else {
+          return ``;
+        }
+      }).join('')}`;
     }
 
-    return `${lastFirst(authors[0])}${authors.length > 1 ? `${otherAuthors(authors)}` : ''}.`;
+    return `${lastInitial(authors[0])}${authors.length > 1 ? `${otherAuthors(authors)}` : ''}.`;
   }
 
-  function formatDateMLA(date) {
+  function formatDateAPA(date) {
     //format dates: `YYYY, Month DD`
     date = splitDate(date);
     return `${date.year}, ${toMonths(date.month, 'long')}${date.day ? ` ${date.day}` : ``}`;

@@ -1,4 +1,6 @@
 /*jshint esversion: 6 */
+// https://www.chicagomanualofstyle.org
+
 function exportChicago(rows) {
 
   function citeWebsite(type, title, authors, dateAccessed, datePublished, url) {
@@ -21,12 +23,24 @@ function exportChicago(rows) {
     authors.sort((a,b)=>{return b.lastName - a.lastName;});
 
     et_al = authors.length > 10;
-    stop = et_al ? 7 : authors.length;
+    stop = et_al ? 7 : authors.length - 1;
 
     function otherAuthors(authors) {
-      return `${authors.map((author,index) =>
-        (index > 0 && index <= stop) ? `${(index == stop - 1 && !et_al) ? `, and ${firstLast(author)}` : ``}${(index == stop && et_al) ? ', et al' : ''}` : ``
-      ).join('')}`;
+      return `${authors.map((author,index) => {
+        if(index > 0 && index <= stop) {
+          if(index < stop) { //show other authors
+            return `, ${firstLast(author)}`;
+          } else if(index == stop && !et_al) { //end with last author
+            return `, and ${firstLast(author)}`;
+          } else if(index == stop && et_al) {
+            return ', et al'; //end with et al
+          } else {
+            return '';
+          }
+        } else {
+          return ``;
+        }
+      }).join('')}`;
     }
 
     return `${lastFirst(authors[0])}${authors.length > 1 ? `${otherAuthors(authors)}` : ''}.`;

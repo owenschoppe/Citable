@@ -247,6 +247,10 @@ function lastFirst(author) {
   return `${author.lastName}${author.firstName ? `, ${author.firstName}` : ``}`; //For one word names, skip the first name.
 }
 
+function lastInitial(author) {
+  return `${author.lastName}${author.firstName ? `, ${author.firstName.split('')[0]}` : ``}`; //For one word names, skip the first name.
+}
+
 function firstLast(author) {
   return (`${author.firstName} ${author.lastName}`).trim();
 }

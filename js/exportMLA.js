@@ -1,4 +1,5 @@
 /*jshint esversion: 6 */
+// https://www.mla.org/MLA-Style
 // https://columbiacollege-ca.libguides.com/mla/websites
 // https://www.mendeley.com/guides/mla-citation-guide
 // https://owl.purdue.edu/owl/research_and_citation/mla_style/mla_formatting_and_style_guide/mla_formatting_and_style_guide.html
@@ -25,12 +26,24 @@ function exportMLA(rows) {
     authors.sort((a,b)=>{return b.lastName - a.lastName;});
 
     et_al = authors.length > 2;
-    stop = et_al ? 1 : authors.length;
+    stop = et_al ? 1 : authors.length - 1;
 
     function otherAuthors(authors) {
-      return `${authors.map((author,index) =>
-        (index > 0 && index <= stop) ? `${(index == stop - 1 && !et_al) ? `, and ${firstLast(author)}` : ``}${(index == stop && et_al) ? ', et al' : ''}` : ``
-      ).join('')}`;
+      return `${authors.map((author,index) => {
+        if(index > 0 && index <= stop) {
+          if(index < stop) { //show other authors
+            return `, ${firstLast(author)}`;
+          } else if(index == stop && !et_al) { //end with last author
+            return `, and ${firstLast(author)}`;
+          } else if(index == stop && et_al) {
+            return ', et al'; //end with et al
+          } else {
+            return '';
+          }
+        } else {
+          return ``;
+        }
+      }).join('')}`;
     }
 
     return `${lastFirst(authors[0])}${authors.length > 1 ? `${otherAuthors(authors)}` : ''}.`;
