@@ -592,13 +592,12 @@ var pageInfo = {
 //gather website/publisher/organization name
 //gather media type
 
-
-//Is this necessary? It messes up the formatting on selected text.
-// pageInfo = escapeObject(pageInfo);
+pageInfo = escapeObject(pageInfo);
 
 function escapeObject(object) {
   for(var element in object) {
-    object[element] = escapeHTML(object[element]);
+    // object[element] = escapeHTML(object[element]);
+    object[element] = encodeURIComponent(object[element]);
   }
   return object;
 }
