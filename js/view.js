@@ -1,12 +1,5 @@
-//In the app's launch page:
-// var bgPage;
-// chrome.runtime.getBackgroundPage(function(ref){
-// 	bgPage = ref;
-// 	bgPage.toggleAuth(true,function(){
-// 		startup();
-// 	});
-// });
-// var bgPage = chrome.extension.getBackgroundPage();
+/*jshint esversion: 8 */
+
 var bgPage;
 chrome.runtime.getBackgroundPage(function(ref) {
   bgPage = ref;
@@ -72,11 +65,9 @@ var FULL_SCOPE = DOCLIST_SCOPE + ' ' + SPREAD_SCOPE;
 
 var docKey; //The doc key for the document to print.
 var title; //The doc title to print
-//var rows = bgPage.row;
 var rows = []; //From printexport.js
-//console.log(rows);
 
-var renderCallback = function(container, pages, callback) {
+function renderCallback(container, pages, callback) {
   console.log('renderCallback', container, pages, callback);
   //Loads the right number in to the controlbar.
 
@@ -84,7 +75,6 @@ var renderCallback = function(container, pages, callback) {
 
   setTotal(pages);
   var output = document.getElementById('output');
-  //output.appendChild(container);
   output.hasChildNodes() ? output.replaceChild(container, output.firstChild) : output.appendChild(container);
   document.querySelector('#loading').classList.add('hidden'); //Hide the loading gif.
   document.querySelector('#print-button').addEventListener('click', printHandler);
@@ -93,25 +83,23 @@ var renderCallback = function(container, pages, callback) {
 
   makeDraggable();
 
-  //setTemplate(localStorage.m == 'true');
-
   if (callback) {
     callback();
   }
-};
+}
 
-var renderNotes = function(rows, callback) {
+function renderNotes(rows, callback) {
   console.log('renderNotes()');
   render(rows, renderCallback, callback);
-};
+}
 
 //Sets the helper text in the control bar to display the total number of pages.
-setTotal = function(pages) {
+function setTotal(pages) {
   //if(num){ pages = num; }
   console.log('Set total: ', pages);
   var total = "<span class='Droid regular'>Total: </span><span class='Droid bold'>" + pages + " sheets of stickies</span>";
   document.getElementById('total').innerHTML = total;
-};
+}
 
 //TODO: Create a new function to update the spreadsheet contents based on the changes
 // Persistent click handler for changing the title of a document.
@@ -162,7 +150,7 @@ function openTemplate() {
 }
 
 //Changes which font is used.
-changeFont = function(formName, elementName) {
+function changeFont(formName, elementName) {
   console.log('changeFont() ', elementName);
   //Caches the font value;
   chrome.storage.local.set({
@@ -173,20 +161,20 @@ changeFont = function(formName, elementName) {
     console.log('toggle to Droid');
     document.querySelectorAll('.summary, .title, .author, .url, .tags, .fontIcon').forEach((item) => {
       item.classList.toggle('handwritten');
-      item.classList.toggle('Droid')
+      item.classList.toggle('Droid');
     });
   } else {
     console.log('toggle to handwritten');
     document.querySelectorAll('.summary, .title, .author, .url, .tags, .fontIcon').forEach((item) => {
       item.classList.toggle('handwritten');
-      item.classList.toggle('Droid')
+      item.classList.toggle('Droid');
     });
   }
   return;
-};
+}
 
 //Changes the orientation of the page.
-changeOrient = function(aForm, aValue) {
+function changeOrient(aForm, aValue) {
   console.log('changeOrient() ', aValue);
   //Saves the orientation setting in localStorage.
   chrome.storage.local.set({
@@ -217,11 +205,10 @@ changeOrient = function(aForm, aValue) {
     toggleCSS(0);
     bgPage.resizeWindow('printable', 1440, 900);
   }
-
-};
+}
 
 //Changes the template.
-changeTemplate = function(aForm, aValue) {
+function changeTemplate(aForm, aValue) {
   console.log('changeTemplate() ', aValue);
   chrome.storage.local.set({
     'm': aValue
@@ -238,10 +225,10 @@ changeTemplate = function(aForm, aValue) {
     });
     document.querySelector('#template-button').disabled = false;
   }
-};
+}
 
 //Generic function that intializes the form to match the previous settings stored in localStorage.
-initRadio = function(value, key, formName, elementName, callback) {
+function initRadio(value, key, formName, elementName, callback) {
   console.log('initRadio() ', value);
   if (value) {
     if (value == key) {
@@ -264,9 +251,9 @@ initRadio = function(value, key, formName, elementName, callback) {
       callback(0);
     }
   }
-};
+}
 
-initCheck = function(value, key, formName, elementName, callback) {
+function initCheck(value, key, formName, elementName, callback) {
   console.log('initCheck() ', value);
   if (value) {
     value = (value == 'true');
@@ -292,10 +279,10 @@ initCheck = function(value, key, formName, elementName, callback) {
       callback(key);
     }
   }
-};
+}
 
 //Toggles on and off the landscape and portrait CSS sheets to set the page orientation when printing.
-var toggleCSS = function(dir, callback) {
+function toggleCSS(dir, callback) {
   console.log('toggleCSS() ', dir);
   switch (dir) {
     case 0: //landscape
@@ -333,11 +320,11 @@ var toggleCSS = function(dir, callback) {
   if (callback) {
     callback(dir);
   }
-};
+}
 ///////////////////////////
 //No Longer Used
 ///////////////////////////
-var noteOrderCSS = function(dir) {
+function noteOrderCSS(dir) {
   //Removes the note placement classes in preparation for changing them.
   document.querySelectorAll('.note_wrapper').forEach((item) => {
     item.classList.remove('left', 'middle', 'right');
@@ -347,7 +334,6 @@ var noteOrderCSS = function(dir) {
       //Changes the classes of the notes for display purposes.
       document.querySelectorAll('.note_wrapper').forEach((item,index) => {
         var className = index % 3 == 0 ? "left" : (index % 3 == 1 ? "middle" : "right");
-        //TODO: rewrite this function to not use switch. (This will be pretty but will have a negligible speed boost.)
         //Instead use columns(2 or 3), such that 'return index%col==0 ? "left" : (index%col==1 ? "middle" : "right");'
         //The middle class may need to be rewritten.
         item.classList.add(className);
@@ -361,10 +347,10 @@ var noteOrderCSS = function(dir) {
       });
       break;
   }
-};
+}
 
 //Changes the font used in the helper icon in the control bar.
-var setFontIcon = function(dir) {
+function setFontIcon(dir) {
   if (dir == 0) {
     chrome.storage.local.set({
       'font': 'Droid'
@@ -378,52 +364,20 @@ var setFontIcon = function(dir) {
   chrome.storage.local.get('font', function(items) {
     document.querySelector('.fontIcon').classList.add(items.font);
   });
-};
+}
 
-var setTemplate = function(dir) {
+function setTemplate(dir) {
   console.log('setTemplate() ', dir);
   if (dir == true) {
     document.querySelector('.page').classList.add('m');
     document.querySelector('#template-button').disabled = true;
     console.log('addClass');
   } else {
-    //$('.page').removeClass('m');
-    //document.querySelector('#template-button').disabled = false;
     console.log('removeClass');
   }
-};
-
-/*
-//Adjusts which elements are visible and saves the value in localStorage.
-changeElement = function(formName, elementName) {
-	localStorage[elementName] = Boolean(document.getElementById(elementName).checked);
-	var classElement = String('.'+elementName.replace('1',''));
-	//console.log(classElement,elementName);
-	$(classElement).toggle(localStorage[elementName]=='true' ? true : false);
-	//console.log('changeElement ', formName, elementName, localStorage[elementName]=='true', localStorage[elementName]);
-	if(classElement == '.url'){ $('.author').toggleClass(function(){return 'full'},(localStorage[elementName]=='true'?false:true)); };//Toggle width 100%
-	if(classElement == '.author'){ $('.url').toggleClass(function(){return 'full'},(localStorage[elementName]=='true'?false:true)); };
 }
 
-//Initialize checkbox controls.
-initCheck = function(formName, elementName) {
-	console.log('initCheck', elementName, localStorage[elementName]);
-	if(localStorage[elementName]){
-		if(localStorage[elementName] == 'true'){
-			$('#'+elementName).prop("checked", true);
-		} else {
-			$('#'+elementName).prop("checked", false);
-		}
-	} else {
-		console.log('No value ', localStorage[elementName]);
-		localStorage[elementName] = Boolean(true);
-		$('#'+elementName).prop("checked", true);
-	}
-	changeElement(formName, elementName);
-}
-*/
-
-changeAction = function(formName, formValue, rows) {
+function changeAction (formName, formValue, rows) {
   console.time('loading timer');
 
   var handleResponse = function(items) {
@@ -431,25 +385,16 @@ changeAction = function(formName, formValue, rows) {
     document.querySelector('#loading').classList.remove('hidden');
     var valuesArray = items[docKey];
     var i = parseInt(formName.substr(5, 1));
-    //if(isNumber(i)){
+
     valuesArray[i] = formValue;
     chrome.storage.local.set({
       [docKey]: valuesArray
     });
-    //rerenderNotes(formName);
-    //setTimeout(function(){rerenderNotes(i,valuesArray)},0);
+
     setTimeout(function() {
       console.time('renderNotes timer');
       renderNotes(rows, timerEnd);
     }, 0);
-    //console.log(localStorage);
-    /*} else {
-    	console.log('parse formName error');
-    }
-
-    function isNumber (o) {
-      return ! isNaN (o-0);
-    }*/
 
     var timerEnd = function() {
       console.timeEnd('loading timer');
@@ -457,9 +402,7 @@ changeAction = function(formName, formValue, rows) {
   };
 
   chrome.storage.local.get(docKey, handleResponse);
-
-};
-
+}
 
 function parseURLParams(url) {
   var queryStart = url.indexOf("?") + 1;
@@ -484,7 +427,7 @@ function parseURLParams(url) {
 }
 
 //Callback after creating the document menu.
-var getDocId = function() {
+function getDocId() {
   console.log('getDocId()');
   if (document.querySelectorAll('#destination').length) {
     //Menu exists-> load document.
@@ -499,7 +442,7 @@ var getDocId = function() {
     //$('#loading').addClass('hidden'); //Hide the loading gif.
     document.querySelector('#loading').innerHTML = ('Try printing directly from a spreadsheet in <a href="https://drive.google.com">Google Drive</a>.');
   }
-};
+}
 
 //TODO: Can we remove the redundant variable 'row' and improve efficiency with explicit passing?
 
@@ -561,12 +504,12 @@ async function processRowsCallback() {
     };
 
     await chrome.storage.local.get('orientation', onStorage);
-  };
+  }
 
   // chrome.storage.local.set({[docKey] : defaultColumns}, onSet);
   initSelects();
   onSet();
-};
+}
 
 /*------------------------------------------------------------------------------------------*/
 //Render select controls.
@@ -589,14 +532,8 @@ function buildSelect(cols, defaultFields, callback) {
     document.querySelector(name).addEventListener('change', onChangeHandler);
   }
 
-  /*document.querySelector('#field0').addEventListener('change', onChangeHandler);
-  document.querySelector('#field1').addEventListener('change', onChangeHandler);
-  document.querySelector('#field2').addEventListener('change', onChangeHandler);
-  document.querySelector('#field3').addEventListener('change', onChangeHandler);
-  document.querySelector('#field4').addEventListener('change', onChangeHandler);*/
-
   if (callback) callback();
-};
+}
 
 function onChangeHandler(e) {
   changeAction(this.name, this.value, rows);
@@ -623,6 +560,7 @@ function initSelect(i, cols, defaultFields, defaultColumns, storageResponse) {
   // }
   ////////////////////////////
   //TODO: Move this to it's own function and rewrite. It should store create an initial default menu set on init.
+  var selectedOption;
 
   if (valuesArray && valuesArray[i]) { //If i in the array exists use that. //Should we check that that col still exists in document?
     console.log('Existing value:', valuesArray[i]);
@@ -632,33 +570,23 @@ function initSelect(i, cols, defaultFields, defaultColumns, storageResponse) {
   } else {
     console.log('No value.');
 
-    var selectedOption = defaultLayout(cols, defaultColumns[i], defaultColumns);
+    selectedOption = defaultLayout(cols, defaultColumns[i], defaultColumns);
 
     valuesArray[i] = selectedOption; //Update the default value in the variable array.
 
     console.log('Set value of select.', docKey, selectedOption);
     document.querySelector("select[name='" + fieldId + "']").value = (selectedOption);
-
-    //Push the updated values back to local storage.
-    // var obj = items.docKey;
-    // await chrome.storage.local.set({[docKey]: valuesArray}, function(r){
-    // 	console.log(r);
-    // });
-    //chrome.storage.local.set({[docKey]:'foo'}, function(r){console.log(r)}) //sets the value of variable docKey as key with value 'foo'.
-    //chrome.storage.local.set({docKey:'bar'}, function(r){console.log(r)}) //sets the literal 'docKey' as key with value 'foo'.
-    //chrome.storage.local.get(docKey, function(r){console.log(r)}) //gets the value of local storage with the value of variable docKey as key.
-    //chrome.storage.local.get('docKey', function(r){console.log(r)}) //gets the value of local storage with the literal value 'docKey' as key.
   }
   return selectedOption;
   //changeAction(formName, elementName);
   // };
-};
+}
 
 var nextCol = 0; //Needs to be global so that it persists between calls.
 
 //If the spreadsheet does not have a record in the cache,
 //this function will find either the default Citable columns or the next unique column.
-defaultLayout = function(cols, column, defaultColumns) {
+function defaultLayout(cols, column, defaultColumns) {
   console.log('defaultLayout()', column, cols, defaultColumns, jQuery.inArray(column, cols));
 
   var findUnique = function() {
@@ -673,7 +601,7 @@ defaultLayout = function(cols, column, defaultColumns) {
   };
 
   return jQuery.inArray(column, cols) > -1 ? column : findUnique();
-};
+}
 
 
 ///////////////////////////////////////////////////////
@@ -740,25 +668,12 @@ var localStor = new SyncChromeStorage();
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-var startup = function() {
+function startup() {
   console.log('startup');
 
   var onStorage = function(items) {
     console.log('startup.onStorage', document.URL, items);
 
-    /*
-    try {
-    	console.log('Try parsing the url');
-    	docKey = parseURLParams(document.URL)['key'][0];
-    	//Causes a bug where the page loaded with the key in the url parameter will always default to the original document on refresh.
-    	//TODO: FIX: Scrape the docKey from the url param and store it in local storage, then reload the page without the parameter.
-    	localStorage['defaultDoc'] = docKey;
-    	gdocs.printDocument(null, processRowsCallback); //In printexport.js
-    	gdocs.start(); //In menu.js Start the doc menu building process.
-    } catch(err) {
-    */
-    //No document in URL, check for a default docKey stored in localStorage.
-    //console.log('Error: ',err);
     var defaultDoc = items.defaultDoc; //localStorage['defaultDoc'];
 
     if (defaultDoc != undefined) {
@@ -780,9 +695,7 @@ var startup = function() {
       console.log('Get doc from menu');
       // gdocs.start(getDocId); //Refactor getting the doc list.
     }
-    /*
-    }
-    */
+
     //Initialized the layout CSS for the radio controls.
     //value, key, formName, elementName, callback
     document.getElementById('loading').addClassName(items.orientation);
@@ -791,13 +704,4 @@ var startup = function() {
     initRadio(items.font, 'Droid', 'radioControls', 'font', setFontIcon);
   };
   chrome.storage.local.get(null, onStorage);
-};
-
-//Run toggleAuth when the constructor is called to kick everything off.
-//stored in backgroundpage for persistance and universal access within the app.
-//Inital function fired on page load.
-window.onload = function() {
-  /*bgPage.toggleAuth(true,function(){
-  	startup();
-  });*/
-};
+}
