@@ -1,8 +1,7 @@
 /*jshint esversion: 6 */
 // https://www.apastyle.org/
 // https://en.wikipedia.org/wiki/Wikipedia:Citing_Wikipedia
-
-
+// https://columbiacollege-ca.libguides.com/apa/websites
 
 function exportAPA(rows) {
 
@@ -11,7 +10,7 @@ function exportAPA(rows) {
     //Publisher/Site/Organization name should go after the formatted title.
     //Either `<em>Title</em>` or `"Title." <em>Publication</em>`
     if(url && dateAccessed && (authors || title)) {
-      return `<p>${authors ? `${formatAuthors(authors)}` : `${emphasize(title)}.`} (${ datePublished ? `${formatDateAPA(datePublished)}` : `n.d.`}).${authors ? ` ${emphasize(title)}` : ``}${url ? ` Retrieved ${dateAccessed ? `${formatDate(dateAccessed)}, ` : ``}from ${formatURL(url,true)}` : ``}</p>`;
+      return `<p style="padding-left:.5in; text-indent:-.5in; line-height:1.5">${authors ? `${formatAuthors(authors)}` : `${emphasize(title)}.`} (${ datePublished ? `${formatDateAPA(datePublished)}` : `n.d.`}).${authors ? ` ${emphasize(title)}.` : ``}${url ? ` Retrieved ${dateAccessed ? `${formatDate(dateAccessed)}, ` : ``}from ${formatURL(url,true)}` : ``}</p>`;
     } else {
       console.log('Insufficient information to cite:',type,title,authors,dateAccessed,datePublished,url);
       return '';

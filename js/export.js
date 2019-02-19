@@ -14,7 +14,7 @@ var bgPage = '';
 var rows = [];
 var docName = '';
 var docKey = '';
-// var content = '';
+var citations = '';
 var defaultFormat = 'bibtex';
 var extensions = {
   apa: '.html',
@@ -73,34 +73,12 @@ function cancelHandler(e) {
 }
 
 function saveFile(extension) {
-  /*var bb = new window.WebKitBlobBuilder();
-	// Note: window.WebKitBlobBuilder in Chrome 12.
-    //var content = doExport();
-    bb.append(content.toString());*/
-
-  var blob = new Blob([content.toString()]);
-  // var blob = new Blob([convertHtmlToRtf(content)]);
+  // var citations = format == 'bibtext' ? document.getElementById('export').innerHTML : document.getElementById('export').innerText;
+  // var extension = extensions[format];
+  var blob = new Blob([citations.toString()]);
   saveAs(blob, docName + extension); //Uses FileSave.js
   //Is FileSave.js a future compatible option?
 }
-
-// if (bgPage.oauth.hasToken()) {
-// 	//Inital function fired on page load.
-// 	window.onload = function(){
-// 		startup();
-// 	};
-// } else {
-// 	console.log('hasToken == false');
-// 	/////////////////////////////////////
-// 	//Important for the doclist features.
-// 	////////////////////////////////////
-// 	bgPage.oauth.authorize(function() {
-// 	   //Authorize callback.
-// 	   console.log('authorize callback');
-// 	   startup(); //Try restarting the page.
-// 	   //util.scheduleRequest();
-// 	});
-// }
 
 function startup() {
   function onStorage(items) {
@@ -153,7 +131,7 @@ function initSelect(format) {
 /////////////////////////////////////////////////////////////////////////////////////////////
 function makeFile(format) {
   rows = row; //from printexport.js
-  var citations;
+  // var citations;
   var headline = document.createElement('center');
 
   switch (format) {
@@ -191,6 +169,7 @@ function makeFile(format) {
   content.className = "export";
 
   var file = document.createElement('div');
+  file.id = "export";
   if (format == 'bibtex') {
     file.innerText = citations;
   } else {
@@ -212,15 +191,18 @@ function showInstructions(format) {
   switch (format) {
     case 'apa':
       instructions = `<p>Citations use <a href="https://www.apastyle.org/" rel="noreferrer" target="_blank">APA</a> 6th Edition format.</p>
-      <p>Be sure to check the formatting and completeness of citations.</p>`;
+      <p>Be sure to check the formatting and completeness of citations.</p>
+      <p>Use your text editor to double space citations and indent subseqent lines, after the first line of each citation, by .5 inches.</p>`;
       break;
     case 'chicago':
       instructions = `<p>Citations use <a href="https://www.chicagomanualofstyle.org/" rel="noreferrer" target="_blank">Chicago Manual of Style</a> 17th Edition format.</p>
-      <p>Be sure to check the formatting and completeness of citations.</p>`;
+      <p>Be sure to check the formatting and completeness of citations.</p>
+      <p>Use your text editor to double space citations and indent subseqent lines, after the first line of each citation, by .5 inches. Add one blank space between citations.</p>`;
       break;
     case 'mla':
       instructions = `<p>Citations use <a href="https://www.mla.org/MLA-Style" rel="noreferrer" target="_blank">MLA</a> 8th Edition format.</p>
-      <p>Be sure to check the formatting and completeness of citations.</p>`;
+      <p>Be sure to check the formatting and completeness of citations.</p>
+      <p>Use your text editor to double space citations and indent subseqent lines, after the first line of each citation, by .5 inches.</p>`;
       break;
     default:
       instructions = `<p>Citations are exported in BibTeX format.</p>
