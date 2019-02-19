@@ -53,5 +53,5 @@ function exportChicago(rows) {
     }
   }
 
-  return `${rows.map((row) => `${formatCitation(row)}`).sort(sortAlpha).join('')}`;
+  return `<center>Bibliography</center>${rows.map((row) => `${formatCitation(row)}`).sort(sortAlpha).join('')}`;
 }

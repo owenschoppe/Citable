@@ -68,5 +68,5 @@ function exportAPA(rows) {
     }
   }
 
-  return `${rows.map((row) => `${formatCitation(row)}`).sort(sortAlpha).join('')}`;
+  return `<center>References</center>${rows.map((row) => `${formatCitation(row)}`).sort(sortAlpha).join('')}`;
 }

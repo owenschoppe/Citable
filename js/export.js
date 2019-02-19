@@ -132,24 +132,24 @@ function initSelect(format) {
 function makeFile(format) {
   rows = row; //from printexport.js
   // var citations;
-  var headline = document.createElement('center');
+  // var headline = document.createElement('center');
 
   switch (format) {
     case 'apa':
       citations = exportAPA(escapeRowData(rows));
-      headline.innerText = "References";
+      // headline.innerText = "References";
       break;
     case 'chicago':
       citations = exportChicago(escapeRowData(rows));
-      headline.innerText = "Bibliography";
+      // headline.innerText = "Bibliography";
       break;
     case 'mla':
       citations = exportMLA(escapeRowData(rows));
-      headline.innerText = "Works Cited";
+      // headline.innerText = "Works Cited";
       break;
     default:
       citations = exportBibtex(rows);
-      headline.innerText = "";
+      // headline.innerText = "";
   }
 
   var extension = extensions[format];
@@ -175,7 +175,7 @@ function makeFile(format) {
   } else {
     file.innerHTML = citations;
   }
-  file.prepend(headline);
+  // file.prepend(headline);
 
   var title = document.createElement('div');
   title.className = 'font-medium bold m-bottom--small';

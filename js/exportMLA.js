@@ -68,5 +68,5 @@ function exportMLA(rows) {
     }
   }
 
-  return `${rows.map((row) => `${formatCitation(row)}`).sort(sortAlpha).join('')}`;
+  return `<center>Works Cited</center>${rows.map((row) => `${formatCitation(row)}`).sort(sortAlpha).join('')}`;
 }
