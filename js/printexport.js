@@ -1,9 +1,8 @@
+/*jshint esversion: 8 */
 var row = []; //In memory cache for each row of the sheet returned.
-var bgPage = '';
 var gdocs = {};
 
-chrome.runtime.getBackgroundPage(function(ref) {
-  bgPage = ref;
+chrome.runtime.getBackgroundPage(function(bgPage) {
   gdocs = bgPage.gdocs;
 
   /////////////////////////////////////////////////////////

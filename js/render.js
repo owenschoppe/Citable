@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 //Renders the notes. Optimized.
 var render = function(rows, callback, passed) {
 
