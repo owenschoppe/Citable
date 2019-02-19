@@ -332,7 +332,7 @@ function noteOrderCSS(dir) {
   switch (dir) {
     case 0: //landscape
       //Changes the classes of the notes for display purposes.
-      document.querySelectorAll('.note_wrapper').forEach((item,index) => {
+      document.querySelectorAll('.note_wrapper').forEach((item, index) => {
         var className = index % 3 == 0 ? "left" : (index % 3 == 1 ? "middle" : "right");
         //Instead use columns(2 or 3), such that 'return index%col==0 ? "left" : (index%col==1 ? "middle" : "right");'
         //The middle class may need to be rewritten.
@@ -341,7 +341,7 @@ function noteOrderCSS(dir) {
       break;
     case 1: //portrait
       //Changes the classes of the notes for display purposes.
-      document.querySelectorAll('.note_wrapper').forEach((item,index) => {
+      document.querySelectorAll('.note_wrapper').forEach((item, index) => {
         var className = index % 2 == 0 ? "left" : "right";
         item.classList.add(className);
       });
@@ -377,7 +377,7 @@ function setTemplate(dir) {
   }
 }
 
-function changeAction (formName, formValue, rows) {
+function changeAction(formName, formValue, rows) {
   console.time('loading timer');
 
   var handleResponse = function(items) {
@@ -540,7 +540,7 @@ function onChangeHandler(e) {
 }
 
 function capitalize(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 /*------------------------------------------------------------------------------------------*/
