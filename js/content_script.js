@@ -529,14 +529,15 @@ function getPublication() {
     }
   }
   console.log('structured publication:',found,found.filter(element => element)[0]);
-  let final = found.filter(element => element)[0];
+  found = found.filter(element => element);
+  let final = found instanceof Array && found.length > 0 ? found[0] : '';
   return final;
 }
 
 // Object to hold information about the current page
 var author;
 var summary;
-var tags;
+var tags = '';
 
 //Works for Vimeo, YouTube, HTML5 video, video.js, mediaelement.js, sublime
 videoTime = function() {
@@ -557,7 +558,7 @@ videoTime = function() {
   var seconds = totalSec % 60;
   var result = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
 
-  return time > 0 ? result : null;
+  return time > 0 ? result : '';
 };
 
 try {
