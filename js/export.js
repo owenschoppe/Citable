@@ -95,7 +95,7 @@ function startup() {
       }
       console.log('localStorage["defaultDoc"] ', docName, docKey);
       gdocs.exportDocument(null, () => {
-        makeFile(items.exportFormat).bind(this);
+        makeFile(items.exportFormat);
       }); //In printexport.js
       showInstructions(items.exportFormat);
     } else {
@@ -108,6 +108,7 @@ function startup() {
 }
 
 function initSelect(format) {
+  format = format ? format : 'bibtex'; //Default the value to Bibtex
   document.getElementById('format').value = format; //Init format select menu.
   document.getElementById('format').addEventListener('change', changeSelection);
   chrome.storage.onChanged.addListener((changes, area) => {
