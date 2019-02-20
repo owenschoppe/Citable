@@ -230,7 +230,6 @@ processDocContent = function(response, xhr, callback) {
 
   } else {
     console.log('No entries');
-    showMsg('Invalid file.', error, 10000);
     if (callback) {
       callback(false);
     }
