@@ -184,19 +184,15 @@ select {
 }
 
 select:HOVER {
-  /* border: 1px solid var(--color-primary); */
   background-color: #F1F2F3;
 }
 
 select:FOCUS {
-  /* box-shadow: 0 0 0 1px var(--color-primary--light); */
-  /* border: 1px solid var(--color-primary--light); */
   box-shadow: 0 0 0 2px white, 0 0 0 4px var(--color-primary--tint-alt);
   outline: none;
 }
 
 select:ACTIVE {
-  /* border: 1px solid var(--color-primary); */
   background-color: #E1E2E3;
 }
 
@@ -233,7 +229,6 @@ input[type=checkbox], input[type=radio] {
 
 .new_doc_container input[type='text']:focus {
   box-shadow: 0 0 0 2px white, 0 0 0 4px var(--color-primary--tint-alt);
-  /* border: 1px solid var(--color-primary--light); */
   outline: none;
 }
 
