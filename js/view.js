@@ -192,7 +192,7 @@ function changeOrient(aForm, aValue) {
     });
     //toggleCSS(1,noteOrderCSS);
     toggleCSS(1);
-    bgPage.resizeWindow('printable', 1200, 1110);
+    // bgPage.resizeWindow('printable', 1200, 1110);
   } else {
     console.log('toggle to landscape');
     document.querySelectorAll('.page, .loading').forEach((item) => {
@@ -203,7 +203,7 @@ function changeOrient(aForm, aValue) {
       item.classList.toggle('hidden');
     });
     toggleCSS(0);
-    bgPage.resizeWindow('printable', 1440, 900);
+    // bgPage.resizeWindow('printable', 1440, 900);
   }
 }
 
@@ -605,46 +605,50 @@ function defaultLayout(cols, column, defaultColumns) {
 
 
 ///////////////////////////////////////////////////////
-$(document).ready(function() {
-  $('#outputArea').scroll(function() {
-    $('#indicator').css('top', function() {
-      //current position/total height*window height=percentage of window height.
-      var relHeight = Math.ceil($('#outputArea').scrollTop() / $('#container').height() * ($(window).height() - 0));
-      // console.log(relHeight,$('#outputArea').scrollTop(),$('#container').height(),$(window).height(),$('#outputArea').height());
-      return relHeight;
-    });
-    //console.log( 'scroll ',$(window).scrollTop() );
-    var pages = $('.page');
-    //console.log($('.page').length);
+document.addEventListener("DOMContentLoaded", function(event) {
+  [].slice.call(document.querySelectorAll('.has-indicator')).map((parent) => {
+    parent.addEventListener('scroll',updateIndicator);
+  });
+});
+
+function updateIndicator(e) {
+  var parent = e.target;
+  var indicator = parent.querySelector('.indicator');
+  indicator.style.top = getIndicatorPosition(parent,indicator)+'px';
+  var pageNumber = indicator.querySelector('.pageNum');
+  pageNumber.innerText = getPageNumber(parent,'.page:not(.loading)');
+
+  function getIndicatorPosition(parent,indicator) {
+    return Math.ceil((parent.scrollTop) * (parent.offsetHeight - indicator.offsetHeight) / (parent.scrollHeight-parent.offsetHeight));
+  }
+
+  function getPageNumber(parent,pageSelector) {
+    var pages = parent.querySelectorAll(pageSelector);
     var currentPage = {
       page: 0,
       percent: 0
     };
     for (var i = 0; i < pages.length; i++) {
-      //console.log(i);
-      percent = percentScrolledIntoView(pages[i]);
-      //console.log('% ',percent);
+      percent = percentScrolledIntoView(pages[i],parent);
       if (percent > currentPage.percent) {
         currentPage.page = i + 1;
         currentPage.percent = percent;
       }
     }
-    //console.log(currentPage.page,currentPage.percent);
-    document.querySelector('#pageNum').innerText = currentPage.page;
-  });
-});
+    return currentPage.page;
+  }
 
-function percentScrolledIntoView(elem) {
-  var docViewTop = $(window).scrollTop();
-  var docViewBottom = docViewTop + $(window).height();
+  function percentScrolledIntoView(element,parent) {
+    var docViewTop = parent.scrollTop;
+    var docViewBottom = docViewTop + parent.offsetHeight;
 
-  var elemTop = $(elem).offset().top;
-  var elemHeight = $(elem).height();
-  var elemBottom = elemTop + elemHeight;
+    var elemTop = element.offsetTop;
+    var elemHeight = element.offsetHeight;
+    var elemBottom = elemTop + elemHeight;
 
-  var percent = ((((elemBottom <= docViewBottom) ? elemBottom : docViewBottom) - ((elemTop >= docViewTop) ? elemTop : docViewTop)) / elemHeight);
-  //console.log(percent,'%');
-  return percent;
+    var percent = ((((elemBottom <= docViewBottom) ? elemBottom : docViewBottom) - ((elemTop >= docViewTop) ? elemTop : docViewTop)) / elemHeight);
+    return percent;
+  }
 }
 
 //Synchonous interface for chrome.storage.local.get

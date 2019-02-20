@@ -15,6 +15,7 @@ function render(rows, callback, passed) {
 
     var container = document.createElement('div');
     container.id = "container";
+    container.className = "container";
 
     var s = valuesArray[0];
     var t = valuesArray[1];
