@@ -242,14 +242,20 @@ Util.JSONToCSV = function(objArray) {
  * @param {string} msg The message.
  */
 Util.displayMsg = function(msg) {
-  document.querySelector('#butter').classList.remove('error').innerText = (msg);
+  var butter = document.querySelector('#butter');
+  butter.classList.remove('error','hidden');
+  butter.classList.add('normal');
+  butter.innerText = msg;
+
 };
 
 /**
  * Utility for removing any messages currently showing to the user.
  */
 Util.hideMsg = function() {
-  document.querySelector('#butter').innerText = ('');
+  var butter = document.querySelector('#butter');
+  butter.classList.add('hidden');
+  butter.innerText = '';
 };
 
 /**
@@ -258,7 +264,10 @@ Util.hideMsg = function() {
  */
 Util.displayError = function(msg) {
   Util.displayMsg(msg);
-  document.querySelector('#butter').classList.add('error').innerText = (msg);
+  var butter = document.querySelector('#butter');
+  butter.classList.remove('normal','hidden');
+  butter.classList.add('error');
+  butter.innerText = msg;
 };
 
 /**
