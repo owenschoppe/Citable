@@ -58,6 +58,12 @@
 			<div class="m-vertical--large" ng-hide="data.auth||data.loading">
 				<div class="center">
 					<a class="authBtn" ng-class="{fade:!data.online,active:getAuthFlow}" ng-disabled="!data.online" ng-click='data.online&&getAuth()' tabindex="{{data.auth?'-1':0}}" href>Sign in with Google</a>
+					<div class="p-top--medium">
+						<div class="instructions m-bottom--small"><p>Enjoying Citable?</p><p>Support its ongoing development with a donation.</p></div>
+						<div ng-controller="actionController">
+							<a id="donateButton" class="p-xsmall center" ng-click="donate('https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CDRX53BPA7KZA&source=url')" href>Donate</a>
+						</div>
+					</div>
 				</div>
 			</div>
 

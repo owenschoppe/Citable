@@ -232,8 +232,8 @@ input[type=checkbox], input[type=radio] {
 }
 
 .new_doc_container input[type='text']:focus {
-  box-shadow: 0 0 0 1px var(--color-primary--light);
-  border: 1px solid var(--color-primary--light);
+  box-shadow: 0 0 0 2px white, 0 0 0 4px var(--color-primary--tint-alt);
+  /* border: 1px solid var(--color-primary--light); */
   outline: none;
 }
 
@@ -277,6 +277,12 @@ input[type=checkbox], input[type=radio] {
 .authBtn.active {
   background-color: #2249A3;
   color: var(--color-text--inverse);
+}
+
+input[type="image"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px white, 0 0 0 4px var(--color-primary--tint-alt);
+  border-radius: 100vh;
 }
 
 /* Typography */
@@ -568,10 +574,6 @@ img.logo {
 
 .font-large {
   font-size: var(--font-large);
-}
-
-.bold {
-  font-weight: bold;
 }
 
 .fade {

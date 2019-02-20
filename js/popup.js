@@ -609,6 +609,14 @@ Code may not be used without written and express permission.
         $scope.data.requesting = false; //Reset the variable.
       });
     };
+
+    $scope.donate = function(param) {
+      console.log('donate',param);
+      chrome.tabs.create({
+        url: param
+      });
+      window.close();
+    };
   }]);
 
 
