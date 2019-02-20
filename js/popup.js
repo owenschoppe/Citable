@@ -68,7 +68,7 @@ Code may not be used without written and express permission.
           if (value === true) {
             $timeout(function() {
               element[0].focus();
-            });
+            },200);
           }
         });
         element.bind('blur', function() {
