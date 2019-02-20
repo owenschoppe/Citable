@@ -63,7 +63,7 @@ chrome.runtime.getBackgroundPage(function(bgPage) {
       if (callback) callback();
     } else {
       console.log('No entries');
-      Util.displayError('Oops, No Citations');
+      Util.displayError("Couldn't Get Document");
     }
   };
 
