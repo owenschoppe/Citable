@@ -1,5 +1,5 @@
 /*jshint esversion: 8 */
-
+(function (){
 var bgPage;
 chrome.runtime.getBackgroundPage(function(ref) {
   bgPage = ref;
@@ -81,7 +81,7 @@ function renderCallback(container, pages, callback) {
   document.querySelector('#print-button').disabled = false;
   console.timeEnd('renderNotes timer');
 
-  makeDraggable();
+  makeDraggable(setTotal);
 
   if (callback) {
     callback();
@@ -90,7 +90,7 @@ function renderCallback(container, pages, callback) {
 
 function renderNotes(rows, callback) {
   console.log('renderNotes()');
-  render(rows, renderCallback, callback);
+  render(rows, docKey, renderCallback, callback);
 }
 
 //Sets the helper text in the control bar to display the total number of pages.
@@ -427,29 +427,29 @@ function parseURLParams(url) {
 }
 
 //Callback after creating the document menu.
-function getDocId() {
-  console.log('getDocId()');
-  if (document.querySelectorAll('#destination').length) {
-    //Menu exists-> load document.
-    console.log('Document menu exists');
-    //TODO: fix this
-    // docKey = $('#destination').val();
-    console.log('docKey: ', docKey);
-    gdocs.printDocument(null, processRowsCallback); //In printexport.js
-  } else {
-    //Menu does not exist-> redirect to Drive.
-    console.log('No document menu.');
-    //$('#loading').addClass('hidden'); //Hide the loading gif.
-    document.querySelector('#loading').innerHTML = ('Try printing directly from a spreadsheet in <a href="https://drive.google.com">Google Drive</a>.');
-  }
-}
+// function getDocId() {
+//   console.log('getDocId()');
+//   if (document.querySelectorAll('#destination').length) {
+//     //Menu exists-> load document.
+//     console.log('Document menu exists');
+//     //TODO: fix this
+//     // docKey = $('#destination').val();
+//     console.log('docKey: ', docKey);
+//     printexport.gdocs.printDocument(null, processRowsCallback); //In printexport.js
+//   } else {
+//     //Menu does not exist-> redirect to Drive.
+//     console.log('No document menu.');
+//     //$('#loading').addClass('hidden'); //Hide the loading gif.
+//     document.querySelector('#loading').innerHTML = ('Try printing directly from a spreadsheet in <a href="https://drive.google.com">Google Drive</a>.');
+//   }
+// }
 
 //TODO: Can we remove the redundant variable 'row' and improve efficiency with explicit passing?
 
 //IMPORTANT TODO: Rewrite the whole process around a function queue, thus on changeAction will clear the queue and start over. BIG project. Is it possible to abort functions midway without explicitly checking for a flag?
 /*------------------------------------------------------------------------------------------*/
-async function processRowsCallback() {
-  rows = row; //From printexport.js
+async function processRowsCallback(rows) {
+  // rows = row; //From printexport.js
   console.log('processRowsCallback()', rows);
 
   //Parse column names.
@@ -691,7 +691,11 @@ function startup() {
       }
 
       $('#selection').html('<div><span class="Droid regular">Document: </span><span id="title" class="Droid bold" name="title">' + title + '</span></div>');
-      gdocs.printDocument(null, processRowsCallback); //In printexport.js
+      var printexport = new printExportClass(bgPage,docKey);
+      printexport.gdocs.printDocument(null, (data) => {
+        rows = data;
+        processRowsCallback(rows);
+      }); //In printexport.js
       // gdocs.start(); //Refactor getting the doc list.
     } else {
       //There is no default document set.
@@ -709,3 +713,4 @@ function startup() {
   };
   chrome.storage.local.get(null, onStorage);
 }
+})();

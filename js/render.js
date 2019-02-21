@@ -1,6 +1,6 @@
 /*jshint esversion: 6 */
 //Renders the notes. Optimized.
-function render(rows, callback, passed) {
+function render(rows, docKey, callback, passed) {
 
   function onStorage(items) {
     console.log('render.onStorage', items);

@@ -21,7 +21,7 @@ Element.prototype.removeClassName = function(name) {
   }
 };
 
-var makeDraggable = function() {
+var makeDraggable = function(setTotal) {
   console.log('makeDraggable()');
   console.time('draggable');
 

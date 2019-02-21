@@ -1,9 +1,8 @@
 /*jshint esversion: 8 */
-var row = []; //In memory cache for each row of the sheet returned.
-var gdocs = {};
 
-chrome.runtime.getBackgroundPage(function(bgPage) {
-  gdocs = bgPage.gdocs;
+function printExportClass(bgPage,docKey) {
+  var rows = []; //In memory cache for each row of the sheet returned.
+  var gdocs = bgPage.gdocs;
 
   /////////////////////////////////////////////////////////
   gdocs.printDocumentPage = function(callback) {
@@ -40,7 +39,7 @@ chrome.runtime.getBackgroundPage(function(bgPage) {
   gdocs.processDocContent = function(response, xhr, callback) {
     console.log('rows returned: ', xhr);
 
-    row = [];
+    rows = [];
 
     if (xhr.status != 200) {
       //TODO: Add an error message display.
@@ -56,11 +55,11 @@ chrome.runtime.getBackgroundPage(function(bgPage) {
       for (var i = 0; i < data.feed.entry.length; ++i) {
         var entry = data.feed.entry[i];
         //console.log(i);
-        row.push(new gdocs.Row(entry));
+        rows.push(new gdocs.Row(entry));
         //console.log(entry);
       }
       //console.log('rows: ', row);
-      if (callback) callback();
+      if (callback) callback(rows);
     } else {
       console.log('No entries');
       Util.displayError("Couldn't Get Document");
@@ -91,7 +90,7 @@ chrome.runtime.getBackgroundPage(function(bgPage) {
     };
 
     var worksheetId = 'default';
-    var url = SPREAD_SCOPE + '/list/' + docKey + '/' + worksheetId + '/private/full?' + Util.stringify(config.params);
+    var url = bgPage.SPREAD_SCOPE + '/list/' + docKey + '/' + worksheetId + '/private/full?' + Util.stringify(config.params);
 
     gdocs.makeRequest('GET', url, handleSuccess, null, config.headers);
 
@@ -124,9 +123,13 @@ chrome.runtime.getBackgroundPage(function(bgPage) {
     };
 
     var worksheetId = 'default';
-    var url = SPREAD_SCOPE + '/list/' + docKey + '/' + worksheetId + '/private/full?' + Util.stringify(config.params);
+    var url = bgPage.SPREAD_SCOPE + '/list/' + docKey + '/' + worksheetId + '/private/full?' + Util.stringify(config.params);
 
     gdocs.makeRequest('GET', url, handleSuccess, null, config.headers);
   };
 
-});
+  return {
+    rows: rows,
+    gdocs: gdocs
+  };
+}

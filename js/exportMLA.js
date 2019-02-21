@@ -64,7 +64,11 @@ function exportMLA(rows) {
   function formatCitation(item) {
     switch(item.type) {
       default:
-      return citeWebsite(item.type, item.title, item.author, item.date, item.datepublished, item.url);
+        try {
+          return citeWebsite(item.type, item.title, item.author, item.date, item.datepublished, item.url);
+        } catch (e) {
+          console.log(e);
+        }
     }
   }
 
