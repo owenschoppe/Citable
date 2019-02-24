@@ -408,6 +408,7 @@
     }
     console.log('structured dates:', dates, dates.filter(element => element)[0]);
     let date = new Date(dates.filter(element => element)[0]).toUTCString(); //Schema.org
+    date = [].slice.call(date.split(' ')).filter((e, i, a) => i != a.length - 1 && i != 0).join(' ');
     return date == "Invalid Date" ? "" : date;
   }
 
