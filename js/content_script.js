@@ -1,4 +1,5 @@
 /*jshint esversion: 6 */
+(function() {
 console.log('content_script');
 
 var getSelectedText = function() {
@@ -723,3 +724,4 @@ function escapeHTML(content) {
 console.log('page info: ', pageInfo);
 
 chrome.extension.connect().postMessage(pageInfo);
+})();
