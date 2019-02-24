@@ -11,7 +11,7 @@ exportAPA = function({rows, escapeRowData, splitAuthor, lastInitial, quote, emph
     //Publisher/Site/Organization name should go after the formatted title.
     //Either `<em>Title</em>` or `"Title." <em>Publication</em>`
     if(url && dateAccessed && (author || title)) {
-      return `<p style="padding-left:.5in; text-indent:-.5in; line-height:1.5">${author ? `${formatAuthors(author)}` : `${emphasize(title)}.`} (${ datePublished ? `${formatDateAPA(datePublished)}` : `n.d.`}).${author ? ` ${emphasize(title)}.` : ``}${url ? ` Retrieved ${dateAccessed ? `${formatDate(dateAccessed)}, ` : ``}from ${formatURL(url,true)}` : ``}</p>`;
+      return `${author ? `${formatAuthors(author)}` : `${emphasize(title)}.`} (${ datePublished ? `${formatDateAPA(datePublished)}` : `n.d.`}).${author ? ` ${emphasize(title)}.` : ``}${url ? ` Retrieved ${dateAccessed ? `${formatDate(dateAccessed)}, ` : ``}from ${formatURL(url,true)}` : ``}`;
     } else {
       throw arguments[0];
     }
@@ -76,5 +76,5 @@ exportAPA = function({rows, escapeRowData, splitAuthor, lastInitial, quote, emph
 
   rows = escapeRowData(rows);
 
-  return `<center>References</center>${rows.map((row) => `${formatCitation(row)}`).sort(sortAlpha).join('')}`;
+  return `<center>References</center>${rows.map((row) => formatCitation(row)).sort(sortAlpha).map((row) => `<p style="padding-left:.5in; text-indent:-.5in; line-height:1.5">${row}</p>`).join('')}`;
 };

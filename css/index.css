@@ -94,6 +94,10 @@ a.disabled:hover {
   cursor: default;
 }
 
+a.inverse {
+  text-decoration: underline;
+}
+
 /* Button */
 .button {
   border-radius: var(--border-radius);
@@ -397,7 +401,7 @@ img.logo {
   padding: 8px 16px 8px 16px;
 }
 
-.butter {
+.butter, .butter a {
   background-color: var(--color-background--inverse);
   color: var(--color-text--inverse);
   margin: auto;

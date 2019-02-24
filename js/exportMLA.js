@@ -12,7 +12,7 @@ exportMLA = function({rows, escapeRowData, splitAuthor, firstLast, lastFirst, qu
     //Publisher/Site/Organization name should go after the formatted title.
     //Either `<em>Title</em>` or `"Title." <em>Publication</em>`
     if(url && dateAccessed && (author || title)) {
-      return `<p style="padding-left:.5in; text-indent:-.5in; line-height:1.5">${author ? `${formatAuthors(author)} ` : ``}${publication ? `${quote(title)}. ${emphasize(publication)},` : `${emphasize(title)}.` }${ datePublished ? ` ${formatDateMLA(datePublished)}` : ``}, ${formatURL(url,false)}.${dateAccessed ? ` Accessed ${formatDateMLA(dateAccessed)}.` : ``}</p>`;
+      return `${author ? `${formatAuthors(author)} ` : ``}${publication ? `${quote(title)} ${emphasize(publication)},` : `${emphasize(title)}.` }${ datePublished ? ` ${formatDateMLA(datePublished)}` : ``}, ${formatURL(url,false)}.${dateAccessed ? ` Accessed ${formatDateMLA(dateAccessed)}.` : ``}`;
     } else {
       throw arguments[0];
     }
@@ -77,5 +77,5 @@ exportMLA = function({rows, escapeRowData, splitAuthor, firstLast, lastFirst, qu
 
   rows = escapeRowData(rows); //Prevents XSS since we're setting innerHTML...
 
-  return `<center>Works Cited</center>${rows.map((row,i) => `${formatCitation(row)}`).sort(sortAlpha).join('')}`;
+  return `<center>Works Cited</center>${rows.map((row,i) => formatCitation(row)).sort(sortAlpha).map((row) => `<p style="padding-left:.5in; text-indent:-.5in; line-height:1.5">${row}</p>`).join('')}`;
 };

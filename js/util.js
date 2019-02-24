@@ -245,7 +245,7 @@ Util.displayMsg = function(msg) {
   var butter = document.querySelector('#butter');
   butter.classList.remove('error', 'hidden');
   butter.classList.add('normal');
-  butter.innerText = msg;
+  butter.innerHTML = msg;
 
 };
 

@@ -126,6 +126,7 @@ var app = (function(app) {
 
   /////////////////////////////////////////////////////////////////////////////////////////////
   app.makeFile = function() {
+    Util.hideMsg();
     app.notCitable = [];
 
     switch (app.extension.format) {
@@ -203,7 +204,6 @@ var app = (function(app) {
   };
 
   app.formatNotCitable = function(notCitable) {
-
     function format(fields) {
       // var fields = row; //We only pass one argument
       var value = [];
@@ -213,7 +213,12 @@ var app = (function(app) {
       return value.join('');
     }
 
-    return `${notCitable.length > 0 ? `<div class="font-medium bold m-bottom--small">Insufficient information to cite:</div>`:``}${notCitable.map((row)=>`<p>${format(row)}</p>`).join('')}`;
+    if (notCitable.length > 0) {
+      Util.displayMsg('Incomplete Citations <a class="inverse" href="#incomplete">View<a>');
+      return `<h3 id="incomplete" class="font-medium bold m-bottom--small">Insufficient Information to Cite</h3>${notCitable.map((row)=>`<p>${format(row)}</p>`).join('')}`;
+    } else {
+      return '';
+    }
   };
 
   return app;

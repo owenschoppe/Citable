@@ -1,14 +1,15 @@
 /*jshint esversion: 6 */
 // https://www.chicagomanualofstyle.org
+// https://www.lib.sfu.ca/help/cite-write/citation-style-guides/chicago/websites
 
 exportChicago = function({rows, escapeRowData, splitAuthor, firstLast, lastFirst, quote, emphasize, formatDate, formatURL, sortAlpha, notCitable}) {
 
   //item.type, item.title, item.author, item.date, item.datepublished, item.url
-  function citeWebsite({type, title, author, date: dateAccessed, datepublished: datePublished, url}) {
+  function citeWebsite({type, title, author, date: dateAccessed, datepublished: datePublished, url, publication}) {
     //Check that we have the minimum number of attributes for a web citation.
     //Publisher/Site/Organization name should go after the formatted title.
     if(url && dateAccessed && (author || title)) {
-      return `<p style="padding-left:.5in; text-indent:-.5in; line-height:1.5">${author ? `${formatAuthors(author)} ` : ``}${quote(title)} ${ datePublished ? `Last modified ${formatDate(datePublished)}` : `Accessed ${formatDate(dateAccessed)}`}. ${formatURL(url,true)}.</p>`;
+      return `${author ? `${formatAuthors(author)} ` : ``}${quote(title)} ${publication ? `${emphasize(publication)}, ` : ``}${datePublished ? `${publication ? `` : `Last modified `}${formatDate(datePublished)}` : `Accessed ${formatDate(dateAccessed)}`}. ${formatURL(url,true)}.`;
     } else {
       throw arguments[0];
       // notCitable.push({type, title, author, dateAccessed, datePublished, url})
@@ -63,5 +64,5 @@ exportChicago = function({rows, escapeRowData, splitAuthor, firstLast, lastFirst
 
   rows = escapeRowData(rows);
 
-  return `<center>Bibliography</center>${rows.map((row) => formatCitation(row)).sort(sortAlpha).join('')}`;
+  return `<center>Bibliography</center>${rows.map((row) => formatCitation(row)).sort(sortAlpha).map((row) => `<p style="padding-left:.5in; text-indent:-.5in; line-height:1.5">${row}</p>`).join('')}`;
 };
