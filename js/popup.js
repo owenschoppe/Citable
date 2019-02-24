@@ -68,7 +68,7 @@ Code may not be used without written and express permission.
           if (value === true) {
             $timeout(function() {
               element[0].focus();
-            },200);
+            }, 200);
           }
         });
         element.bind('blur', function() {
@@ -611,7 +611,7 @@ Code may not be used without written and express permission.
     };
 
     $scope.donate = function(param) {
-      console.log('donate',param);
+      console.log('donate', param);
       chrome.tabs.create({
         url: param
       });
@@ -1112,7 +1112,7 @@ Code may not be used without written and express permission.
         };
 
         var parseXml = function(xmlStr) {
-           return new window.DOMParser().parseFromString(xmlStr, "text/xml");
+          return new window.DOMParser().parseFromString(xmlStr, "text/xml");
         };
 
         var checkResponse = function(response) {
@@ -1121,22 +1121,22 @@ Code may not be used without written and express permission.
           var editLink = doc.querySelector('link[rel="edit"]').getAttribute('href');
           // var nonEmptyKeys = Object.keys(citation).filter((key) => citation[key]).map((key) => key.toLowerCase());
           var missingColumn = false;
-          for(var key in citation) {
+          for (var key in citation) {
             var foundColumn = doc.querySelector(key.toLowerCase());
-            if(foundColumn === null) {
+            if (foundColumn === null) {
               missingColumn = true;
-              var col = document.createElement('gsx:'+key.toLowerCase());
-              col.innerHTML = Util.escapeHTML(citation[key]).replace(/&nbsp;/gi,' ');
+              var col = document.createElement('gsx:' + key.toLowerCase());
+              col.innerHTML = Util.escapeHTML(citation[key]).replace(/&nbsp;/gi, ' ');
               doc.querySelector('entry').appendChild(col);
             }
           }
-          if(missingColumn == true) {
+          if (missingColumn == true) {
             //Update the column headers in the document to match the current citation and then update the row using id.
             // msgService.queue('Missing Columns in Sheet', 'error');
-            bgPage.updateDocument((response)=>{
+            bgPage.updateDocument((response) => {
               $http.put(editLink, doc.querySelector('entry').outerHTML, config)
-              .then(onSuccess)
-              .catch(onError);
+                .then(onSuccess)
+                .catch(onError);
             }, $scope.data.defaultDoc, Object.keys(citation));
           }
         };
@@ -1157,8 +1157,8 @@ Code may not be used without written and express permission.
         };
 
         $http.post(url, citationData, config)
-        .then(onSuccess)
-        .catch(onError);
+          .then(onSuccess)
+          .catch(onError);
 
         console.log('Citation: ', url, config);
       }
@@ -1168,7 +1168,7 @@ Code may not be used without written and express permission.
       return ["<?xml version='1.0' encoding='UTF-8'?>",
           '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gsx="http://schemas.google.com/spreadsheets/2006/extended">',
           Object.entries($scope.data.citation).map((entry, index, array) => {
-            return ['<gsx:', entry[0].toLowerCase(), '>', Util.escapeHTML(entry[1]).replace(/&nbsp;/gi,' '), '</gsx:', entry[0].toLowerCase(), '>'].join('');
+            return ['<gsx:', entry[0].toLowerCase(), '>', Util.escapeHTML(entry[1]).replace(/&nbsp;/gi, ' '), '</gsx:', entry[0].toLowerCase(), '>'].join('');
           }),
           '</entry>'
         ]

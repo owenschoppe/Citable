@@ -243,7 +243,7 @@ Util.JSONToCSV = function(objArray) {
  */
 Util.displayMsg = function(msg) {
   var butter = document.querySelector('#butter');
-  butter.classList.remove('error','hidden');
+  butter.classList.remove('error', 'hidden');
   butter.classList.add('normal');
   butter.innerText = msg;
 
@@ -265,7 +265,7 @@ Util.hideMsg = function() {
 Util.displayError = function(msg) {
   Util.displayMsg(msg);
   var butter = document.querySelector('#butter');
-  butter.classList.remove('normal','hidden');
+  butter.classList.remove('normal', 'hidden');
   butter.classList.add('error');
   butter.innerText = msg;
 };

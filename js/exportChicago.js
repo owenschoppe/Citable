@@ -8,7 +8,7 @@ exportChicago = function({rows, escapeRowData, splitAuthor, firstLast, lastFirst
     //Check that we have the minimum number of attributes for a web citation.
     //Publisher/Site/Organization name should go after the formatted title.
     if(url && dateAccessed && (author || title)) {
-      return `<p style="padding-left:.5in; text-indent:-.5in; line-height:1.25">${author ? `${formatAuthors(author)} ` : ``}${quote(title)} ${ datePublished ? `Last modified ${formatDate(datePublished)}` : `Accessed ${formatDate(dateAccessed)}`}. ${formatURL(url,true)}.</p>`;
+      return `<p style="padding-left:.5in; text-indent:-.5in; line-height:1.5">${author ? `${formatAuthors(author)} ` : ``}${quote(title)} ${ datePublished ? `Last modified ${formatDate(datePublished)}` : `Accessed ${formatDate(dateAccessed)}`}. ${formatURL(url,true)}.</p>`;
     } else {
       throw arguments[0];
       // notCitable.push({type, title, author, dateAccessed, datePublished, url})

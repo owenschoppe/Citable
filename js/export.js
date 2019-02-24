@@ -11,12 +11,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 //Listeners
 document.addEventListener('DOMContentLoaded', function() {
-    app.init();
-    document.querySelector('#print-button').addEventListener('click', app.printHandler);
-    document.querySelector('#cancel-button').addEventListener('click', app.cancelHandler);
+  app.init();
+  document.querySelector('#print-button').addEventListener('click', app.printHandler);
+  document.querySelector('#cancel-button').addEventListener('click', app.cancelHandler);
 });
 
-var app = (function(app){
+var app = (function(app) {
 
   app.bgPage = '';
   app.rows = [];
@@ -29,7 +29,7 @@ var app = (function(app){
     get: function() {
       return this.extensions[this.format];
     },
-    set: function(format){
+    set: function(format) {
       this.format = format;
       return;
     },
@@ -41,7 +41,7 @@ var app = (function(app){
     }
   };
 
-  app.init = function(){
+  app.init = function() {
     chrome.runtime.getBackgroundPage(function(ref) {
       app.bgPage = ref;
       app.bgPage.toggleAuth(true, function() {
@@ -53,7 +53,7 @@ var app = (function(app){
   app.startup = function() {
     function onStorage(items) {
       var defaultDoc = items.defaultDoc;
-      app.extension.set(items.exportFormat||app.extension.format); //Update default format
+      app.extension.set(items.exportFormat || app.extension.format); //Update default format
       if (defaultDoc != undefined) {
         try {
           app.docKey = parseURLParams(document.URL).key[0];
@@ -64,7 +64,7 @@ var app = (function(app){
           app.docKey = defaultDoc.id;
           app.docName = defaultDoc.title;
         }
-        var printexport = new printExportClass(app.bgPage,app.docKey);
+        var printexport = new printExportClass(app.bgPage, app.docKey);
         // console.log('localStorage["defaultDoc"] ', app.docName, app.docKey);
         printexport.gdocs.exportDocument(null, (data) => {
           app.rows = data;
@@ -207,7 +207,7 @@ var app = (function(app){
     function format(fields) {
       // var fields = row; //We only pass one argument
       var value = [];
-      for(var key in fields){
+      for (var key in fields) {
         value.push(`<div>${key}: ${fields[key]}</div>`);
       }
       return value.join('');
@@ -220,7 +220,7 @@ var app = (function(app){
 
 })(app || {});
 
-var app = (function(app){
+var app = (function(app) {
   ///////////////////////
   // Utility Functions //
   ///////////////////////
@@ -267,7 +267,7 @@ var app = (function(app){
       var ref = new URL('', url);
       urlString = `${protocol ? `${ref.protocol}` : ``}${ref.hostname}${ref.pathname}`;
     } catch (e) {
-      console.log("Unable for format URL.",e);
+      console.log("Unable for format URL.", e);
       urlString = url.toString();
     }
     return url ? `${urlString}` : '';
