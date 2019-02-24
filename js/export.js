@@ -25,7 +25,7 @@ var app = (function(app) {
   app.docName = '';
   app.docKey = '';
   app.extension = {
-    format: "bibtex", //Default to bibtex for new docs
+    format: "chicago", //Default to bibtex for new docs
     get: function() {
       return this.extensions[this.format];
     },
