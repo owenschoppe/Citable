@@ -1054,7 +1054,7 @@ Code may not be used without written and express permission.
       if (gdocs.accessToken) {
         msgService.queue('Saving Note...');
 
-        var data = constructCitation();
+        var citationData = constructCitation();
 
         var config = {
           //params: {},
@@ -1065,27 +1065,30 @@ Code may not be used without written and express permission.
           } //,
           //body: data
         };
-        console.log('data to send', config, data);
+        console.log('data to send', config, citationData);
 
         var worksheetId = 'default';
 
         var url = bgPage.SPREAD_SCOPE + '/list/' + docId + '/' + worksheetId + '/private/full';
 
-        $http.post(url, data, config).
-        then(function onSuccess(response) {
+        var onSuccess = function(response) {
+          var originalData = $scope.data.citation;
+          var success = checkResponse(response); //Add .bind() here to trigger error.
           var data = response.data;
           var status = response.status;
           var statusText = response.statusText;
           var headers = response.headers;
           var config = response.config;
           handleSuccess(data, status, headers, config, statusText);
-        }).
-        catch(function onError(response) {
+        };
+
+        var onError = function(response) {
           var data = response.data;
           var status = response.status;
           var statusText = response.statusText;
           var headers = response.headers;
           var config = response.config;
+          var citation = $scope.data.citation;
           if (status == 401 && retry) {
             gdocs.removeCachedAuthToken(
               gdocs.auth.bind(gdocs, true,
@@ -1095,20 +1098,8 @@ Code may not be used without written and express permission.
             console.log('Try updating headers: ', $scope.data.defaultDoc);
             //Try updating the column headers to fix faulty docs.
             //The second param is an optional doc so we don't update the whole list. We take the index of :selected and use just that doc from the docs array.
-            bgPage.updateDocument(function(error) {
-              console.log('updateHeaders complete', error);
-              if (!error) { //only complete the callback if updateDocument didn't encounter an error.
-                $scope.updateHeaderSuccess(callback);
-              } else {
-                $scope.data.requesting = false; //Reset the variable.
-                //Don't close the window.
-                //TODO: should we really queue the error?
-                msgService.queue(error + ' Check Your Document Columns', 'error');
-
-                //Exit the amend sequence and throw the error.
-                //$scope.saveNote.saveNoteFailure(error); //Not a function within this scope...
-              }
-            }, $scope.data.defaultDoc);
+            //The third param is also optional and means we check for the actual columns we're trying to set.
+            bgPage.updateDocument(updateDocumentCallback, $scope.data.defaultDoc, Object.keys(citation));
 
             msgService.queue('Updating Headers...');
 
@@ -1118,14 +1109,62 @@ Code may not be used without written and express permission.
             $scope.data.requesting = false; //Reset the variable.
             msgService.queue(status + ' Problem With the Note', 'error');
           }
-        });
+        };
+
+        var parseXml = function(xmlStr) {
+           return new window.DOMParser().parseFromString(xmlStr, "text/xml");
+        };
+
+        var checkResponse = function(response) {
+          var citation = $scope.data.citation;
+          var doc = parseXml(response.data);
+          var editLink = doc.querySelector('link[rel="edit"]').getAttribute('href');
+          // var nonEmptyKeys = Object.keys(citation).filter((key) => citation[key]).map((key) => key.toLowerCase());
+          var missingColumn = false;
+          for(var key in citation) {
+            var foundColumn = doc.querySelector(key.toLowerCase());
+            if(foundColumn === null) {
+              missingColumn = true;
+              var col = document.createElement('gsx:'+key.toLowerCase());
+              col.innerHTML = Util.escapeHTML(citation[key]).replace(/&nbsp;/gi,' ');
+              doc.querySelector('entry').appendChild(col);
+            }
+          }
+          if(missingColumn == true) {
+            //Update the column headers in the document to match the current citation and then update the row using id.
+            // msgService.queue('Missing Columns in Sheet', 'error');
+            bgPage.updateDocument((response)=>{
+              $http.put(editLink, doc.querySelector('entry').outerHTML, config)
+              .then(onSuccess)
+              .catch(onError);
+            }, $scope.data.defaultDoc, Object.keys(citation));
+          }
+        };
+
+        var updateDocumentCallback = function(error) {
+          console.log('updateHeaders complete', error);
+          if (!error) { //Only complete the callback if updateDocument didn't encounter an error.
+            $scope.updateHeaderSuccess(callback, editLink);
+          } else {
+            $scope.data.requesting = false; //Reset the variable.
+            //Don't close the window.
+            //TODO: should we really queue the error?
+            msgService.queue(error + ' Check Your Document Columns', 'error');
+
+            //Exit the amend sequence and throw the error.
+            //$scope.saveNote.saveNoteFailure(error); //Not a function within this scope...
+          }
+        };
+
+        $http.post(url, citationData, config)
+        .then(onSuccess)
+        .catch(onError);
 
         console.log('Citation: ', url, config);
       }
     };
 
     var constructCitation = function() {
-
       return ["<?xml version='1.0' encoding='UTF-8'?>",
           '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gsx="http://schemas.google.com/spreadsheets/2006/extended">',
           Object.entries($scope.data.citation).map((entry, index, array) => {

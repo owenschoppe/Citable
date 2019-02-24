@@ -618,7 +618,7 @@ var renameFolder = function(folder, title, callback) {
 //Updates the document headers in all of the user's spreadsheets found in Citable_Documents.
 //Runs completely in the background.
 //TODO: Citable successfully posts the note even if only one column (with incoming data) is present. This is ok, if we assume users don't want data if they delete a column, but it's problematic if we want to be fool-proof. Consider doing a forced header-update for all docs on a recurring basis.
-var updateDocument = function(callback, docToUpdate) {
+var updateDocument = function(callback, docToUpdate, columnOrder) {
 
   var privateDocs;
   if (docToUpdate != null) {
@@ -635,7 +635,7 @@ var updateDocument = function(callback, docToUpdate) {
   //var worksheetId = 'od6';
   var worksheetId = 'default'; //Switch to default to support documents created through the Drive API.
   //TODO Do this per document, iterate through columns? At least add DatePublished...
-  var order = ['Title', 'Url', 'Date', 'Author', 'Summary', 'Tags']; //'Title,Url,Date,Author,Summary,Tags'
+  var order = columnOrder || ['Title', 'Url', 'Date', 'Author', 'Summary', 'Tags', 'Publication']; //'Title,Url,Date,Author,Summary,Tags'
   var Cells = [];
   var Cell = function(entry) {
     this.title = (entry.gs$cell ? entry.gs$cell.$t : '');
@@ -710,12 +710,12 @@ var updateDocument = function(callback, docToUpdate) {
     var missingTitles = [];
     for (var i = 0; i < Cells.length; i++) {
       //console.log('Cells[',i,'].title: ', Cells[i].title);
-      cellValues = cellValues.concat(Cells[i].title);
+      cellValues = cellValues.concat(Cells[i].title.toLowerCase());
     }
     var j = 0;
     for (var k = 0; k < order.length; k++) {
       //console.log('Search title "',order[i],'" in "',cellValues,'"');
-      if (cellValues.search(order[k]) == -1) {
+      if (cellValues.search(order[k].toLowerCase()) == -1) {
         missingTitles[j] = order[k];
         j++;
       }
