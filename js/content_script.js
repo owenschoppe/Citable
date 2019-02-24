@@ -92,7 +92,7 @@ var getAuthor = function() {
       var loc = author.search(q); //Location of 'by'.
       //console.log(author,loc,author.indexOf(m));
       if ((loc < (m ? author.indexOf(m) : author.length) && loc != -1) || (loc == 0)) {
-        console.log('split');
+        // console.log('split');
         author = author.slice(loc + 2);
       } //If location of 'by' is the first word or is before the first lowercase word or the end, trim off everything before by.
       //console.log(author,author.indexOf(m));
@@ -407,6 +407,106 @@ function getDatePublished() {
   return date == "Invalid Date" ? "" : date;
 }
 
+function getTitle() {
+  var selectors = [
+    {
+      //ld+JSON
+      //https://jsonld.com/article/
+      //Fox, Bloomberg, Medium, not(Wired)
+      selector: '[type="application/ld+json"]',
+      parser: function(array){
+        return array.filter((element)=>{return JSON.parse(element.innerText).headline ? true : false;})
+        .reduce((result,element)=>{
+          let headline = JSON.parse(element.innerText).headline;
+          result.push(headline);
+          // console.log('json',result);
+          return result;
+        },[]);
+      }
+    },
+    {
+      //Microdata
+      //https://schema.org/
+      selector: '[itemtype="http://schema.org/Report"] > [itemprop="name"], [itemtype="http://schema.org/ScholarlyArticle"] > [itemprop="name"], [itemtype="http://schema.org/NewsArticle"] > [itemprop="name"], [itemtype="http://schema.org/TechArticle"] > [itemprop="name"]',
+      parser: function(array) {
+        return array.map(element => {
+          if (element.getAttribute("content")){
+            // console.log('Microdata',element.getAttribute("content"));
+            return element.getAttribute("content");
+          } else {
+            // console.log('Microdata',element.innerText);
+            return element.innerText;
+          }
+        });
+      }
+    },
+    {
+      //DublinCore
+      //http://dublincore.org/documents/usageguide/#html
+      selector: '[name="dc.title"], [name="DC.title"], [name="dc.Title"]',
+      parser: function(array) {
+        // console.log('Dublin',array.map(element => element.getAttribute("content")));
+        return array.map(element => element.getAttribute("content"));
+      }
+    },
+    {
+      //Google Scholar
+      //https://scholar.google.com/intl/en/scholar/inclusion.html#indexing
+      selector: '[name="citation_title"], [name="Citation_Title"]',
+      parser: function(array) {
+        // console.log('Google',array.map(element => element.getAttribute("content")));
+        return array.map(element => element.getAttribute("content"));
+      }
+    },
+    {
+      //Data attribute
+      //Chicago Tribune
+      selector: '[data-sc-ti]',
+      parser: function(array) {
+        // console.log('Data',array.map(element => element.dataset.scTi));
+        return array.map(element => element.dataset.scTi);
+      }
+    },
+    {
+      //OpenGraph //Facebook //Twitter
+      //http://ogp.me/
+      selector: '[property="og:title"], [name="fb_title"], [property="twitter:title"]',
+      parser: function(array) {
+        // console.log('OpenGraph',array,array.map(element => element.getAttribute("content")));
+        return array.map(element => element.getAttribute("content"));
+      }
+    },
+    {
+      //Title
+      selector: 'title',
+      parser: function(array) {
+        // console.log('title',array.map(element => element.innerText));
+        return array.map(element => element.innerText);
+      }
+    }
+  ];
+
+  let found = [];
+  for( var selector of selectors) {
+    try {
+      found.push(
+          ...selector.parser(
+            [].slice.call(
+              document.querySelectorAll(selector.selector)
+            )
+          )
+        );
+    } catch (e) {
+      console.log(selector.selector,e);
+      return null;
+    }
+  }
+  console.log('structured title:',found,found.filter(element => element)[0]);
+  found = found.filter(element => element);
+  let final = found instanceof Array && found.length > 0 ? found[0] : '';
+  return final;
+}
+
 function getPublication() {
   var selectors = [
     {
@@ -427,6 +527,7 @@ function getPublication() {
             //Invalid author === string
             result.push(publisher);
           }
+          // console.log('json',result);
           return result;
         },[]);
       }
@@ -434,13 +535,15 @@ function getPublication() {
     {
       //Microdata
       //https://schema.org/
-      selector: '[itemtype="http://schema.org/Periodical"] > [itemprop="name"], [itemtype="http://schema.org/Website"] > [itemprop="name"], [itemprop="isPartOf"] > [itemprop="name"], [itemprop="publisher"] > [itemprop="name"]',
+      selector: '[itemtype="http://schema.org/Periodical"] > [itemprop="name"], [itemtype="http://schema.org/Website"] > [itemprop="name"], [itemprop="isPartOf"] > [itemprop="name"]',
       parser: function(array) {
         return array.map(element => {
           if (element.getAttribute("content")){
+            // console.log('Microdata',element.getAttribute("content"));
             return element.getAttribute("content");
           } else {
-            element.getAttribute("innerText");
+            // console.log('Microdata',element.innerText);
+            return element.innerText;
           }
         });
       }
@@ -450,6 +553,7 @@ function getPublication() {
       //http://dublincore.org/documents/usageguide/#html
       selector: '[name="dc.relation.ispartof"], [name="DC.relation.ispartof"], [name="dc.Relation.Ispartof"]',
       parser: function(array) {
+        // console.log('Dublin',array.map(element => element.getAttribute("content")));
         return array.map(element => element.getAttribute("content"));
       }
     },
@@ -458,6 +562,7 @@ function getPublication() {
       //https://scholar.google.com/intl/en/scholar/inclusion.html#indexing
       selector: '[name="citation_journal_title"], [name="citation_volume"], [name="citation_date"]',
       parser: function(array) {
+        // console.log('Google',array.map(element => element.getAttribute("content")));
         return array.map(element => element.getAttribute("content"));
       }
     },
@@ -466,14 +571,16 @@ function getPublication() {
       //Chicago Tribune
       selector: '[data-sc-nn]',
       parser: function(array) {
+        // console.log('Data',array.map(element => element.dataset.scNn));
         return array.map(element => element.dataset.scNn);
       }
     },
     {
       //PRISM
       //https://www.idealliance.org/prism-metadata
-      selector: '[name="prism:publicationName"]',
+      selector: '[name="prism.publicationName"],[name="prism:publicationName"]',
       parser: function(array) {
+        // console.log('Prism',array.map(element => element.getAttribute("content")));
         return array.map(element => element.getAttribute("content"));
       }
     },
@@ -482,6 +589,7 @@ function getPublication() {
       //http://ogp.me/
       selector: '[property="og:site_name"]',
       parser: function(array) {
+        // console.log('OpenGraph',array.map(element => element.getAttribute("content")));
         return array.map(element => element.getAttribute("content"));
       }
     },
@@ -490,6 +598,7 @@ function getPublication() {
       //http://dublincore.org/documents/usageguide/#html
       selector: '[name="dc.publisher"], [name="DC.publisher"], [name="dc.Publisher"]',
       parser: function(array) {
+        // console.log('Dublin Alt',array.map(element => element.getAttribute("content")));
         return array.map(element => element.getAttribute("content"));
       }
     }
@@ -533,6 +642,7 @@ function getPublication() {
   let final = found instanceof Array && found.length > 0 ? found[0] : '';
   return final;
 }
+
 
 // Object to hold information about the current page
 var author;
@@ -580,7 +690,7 @@ try {
 }
 
 var pageInfo = {
-  "Title": document.title.trim(),
+  "Title": getTitle(),
   "Url": '',
   "Summary": summary,
   "Author": author,
