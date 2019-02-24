@@ -65,7 +65,7 @@ var FULL_SCOPE = DOCLIST_SCOPE + ' ' + SPREAD_SCOPE;
 
 var docKey; //The doc key for the document to print.
 var title; //The doc title to print
-var rows = []; //From printexport.js
+var rows = [];
 
 function renderCallback(container, pages, callback) {
   console.log('renderCallback', container, pages, callback);

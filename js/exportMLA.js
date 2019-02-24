@@ -3,17 +3,18 @@
 // https://columbiacollege-ca.libguides.com/mla/websites
 // https://www.mendeley.com/guides/mla-citation-guide
 // https://owl.purdue.edu/owl/research_and_citation/mla_style/mla_formatting_and_style_guide/mla_formatting_and_style_guide.html
-function exportMLA(rows) {
 
-  function citeWebsite(type, title, authors, dateAccessed, datePublished, url, publication) {
+exportMLA = function({rows, escapeRowData, splitAuthor, firstLast, lastFirst, quote, emphasize, splitDate, toMonths, formatURL, sortAlpha, notCitable}) {
+
+  //item.type, item.title, item.author, item.date, item.datepublished, item.url
+  function citeWebsite({type, title, author, date: dateAccessed, datepublished: datePublished, url, publication}) {
     //Check that we have the minimum number of attributes for a web citation.
     //Publisher/Site/Organization name should go after the formatted title.
     //Either `<em>Title</em>` or `"Title." <em>Publication</em>`
-    if(url && dateAccessed && (authors || title)) {
-      return `<p style="padding-left:.5in; text-indent:-.5in; line-height:1.5">${authors ? `${formatAuthors(authors)} ` : ``}${publication ? `${quote(title)}. ${emphasize(publication)},` : `${emphasize(title)}.` }${ datePublished ? ` ${formatDateMLA(datePublished)}` : ``}, ${formatURL(url,false)}.${dateAccessed ? ` Accessed ${formatDateMLA(dateAccessed)}.` : ``}</p>`;
+    if(url && dateAccessed && (author || title)) {
+      return `<p style="padding-left:.5in; text-indent:-.5in; line-height:1.5">${author ? `${formatAuthors(author)} ` : ``}${publication ? `${quote(title)}. ${emphasize(publication)},` : `${emphasize(title)}.` }${ datePublished ? ` ${formatDateMLA(datePublished)}` : ``}, ${formatURL(url,false)}.${dateAccessed ? ` Accessed ${formatDateMLA(dateAccessed)}.` : ``}</p>`;
     } else {
-      console.log('Insufficient information to cite:',type,title,authors,dateAccessed,datePublished,url);
-      return '';
+      throw arguments[0];
     }
   }
 
@@ -65,12 +66,16 @@ function exportMLA(rows) {
     switch(item.type) {
       default:
         try {
-          return citeWebsite(item.type, item.title, item.author, item.date, item.datepublished, item.url);
+          return citeWebsite(item);
         } catch (e) {
-          console.log(e);
+          console.log("Unable to Cite:",e);
+          notCitable.push(e);
+          return "";
         }
     }
   }
 
-  return `<center>Works Cited</center>${rows.map((row) => `${formatCitation(row)}`).sort(sortAlpha).join('')}`;
-}
+  rows = escapeRowData(rows); //Prevents XSS since we're setting innerHTML...
+
+  return `<center>Works Cited</center>${rows.map((row,i) => `${formatCitation(row)}`).sort(sortAlpha).join('')}`;
+};

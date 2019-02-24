@@ -1,16 +1,18 @@
 /*jshint esversion: 6 */
 // https://www.chicagomanualofstyle.org
 
-function exportChicago(rows) {
+exportChicago = function({rows, escapeRowData, splitAuthor, firstLast, lastFirst, quote, emphasize, formatDate, formatURL, sortAlpha, notCitable}) {
 
-  function citeWebsite(type, title, authors, dateAccessed, datePublished, url) {
+  //item.type, item.title, item.author, item.date, item.datepublished, item.url
+  function citeWebsite({type, title, author, date: dateAccessed, datepublished: datePublished, url}) {
     //Check that we have the minimum number of attributes for a web citation.
     //Publisher/Site/Organization name should go after the formatted title.
-    if(url && dateAccessed && (authors || title)) {
-      return `<p style="padding-left:.5in; text-indent:-.5in; line-height:1.25">${authors ? `${formatAuthors(authors)} ` : ``}${quote(title)} ${ datePublished ? `Last modified ${formatDate(datePublished)}` : `Accessed ${formatDate(dateAccessed)}`}. ${formatURL(url,true)}.</p>`;
+    if(url && dateAccessed && (author || title)) {
+      return `<p style="padding-left:.5in; text-indent:-.5in; line-height:1.25">${author ? `${formatAuthors(author)} ` : ``}${quote(title)} ${ datePublished ? `Last modified ${formatDate(datePublished)}` : `Accessed ${formatDate(dateAccessed)}`}. ${formatURL(url,true)}.</p>`;
     } else {
-      console.log('Insufficient information to cite:',type,title,authors,dateAccessed,datePublished,url);
-      return '';
+      throw arguments[0];
+      // notCitable.push({type, title, author, dateAccessed, datePublished, url})
+      // return '';
     }
   }
 
@@ -50,12 +52,16 @@ function exportChicago(rows) {
     switch(item.type) {
       default:
       try {
-        return citeWebsite(item.type, item.title, item.author, item.date, item.datepublished, item.url);
+        return citeWebsite(item);
       } catch (e) {
-        console.log(e);
+        console.log("Unable to Cite:",e);
+        notCitable.push(e);
+        return "";
       }
     }
   }
 
-  return `<center>Bibliography</center>${rows.map((row) => `${formatCitation(row)}`).sort(sortAlpha).join('')}`;
-}
+  rows = escapeRowData(rows);
+
+  return `<center>Bibliography</center>${rows.map((row) => formatCitation(row)).sort(sortAlpha).join('')}`;
+};
