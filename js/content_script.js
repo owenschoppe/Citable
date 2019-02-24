@@ -197,47 +197,48 @@
         authors.push(
           stringifyElements(
             [].slice.call(document.querySelectorAll(selector))
-              .map(element => getRelatedAuthors(element, selector, (element.getBoundingClientRect().height > 1 ? true : false)).siblings)
-              .filter(element => element.length) //filter out empty arrays
-              .map(array => filterDescendants(array))[0]//Take the first non-empty array
-            )
-          ); //filter out parents from arrays
+            .map(element => getRelatedAuthors(element, selector, (element.getBoundingClientRect().height > 1 ? true : false)).siblings)
+            .filter(element => element.length) //filter out empty arrays
+            .map(array => filterDescendants(array))[0] //Take the first non-empty array
+          )
+        ); //filter out parents from arrays
       } catch (e) {
         authors.push("");
         console.log('findAuthors combined', e);
       }
-      console.log('unstructured:',authors);
+      console.log('unstructured:', authors);
       return authors[0]; //take first non-empty array of authors
     }
 
-    let structuredSelectors = [
-      {
+    let structuredSelectors = [{
         //ld+JSON
         //Fox, Bloomberg, Medium, not(Wired)
         selector: '[type="application/ld+json"]',
-        parser: function(array){
-          return array.filter((element)=>{return JSON.parse(element.innerText).author ? true : false;})
-          .reduce((result,element)=>{
-            let author = JSON.parse(element.innerText).author;
-            if (author instanceof Array){
-              //Multiple authors @type=person, spread result
-              result.push(...author.map(person => person.hasOwnProperty('name') ? person.name.toString() : person));
-            } else if (author.hasOwnProperty('name')) {
-              //Single author @type=person
-              result.push(author.name.toString());
-            } else {
-              //Invalid author === string
-              result.push(author);
-            }
-            return result;
-          },[]);
+        parser: function(array) {
+          return array.filter((element) => {
+              return JSON.parse(element.innerText).author ? true : false;
+            })
+            .reduce((result, element) => {
+              let author = JSON.parse(element.innerText).author;
+              if (author instanceof Array) {
+                //Multiple authors @type=person, spread result
+                result.push(...author.map(person => person.hasOwnProperty('name') ? person.name.toString() : person));
+              } else if (author.hasOwnProperty('name')) {
+                //Single author @type=person
+                result.push(author.name.toString());
+              } else {
+                //Invalid author === string
+                result.push(author);
+              }
+              return result;
+            }, []);
         }
       },
       {
         //DublinCore
         //Science, New England Journal of Medicine, Google Scholar
         selector: '[name="dc.creator"], [name="DC.creator"], [name="dc.Creator"], [name="citation_author"]',
-        parser: function(array){
+        parser: function(array) {
           return array.map(element => element.content);
         }
       },
@@ -245,7 +246,7 @@
         //Microdata
         //Politico, NYT, not(Atlantic sometimes, take first and find siblings...)
         selector: '[itemtype*="Article"] [itemprop*="author"] [itemprop*="name"]',
-        parser: function(array){
+        parser: function(array) {
           return array.map(element => element.content || element.innerText);
         }
       },
@@ -253,7 +254,7 @@
         //RDFa
         //Coffeecode
         selector: '[property*="author"] [property*="name"]',
-        parser: function(array){
+        parser: function(array) {
           return array.map(element => element.innerText);
         }
       },
@@ -261,7 +262,7 @@
         //DataProp
         //Washington Post
         selector: '[itemprop*="article"] [data-authorname]',
-        parser: function(array){
+        parser: function(array) {
           return array.map(element => element.innerText);
         }
       },
@@ -269,13 +270,12 @@
         //data-scrim
         //Wall Street Journal
         selector: '[data-scrim]',
-        parser: function(array){
-          return array.map((element)=>{
+        parser: function(array) {
+          return array.map((element) => {
             let data = JSON.parse(element.dataset.scrim);
-            if(data.type == "author"){
+            if (data.type == "author") {
               return data.header;
-            }
-            else {
+            } else {
               return null;
             }
           });
@@ -285,15 +285,15 @@
         //meta tag
         //Chicago Tribune, Science Mag
         selector: '[name="author"], [name="news_authors"]',
-        parser: function(array){
+        parser: function(array) {
           return array.map(element => element.content);
         }
       }
     ];
 
-    function getStructuredAuthor(selectors){
+    function getStructuredAuthor(selectors) {
       let authors = [];
-      for( var selector of selectors) {
+      for (var selector of selectors) {
         try {
           authors.push(
             dedupe(
@@ -305,18 +305,20 @@
             )
           );
         } catch (e) {
-          console.log(selector.selector,e);
+          console.log(selector.selector, e);
           return null;
         }
       }
-      console.log('structured:',authors);
-      return stringifyAuthors(authors.sort((a,b)=>{return b.length - a.length;})[0]); //Schema.org
+      console.log('structured:', authors);
+      return stringifyAuthors(authors.sort((a, b) => {
+        return b.length - a.length;
+      })[0]); //Schema.org
     }
 
     //Get smarter about selecting which one.
     //Filter out empty entries in the array created by joining an empty array.
     var author = getStructuredAuthor(structuredSelectors);
-    if(!author) {
+    if (!author) {
       author = findAuthors(selectors.join());
     }
     console.log('author', author);
@@ -325,24 +327,25 @@
   };
 
   function getDatePublished() {
-    var selectors = [
-      {
+    var selectors = [{
         //ld+json
         //https://schema.org/
         selector: '[type="application/ld+json"]',
-        parser: function(array){
-          return array.filter((element)=>{return JSON.parse(element.innerText).datePublished ? true : false;})
-          .reduce((result,element)=>{
-            let date = JSON.parse(element.innerText).datePublished;
-            if (date instanceof Array){
-              //Multiple dates, just take the first one
-              result.push(date[0]);
-            } else {
-              //Invalid author === string
-              result.push(date);
-            }
-            return result;
-          },[]);
+        parser: function(array) {
+          return array.filter((element) => {
+              return JSON.parse(element.innerText).datePublished ? true : false;
+            })
+            .reduce((result, element) => {
+              let date = JSON.parse(element.innerText).datePublished;
+              if (date instanceof Array) {
+                //Multiple dates, just take the first one
+                result.push(date[0]);
+              } else {
+                //Invalid author === string
+                result.push(date);
+              }
+              return result;
+            }, []);
         }
       },
       {
@@ -389,40 +392,41 @@
     ];
 
     let dates = [];
-    for( var selector of selectors) {
+    for (var selector of selectors) {
       try {
         dates.push(
-            ...selector.parser(
-              [].slice.call(
-                document.querySelectorAll(selector.selector)
-              )
+          ...selector.parser(
+            [].slice.call(
+              document.querySelectorAll(selector.selector)
             )
-          );
+          )
+        );
       } catch (e) {
-        console.log(selector.selector,e);
+        console.log(selector.selector, e);
         return null;
       }
     }
-    console.log('structured dates:',dates,dates.filter(element => element)[0]);
+    console.log('structured dates:', dates, dates.filter(element => element)[0]);
     let date = new Date(dates.filter(element => element)[0]).toUTCString(); //Schema.org
     return date == "Invalid Date" ? "" : date;
   }
 
   function getTitle() {
-    var selectors = [
-      {
+    var selectors = [{
         //ld+JSON
         //https://jsonld.com/article/
         //Fox, Bloomberg, Medium, not(Wired)
         selector: '[type="application/ld+json"]',
-        parser: function(array){
-          return array.filter((element)=>{return JSON.parse(element.innerText).headline ? true : false;})
-          .reduce((result,element)=>{
-            let headline = JSON.parse(element.innerText).headline;
-            result.push(headline);
-            // console.log('json',result);
-            return result;
-          },[]);
+        parser: function(array) {
+          return array.filter((element) => {
+              return JSON.parse(element.innerText).headline ? true : false;
+            })
+            .reduce((result, element) => {
+              let headline = JSON.parse(element.innerText).headline;
+              result.push(headline);
+              // console.log('json',result);
+              return result;
+            }, []);
         }
       },
       {
@@ -431,7 +435,7 @@
         selector: '[itemtype="http://schema.org/Report"] > [itemprop="name"], [itemtype="http://schema.org/ScholarlyArticle"] > [itemprop="name"], [itemtype="http://schema.org/NewsArticle"] > [itemprop="name"], [itemtype="http://schema.org/TechArticle"] > [itemprop="name"]',
         parser: function(array) {
           return array.map(element => {
-            if (element.getAttribute("content")){
+            if (element.getAttribute("content")) {
               // console.log('Microdata',element.getAttribute("content"));
               return element.getAttribute("content");
             } else {
@@ -488,49 +492,50 @@
     ];
 
     let found = [];
-    for( var selector of selectors) {
+    for (var selector of selectors) {
       try {
         found.push(
-            ...selector.parser(
-              [].slice.call(
-                document.querySelectorAll(selector.selector)
-              )
+          ...selector.parser(
+            [].slice.call(
+              document.querySelectorAll(selector.selector)
             )
-          );
+          )
+        );
       } catch (e) {
-        console.log(selector.selector,e);
+        console.log(selector.selector, e);
         return null;
       }
     }
-    console.log('structured title:',found,found.filter(element => element)[0]);
+    console.log('structured title:', found, found.filter(element => element)[0]);
     found = found.filter(element => element);
     let final = found instanceof Array && found.length > 0 ? found[0] : '';
     return final;
   }
 
   function getPublication() {
-    var selectors = [
-      {
+    var selectors = [{
         //ld+JSON
         //Fox, Bloomberg, Medium, not(Wired)
         selector: '[type="application/ld+json"]',
-        parser: function(array){
-          return array.filter((element)=>{return JSON.parse(element.innerText).publisher ? true : false;})
-          .reduce((result,element)=>{
-            let publisher = JSON.parse(element.innerText).publisher;
-            if (publisher instanceof Array){
-              //Multiple authors @type=person, spread result
-              result.push(...publisher.map(org => org.hasOwnProperty('name') ? org.name.toString() : org));
-            } else if (publisher.hasOwnProperty('name')) {
-              //Single author @type=person
-              result.push(publisher.name.toString());
-            } else {
-              //Invalid author === string
-              result.push(publisher);
-            }
-            // console.log('json',result);
-            return result;
-          },[]);
+        parser: function(array) {
+          return array.filter((element) => {
+              return JSON.parse(element.innerText).publisher ? true : false;
+            })
+            .reduce((result, element) => {
+              let publisher = JSON.parse(element.innerText).publisher;
+              if (publisher instanceof Array) {
+                //Multiple authors @type=person, spread result
+                result.push(...publisher.map(org => org.hasOwnProperty('name') ? org.name.toString() : org));
+              } else if (publisher.hasOwnProperty('name')) {
+                //Single author @type=person
+                result.push(publisher.name.toString());
+              } else {
+                //Invalid author === string
+                result.push(publisher);
+              }
+              // console.log('json',result);
+              return result;
+            }, []);
         }
       },
       {
@@ -539,7 +544,7 @@
         selector: '[itemtype="http://schema.org/Periodical"] > [itemprop="name"], [itemtype="http://schema.org/Website"] > [itemprop="name"], [itemprop="isPartOf"] > [itemprop="name"]',
         parser: function(array) {
           return array.map(element => {
-            if (element.getAttribute("content")){
+            if (element.getAttribute("content")) {
               // console.log('Microdata',element.getAttribute("content"));
               return element.getAttribute("content");
             } else {
@@ -624,21 +629,21 @@
     ];
 
     let found = [];
-    for( var selector of selectors) {
+    for (var selector of selectors) {
       try {
         found.push(
-            ...selector.parser(
-              [].slice.call(
-                document.querySelectorAll(selector.selector)
-              )
+          ...selector.parser(
+            [].slice.call(
+              document.querySelectorAll(selector.selector)
             )
-          );
+          )
+        );
       } catch (e) {
-        console.log(selector.selector,e);
+        console.log(selector.selector, e);
         return null;
       }
     }
-    console.log('structured publication:',found,found.filter(element => element)[0]);
+    console.log('structured publication:', found, found.filter(element => element)[0]);
     found = found.filter(element => element);
     let final = found instanceof Array && found.length > 0 ? found[0] : '';
     return final;
@@ -707,7 +712,7 @@
   pageInfo = escapeObject(pageInfo);
 
   function escapeObject(object) {
-    for(var element in object) {
+    for (var element in object) {
       // object[element] = escapeHTML(object[element]);
       object[element] = encodeURIComponent(object[element]);
     }
