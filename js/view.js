@@ -448,7 +448,7 @@
 
   //IMPORTANT TODO: Rewrite the whole process around a function queue, thus on changeAction will clear the queue and start over. BIG project. Is it possible to abort functions midway without explicitly checking for a flag?
   /*------------------------------------------------------------------------------------------*/
-  async function processRowsCallback(rows) {
+  function processRowsCallback(rows) {
     // rows = row; //From printexport.js
     console.log('processRowsCallback()', rows);
 
@@ -471,25 +471,25 @@
 
 
     //Initialize the select control values
-    async function initSelects() {
-      async function handleResponse(response) {
+    function initSelects() {
+      function handleResponse(response) {
         console.log('get local storage', response);
         var valuesArray = [];
         for (var i = 0; i < 5; i++) {
           valuesArray.push(initSelect(i, cols, defaultFields, defaultColumns, response));
         }
-        await chrome.storage.local.set({
+        chrome.storage.local.set({
           [docKey]: valuesArray
         }, function(r) {
           console.log(r);
         });
       }
-      await chrome.storage.local.get(docKey, function(response) {
+      chrome.storage.local.get(docKey, function(response) {
         handleResponse(response);
       });
     }
 
-    async function onSet() {
+    function onSet() {
 
       //console.log(localStor.get(''));
       //Init CSS
@@ -503,7 +503,7 @@
         //renderNotes(makeDraggable);
       };
 
-      await chrome.storage.local.get('orientation', onStorage);
+      chrome.storage.local.get('orientation', onStorage);
     }
 
     // chrome.storage.local.set({[docKey] : defaultColumns}, onSet);
