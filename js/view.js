@@ -1,4 +1,4 @@
-/*jshint esversion: 8 */
+/*jshint esversion: 6 */
 (function() {
   var bgPage;
   chrome.runtime.getBackgroundPage(function(ref) {
@@ -75,7 +75,11 @@
 
     setTotal(pages);
     var output = document.getElementById('output');
-    output.hasChildNodes() ? output.replaceChild(container, output.firstChild) : output.appendChild(container);
+    if(output.hasChildNodes()) {
+      output.replaceChild(container, output.firstChild);
+    } else {
+      output.appendChild(container);
+    }
     document.querySelector('#loading').classList.add('hidden'); //Hide the loading gif.
     document.querySelector('#print-button').addEventListener('click', printHandler);
     document.querySelector('#print-button').disabled = false;
