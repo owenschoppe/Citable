@@ -82,4 +82,6 @@ body {
   page-break-before: always;
   break-before: page;
   box-sizing: border-box;
+  display: flex;
+  justify-content: center;
 }

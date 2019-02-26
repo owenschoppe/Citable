@@ -347,27 +347,61 @@ img.logo {
 }
 
 .content {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   /* 48 - 20px shadow = 28 */
-  row-gap: 28px;
-  column-gap: 48px;
-  justify-content: center;
 }
 
 .landscape .content {
   grid-template-columns: 288px 288px 288px;
+  flex: 0 0 960px;
 }
 
 .portrait .content {
   grid-template-columns: 288px 288px;
+  flex: 0 0 624px;
 }
 
 .note_wrapper {
+  width: 3in;
+  margin: 0px 48px 28px 0px;
   list-style: none;
   cursor: default;
+}
+
+.landscape .note_wrapper:nth-child(3n), .portrait .note_wrapper:nth-child(even) {
+    margin:  0px 0px 28px 0px;
+}
+
+/* 48 - 20px shadow = 28 */
+@supports (display: grid) {
+    .content {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    row-gap: 28px;
+    column-gap: 48px;
+    }
+
+    .landscape .content {
+    grid-template-columns: 288px 288px 288px;
+    }
+
+    .portrait .content {
+    grid-template-columns: 288px 288px;
+    }
+
+    .note_wrapper {
+    margin: 0;
+    }
+
+    .landscape .note_wrapper:nth-child(3n), .portrait .note_wrapper:nth-child(even) {
+    margin:  0;
+    }
 }
 
 .note {
