@@ -52,6 +52,7 @@ body {
   width: 100%;
   text-align: center;
   padding-top: 24px;
+  align-self: flex-end;
 }
 
 .portrait .instructions {
