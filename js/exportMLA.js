@@ -4,10 +4,24 @@
 // https://www.mendeley.com/guides/mla-citation-guide
 // https://owl.purdue.edu/owl/research_and_citation/mla_style/mla_formatting_and_style_guide/mla_formatting_and_style_guide.html
 
-exportMLA = function({rows, escapeRowData, splitAuthor, firstLast, lastFirst, quote, emphasize, splitDate, toMonths, formatURL, sortAlpha, notCitable}) {
+exportMLA = function(app) {
+
+    //{rows, escapeRowData, splitAuthor, firstLast, lastFirst, quote, emphasize, splitDate, toMonths, formatURL, sortAlpha, notCitable}
+    var rows = app.rows,
+        escapeRowData = app.escapeRowData,
+        splitAuthor = app.splitAuthor,
+        firstLast = app.firstLast,
+        lastFirst = app.lastFirst;
+        quote = app.quote,
+        emphasize = app.emphasize,
+        splitDate = app.splitDate,
+        toMonths = app.toMonths,
+        formatURL = app.formatURL,
+        sortAlpha = app.sortAlpha
+        notCitable = app.notCitable;
 
   //item.type, item.title, item.author, item.date, item.datepublished, item.url
-  function citeWebsite({type, title, author, date: dateAccessed, datepublished: datePublished, url, publication}) {
+  function citeWebsite(type, title, author, dateAccessed, datePublished, url, publication) {
     //Check that we have the minimum number of attributes for a web citation.
     //Publisher/Site/Organization name should go after the formatted title.
     //Either `<em>Title</em>` or `"Title." <em>Publication</em>`
@@ -66,10 +80,10 @@ exportMLA = function({rows, escapeRowData, splitAuthor, firstLast, lastFirst, qu
     switch(item.type) {
       default:
         try {
-          return citeWebsite(item);
+            return citeWebsite(item.type, item.title, item.author, item.date, item.datepublished, item.url);
         } catch (e) {
-          console.log("Unable to Cite:",e);
-          notCitable.push(e);
+          console.log("Unable to Cite:",item);
+          notCitable.push(item);
           return "";
         }
     }

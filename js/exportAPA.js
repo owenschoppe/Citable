@@ -3,10 +3,24 @@
 // https://en.wikipedia.org/wiki/Wikipedia:Citing_Wikipedia
 // https://columbiacollege-ca.libguides.com/apa/websites
 
-exportAPA = function({rows, escapeRowData, splitAuthor, lastInitial, quote, emphasize, formatDate, splitDate, toMonths, formatURL, sortAlpha, notCitable}) {
+exportAPA = function(app) {
+
+    //{rows, escapeRowData, splitAuthor, lastInitial, quote, emphasize, formatDate, splitDate, toMonths, formatURL, sortAlpha, notCitable}
+    var rows = app.rows,
+        escapeRowData = app.escapeRowData,
+        splitAuthor = app.splitAuthor,
+        lastInitial = app.lastInitial,
+        quote = app.quote,
+        emphasize = app.emphasize,
+        formatDate = app.formatDate,
+        splitDate = app.splitDate,
+        toMonths = app.toMonths,
+        formatURL = app.formatURL,
+        sortAlpha = app.sortAlpha
+        notCitable = app.notCitable;
 
   //item.type, item.title, item.author, item.date, item.datepublished, item.url
-  function citeWebsite({type, title, author, date: dateAccessed, datepublished: datePublished, url, publication}) {
+  function citeWebsite(type, title, author, dateAccessed, datePublished, url, publication) {
     //Check that we have the minimum number of attributes for a web citation.
     //Publisher/Site/Organization name should go after the formatted title.
     //Either `<em>Title</em>` or `"Title." <em>Publication</em>`
@@ -65,10 +79,10 @@ exportAPA = function({rows, escapeRowData, splitAuthor, lastInitial, quote, emph
     switch(item.type) {
       default:
       try {
-        return citeWebsite(item);
+          return citeWebsite(item.type, item.title, item.author, item.date, item.datepublished, item.url);
       } catch (e) {
-        console.log("Unable to cite:",e);
-        notCitable.push(e);
+        console.log("Unable to cite:",item);
+        notCitable.push(item);
         return "";
       }
     }
