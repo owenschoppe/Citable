@@ -130,9 +130,9 @@
     }
 
     function getRelatedAuthors(startElement, selector, visibility) {
-      let parent = startElement; //should walk up from the selection...instead of the element.
-      let relatives = [];
-      let siblings = [];
+      var parent = startElement; //should walk up from the selection...instead of the element.
+      var relatives = [];
+      var siblings = [];
 
       while (parent != document.body && relatives.length <= 0 && siblings.length <= 1) {
         // console.log('parent:',parent);
@@ -153,7 +153,7 @@
 
     function filterDescendants(array) {
       return array.filter((element, i) => {
-        let leaf = true;
+        var leaf = true;
         for (var j = i + 1; j < array.length; j++) { //Compare with all following elements.
           leaf =
             array[j].compareDocumentPosition(array[i]) & Node.DOCUMENT_POSITION_CONTAINS ||
@@ -210,7 +210,7 @@
       return authors[0]; //take first non-empty array of authors
     }
 
-    let structuredSelectors = [{
+    var structuredSelectors = [{
         //ld+JSON
         //Fox, Bloomberg, Medium, not(Wired)
         selector: '[type="application/ld+json"]',
@@ -219,7 +219,7 @@
               return JSON.parse(element.innerText).author ? true : false;
             })
             .reduce((result, element) => {
-              let author = JSON.parse(element.innerText).author;
+              var author = JSON.parse(element.innerText).author;
               if (author instanceof Array) {
                 //Multiple authors @type=person, spread result
                 result.push(...author.map(person => person.hasOwnProperty('name') ? person.name.toString() : person));
@@ -272,7 +272,7 @@
         selector: '[data-scrim]',
         parser: function(array) {
           return array.map((element) => {
-            let data = JSON.parse(element.dataset.scrim);
+            var data = JSON.parse(element.dataset.scrim);
             if (data.type == "author") {
               return data.header;
             } else {
@@ -292,7 +292,7 @@
     ];
 
     function getStructuredAuthor(selectors) {
-      let authors = [];
+      var authors = [];
       for (var selector of selectors) {
         try {
           authors.push(
@@ -336,7 +336,7 @@
               return JSON.parse(element.innerText).datePublished ? true : false;
             })
             .reduce((result, element) => {
-              let date = JSON.parse(element.innerText).datePublished;
+              var date = JSON.parse(element.innerText).datePublished;
               if (date instanceof Array) {
                 //Multiple dates, just take the first one
                 result.push(date[0]);
@@ -391,7 +391,7 @@
       }
     ];
 
-    let dates = [];
+    var dates = [];
     for (var selector of selectors) {
       try {
         dates.push(
@@ -407,7 +407,7 @@
       }
     }
     console.log('structured dates:', dates, dates.filter(element => element)[0]);
-    let date = new Date(dates.filter(element => element)[0]).toUTCString(); //Schema.org
+    var date = new Date(dates.filter(element => element)[0]).toUTCString(); //Schema.org
     date = [].slice.call(date.split(' ')).filter((e, i, a) => i != a.length - 1 && i != 0).join(' ');
     return date == "Invalid Date" ? "" : date;
   }
@@ -423,7 +423,7 @@
               return JSON.parse(element.innerText).headline ? true : false;
             })
             .reduce((result, element) => {
-              let headline = JSON.parse(element.innerText).headline;
+              var headline = JSON.parse(element.innerText).headline;
               result.push(headline);
               // console.log('json',result);
               return result;
@@ -492,7 +492,7 @@
       }
     ];
 
-    let found = [];
+    var found = [];
     for (var selector of selectors) {
       try {
         found.push(
@@ -509,7 +509,7 @@
     }
     console.log('structured title:', found, found.filter(element => element)[0]);
     found = found.filter(element => element);
-    let final = found instanceof Array && found.length > 0 ? found[0] : '';
+    var final = found instanceof Array && found.length > 0 ? found[0] : '';
     return final;
   }
 
@@ -523,7 +523,7 @@
               return JSON.parse(element.innerText).publisher ? true : false;
             })
             .reduce((result, element) => {
-              let publisher = JSON.parse(element.innerText).publisher;
+              var publisher = JSON.parse(element.innerText).publisher;
               if (publisher instanceof Array) {
                 //Multiple authors @type=person, spread result
                 result.push(...publisher.map(org => org.hasOwnProperty('name') ? org.name.toString() : org));
@@ -629,7 +629,7 @@
       // }
     ];
 
-    let found = [];
+    var found = [];
     for (var selector of selectors) {
       try {
         found.push(
@@ -646,7 +646,7 @@
     }
     console.log('structured publication:', found, found.filter(element => element)[0]);
     found = found.filter(element => element);
-    let final = found instanceof Array && found.length > 0 ? found[0] : '';
+    var final = found instanceof Array && found.length > 0 ? found[0] : '';
     return final;
   }
 
