@@ -2,10 +2,22 @@
 // https://www.chicagomanualofstyle.org
 // https://www.lib.sfu.ca/help/cite-write/citation-style-guides/chicago/websites
 
-exportChicago = function({rows, escapeRowData, splitAuthor, firstLast, lastFirst, quote, emphasize, formatDate, formatURL, sortAlpha, notCitable}) {
+exportChicago = function(app) {
+
+    var rows = app.rows, 
+        escapeRowData = app.escapeRowData, 
+        splitAuthor = app.splitAuthor, 
+        firstLast = app.firstLast, 
+        lastFirst = app.lastFirst, 
+        quote = app.quote, 
+        emphasize = app.emphasize, 
+        formatDate = app.formatDate, 
+        formatURL = app.formatURL, 
+        sortAlpha = app.sortAlpha
+        notCitable = app.notCitable;
 
   //item.type, item.title, item.author, item.date, item.datepublished, item.url
-  function citeWebsite({type, title, author, date: dateAccessed, datepublished: datePublished, url, publication}) {
+  function citeWebsite(type, title, author, dateAccessed, datePublished, url, publication) {
     //Check that we have the minimum number of attributes for a web citation.
     //Publisher/Site/Organization name should go after the formatted title.
     if(url && dateAccessed && (author || title)) {
@@ -53,10 +65,10 @@ exportChicago = function({rows, escapeRowData, splitAuthor, firstLast, lastFirst
     switch(item.type) {
       default:
       try {
-        return citeWebsite(item);
+          return citeWebsite(item.type, item.title, item.author, item.date, item.datepublished, item.url, item.publication);
       } catch (e) {
-        console.log("Unable to Cite:",e);
-        notCitable.push(e);
+        console.log("Unable to Cite:",item);
+        notCitable.push(item);
         return "";
       }
     }

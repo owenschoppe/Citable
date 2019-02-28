@@ -28,6 +28,7 @@ body {
   font-family: 'Roboto', Sans-Serif;
   background: none;
   margin: 0px;
+  color: #333333;
   color: var(--color-text);
   position: absolute;
 }
@@ -35,6 +36,7 @@ body {
 .template .note {
   width: 288px;
   height: 288px;
+  border: 2px solid #dddddd;
   border: 2px solid var(--color-border);
   background: none;
   text-align: center;
@@ -42,7 +44,9 @@ body {
 }
 
 .template .divider {
-  margin: var(--space-medium) 0 var(--space-medium) 0;
+  margin: 1rem 0 1rem 0;
+    margin: var(--space-medium) 0 var(--space-medium) 0;
+    border-top: 1px solid #dddddd;
   border-top: 1px solid var(--color-border);
 }
 
@@ -78,6 +82,7 @@ body {
 }
 
 .page {
+  background-color: #ffffff;
   background-color: var(--color-background);
   margin: 0px;
   page-break-before: always;
