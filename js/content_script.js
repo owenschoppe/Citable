@@ -47,7 +47,11 @@
         }
         //Iterate through all the docs looking for selected text.
         for (var k = 0; k < docs.length; ++k) {
-          t = g(docs[k].contentDocument);
+          try {
+              t = g(docs[k].contentDocument);
+          } catch (e) {
+              console.log(e);
+          }
           if (t && t.toString() != '') break;
         }
       }
@@ -652,8 +656,8 @@
 
 
   // Object to hold information about the current page
-  var author;
-  var summary;
+  var author = '';
+  var summary = '';
   var tags = '';
 
   //Works for Vimeo, YouTube, HTML5 video, video.js, mediaelement.js, sublime

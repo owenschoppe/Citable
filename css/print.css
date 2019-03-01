@@ -53,9 +53,11 @@ body {
 .landscape .instructions {
   position: absolute;
   left: 0;
+  bottom: 0;
   width: 100%;
   text-align: center;
-  padding-top: 24px;
+  padding: 24px;
+  padding: var(--space-large);
   align-self: flex-end;
 }
 
