@@ -14,7 +14,7 @@
   /* rgb(0,91,79); */
   --color-primary--dark: #003d33;
   /* rgb(0,61,51); */
-  --color-primary--light: #00897b;
+  --color-primary--light: #00796B;
   /* rgb(0,133,124) */
   --color-primary--tint: rgba(0, 133, 124, 0.1);
   --color-primary--tint-alt: #BFE1DE; /*rgba(0, 133, 124, 0.25);*/
@@ -137,7 +137,7 @@ a.inverse {
 }
 
 .primary-button {
-  background-color: #00897b;
+  background-color: #00796B;
   background-color: var(--color-primary--light);
   color: #ffffff;
   color: var(--color-text--inverse);
