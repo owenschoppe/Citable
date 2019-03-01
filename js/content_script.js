@@ -166,7 +166,7 @@
     }
 
     function dedupe(array) {
-      return [...new Set(array)];
+        return Array.from(new Set(array));
     }
 
     selectors = [
@@ -222,7 +222,7 @@
               var author = JSON.parse(element.innerText).author;
               if (author instanceof Array) {
                 //Multiple authors @type=person, spread result
-                result.push(...author.map(person => person.hasOwnProperty('name') ? person.name.toString() : person));
+                resutl = result.concat(author.map(person => person.hasOwnProperty('name') ? person.name.toString() : person));
               } else if (author.hasOwnProperty('name')) {
                 //Single author @type=person
                 result.push(author.name.toString());
@@ -394,8 +394,8 @@
     var dates = [];
     for (var selector of selectors) {
       try {
-        dates.push(
-          ...selector.parser(
+        dates = dates.concat(
+          selector.parser(
             [].slice.call(
               document.querySelectorAll(selector.selector)
             )
@@ -495,8 +495,8 @@
     var found = [];
     for (var selector of selectors) {
       try {
-        found.push(
-          ...selector.parser(
+        found = found.concat(
+          selector.parser(
             [].slice.call(
               document.querySelectorAll(selector.selector)
             )
@@ -526,7 +526,7 @@
               var publisher = JSON.parse(element.innerText).publisher;
               if (publisher instanceof Array) {
                 //Multiple authors @type=person, spread result
-                result.push(...publisher.map(org => org.hasOwnProperty('name') ? org.name.toString() : org));
+                result = result.concat(publisher.map(org => org.hasOwnProperty('name') ? org.name.toString() : org));
               } else if (publisher.hasOwnProperty('name')) {
                 //Single author @type=person
                 result.push(publisher.name.toString());
@@ -632,8 +632,8 @@
     var found = [];
     for (var selector of selectors) {
       try {
-        found.push(
-          ...selector.parser(
+        found = found.concat(
+          selector.parser(
             [].slice.call(
               document.querySelectorAll(selector.selector)
             )
