@@ -308,7 +308,6 @@
           );
         } catch (e) {
           console.log(selector.selector, e);
-          return null;
         }
       }
       console.log('structured:', authors);
@@ -411,7 +410,6 @@
         );
       } catch (e) {
         console.log(selector.selector, e);
-        return null;
       }
     }
     console.log('structured dates:', dates, dates.filter(element => element)[0]);
@@ -492,7 +490,7 @@
       },
       {
         //Title
-        selector: 'title',
+        selector: 'head title',
         parser: function(array) {
           // console.log('title',array.map(element => element.innerText));
           return array.map(element => element.innerText);
@@ -512,7 +510,6 @@
         );
       } catch (e) {
         console.log(selector.selector, e);
-        return null;
       }
     }
     console.log('structured title:', found, found.filter(element => element)[0]);
@@ -649,7 +646,6 @@
         );
       } catch (e) {
         console.log(selector.selector, e);
-        return null;
       }
     }
     console.log('structured publication:', found, found.filter(element => element)[0]);
