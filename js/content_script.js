@@ -57,26 +57,21 @@
       }
       return t;
     }
+
     //Initiate the search using the top document.
-    var t = g(document);
+    var t = '';  
+    try {
+        t = g(document);
+    } catch (e) {
+        console.log(e);
+    }
+    
     //Return the results.
     if (!t || t == '') return ''; //Nothing found.
     else return t.toString().trim(); //Returns selected text.
   };
 
   var getAuthor = function() {
-
-    // var stringAuthors = function(a) {
-    //   //console.log('stringAuthors ',a);
-    //   var authors = '';
-    //   for (var i = 0; i < a.length; i++) {
-    //     console.log('author', i, ': ', a[i]);
-    //     authors += $(a[i]).text();
-    //     authors += (i < (a.length - 1) ? '; ' : '');
-    //   }
-    //   console.log('authors: ', authors);
-    //   return authors;
-    // };
 
     var parseAuthor = function(author) {
       if (author) {
@@ -144,7 +139,7 @@
         relatives = parent.querySelectorAll('h1'); //Is there a related H1?
         siblings = [].slice.call(parent.querySelectorAll(selector))
           .filter(element => {
-            return (visibility ? element.getBoundingClientRect().height > 1 : true) && element.innerText; //Element must be visible and not blank.
+            return (visibility == (element.getBoundingClientRect().height > 1)) && element.innerText; //Element must be visible and not blank.
           }); //Will always at least contain the element.
       }
       // console.log(selector,element,parent,relatives,siblings);
@@ -156,17 +151,17 @@
     }
 
     function filterDescendants(array) {
-      return array.filter((element, i) => {
+      array = array.filter((element, i) => {
         var leaf = true;
         for (var j = i + 1; j < array.length; j++) { //Compare with all following elements.
           leaf =
-            array[j].compareDocumentPosition(array[i]) & Node.DOCUMENT_POSITION_CONTAINS ||
-            array[j] === array[i] ?
-            false :
-            leaf; //OR use array[i].contains(array[j])
+            array[j].compareDocumentPosition(array[i]) & Node.DOCUMENT_POSITION_CONTAINS || array[j] === array[i] ?
+            false : leaf; //OR use array[i].contains(array[j])
         }
         return leaf;
       });
+      array = array.filter(element => element.innerText.trim().length > 0); //Also remove any empty nodes.
+      return array;
     }
 
     function dedupe(array) {
@@ -186,8 +181,9 @@
       '.elevateCover .postMetaInline--author, .js-postMetaLockup a:not(.avatar)', //Medium
       '.article-topper__meta-item a', //Technology Review
       '.highwire-citation-author', //JNeurosci
-      '.addmd' //Google Books
+      '.addmd', //Google Books
       //Discover Mag, Politico, Bangor Daily, NBC, Fox
+      '#upload-info #owner-name' //Youtube
     ];
 
     function findAuthors(selector, selectionElement) {
@@ -199,11 +195,13 @@
       //For each found element, turn it into an array of it's visible sibling authors, filter out null arrays, return the first
       try {
         authors.push(
-          stringifyElements(
-            [].slice.call(document.querySelectorAll(selector))
-            .map(element => getRelatedAuthors(element, selector, (element.getBoundingClientRect().height > 1 ? true : false)).siblings)
-            .filter(element => element.length) //filter out empty arrays
-            .map(array => filterDescendants(array))[0] //Take the first non-empty array
+          stringifyElements((()=>{
+            var array = [].slice.call(document.querySelectorAll(selector));
+            array = array.map(element => getRelatedAuthors(element, selector, (element.getBoundingClientRect().height > 1)).siblings);
+            array = array.map(array => filterDescendants(array)); 
+            array = array.filter(siblingArray => siblingArray.length > 0); //filter out empty arrays
+            return array[0]; //Take the first non-empty array
+            })()
           )
         ); //filter out parents from arrays
       } catch (e) {
@@ -321,13 +319,19 @@
 
     //Get smarter about selecting which one.
     //Filter out empty entries in the array created by joining an empty array.
-    var author = getStructuredAuthor(structuredSelectors);
-    if (!author) {
-      author = findAuthors(selectors.join());
+    var author = '';
+    try {
+        author = getStructuredAuthor(structuredSelectors);
+        if (!author) {
+            author = findAuthors(selectors.join());
+        }
+        console.log('author', author);
+        author = parseAuthor(author);
+    } catch (e) {
+        console.log(e);
     }
-    console.log('author', author);
 
-    return parseAuthor(author); //Buggy but works 80% of the time.
+    return author; //Buggy but works 80% of the time.
   };
 
   function getDatePublished() {
@@ -663,53 +667,40 @@
   //Works for Vimeo, YouTube, HTML5 video, video.js, mediaelement.js, sublime
   videoTime = function() {
     var videos = document.getElementsByTagName('video');
-    var time = null;
-    console.log("videos:", videos);
-    for (var i = 0; i < videos.length; i++) {
-      //console.log("video:",videos[i],videos[i].currentTime);
-      //videos[i].addEventListener("timeupdate",updateTags,false);
-      if (videos[i].currentTime > 0) {
-        time = videos[i].currentTime;
-      }
+    var time = 0;
+    var getTime = function(videos){
+        console.log("videos:", videos);
+        for (var i = 0; i < videos.length; i++) {
+            if (videos[i].currentTime > 0) {
+                return videos[i].currentTime; //Return the first non-zero time.
+            }
+        }
+        return 0;
     }
-    console.log("video time:", time);
-    var totalSec = Math.round(time);
-    var hours = parseInt(totalSec / 3600) % 24;
-    var minutes = parseInt(totalSec / 60) % 60;
-    var seconds = totalSec % 60;
-    var result = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
+    try {
+        time = getTime(videos);
+        console.log("video time:", time);
+        var totalSec = Math.round(time);
+        var hours = parseInt(totalSec / 3600) % 24;
+        var minutes = parseInt(totalSec / 60) % 60;
+        var seconds = totalSec % 60;
+        var result = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
+    } catch (e) {
+        console.log(e);
+    }
 
     return time > 0 ? result : '';
   };
 
-  try {
-    author = getAuthor();
-  } catch (e) {
-    console.log('No author', e);
-  }
-
-  try {
-    summary = getSelectedText();
-  } catch (e) {
-    console.log(e);
-  }
-
-  try {
-    tags = videoTime();
-  } catch (e) {
-    console.log(e);
-  }
-
   var pageInfo = {
-    "Title": getTitle(),
+    "Title": getTitle() || '',
     "Url": '',
-    "Summary": summary,
-    "Author": author,
-    "Tags": tags,
-    "DatePublished": getDatePublished(),
-    "Publication": getPublication()
+    "Summary": getSelectedText() || '',
+    "Author": getAuthor() || '',
+    "Tags": videoTime() || '',
+    "DatePublished": getDatePublished() || '',
+    "Publication": getPublication() || ''
   };
-
   //TODO:
   //gather website/publisher/organization name
   //gather media type
