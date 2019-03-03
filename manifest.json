@@ -14,9 +14,8 @@
   "oauth2": {
     "client_id": "1034066493115-63ktpb72dijlg29fsr4d4q40uotkd1a1.apps.googleusercontent.com",
     "scopes": [
-      "https://www.googleapis.com/auth/drive",
-      "https://spreadsheets.google.com/feeds",
-      "https://docs.google.com/feeds"
+      "https://www.googleapis.com/auth/drive.file",
+      "https://spreadsheets.google.com/feeds"
     ]
   },
   "options_page": "options.html",
@@ -37,19 +36,13 @@
   },
   "content_security_policy": "script-src 'self' https://ssl.google-analytics.com https://apis.google.com/; object-src 'self'",
   "permissions": [
-    "tabs",
+    "activeTab",
     "storage",
     "identity",
-    "http://*/*",
-    "https://*/*",
-    "https://docs.google.com/feeds/*",
     "https://spreadsheets.google.com/feeds/lists/*",
-    "https://www.google.com/accounts/OAuthGetRequestToken",
-    "https://www.google.com/accounts/OAuthAuthorizeToken",
-    "https://www.google.com/accounts/OAuthGetAccessToken",
     "https://ssl.gstatic.com/",
     "https://www.googleapis.com/",
-    "https://accounts.google.com/"
+    "https://apis.google.com/"
   ],
   "web_accessible_resources": [
   ],

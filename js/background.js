@@ -1,9 +1,4 @@
 /*jshint esversion: 6 */
-
-var DOCLIST_SCOPE = 'https://docs.google.com/feeds';
-var DOCLIST_FEED = DOCLIST_SCOPE + '/default/private/full/';
-var DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive';
-var DRIVE_FILES = 'https://www.googleapis.com/drive/v2/files';
 var SPREAD_SCOPE = 'https://spreadsheets.google.com/feeds';
 var docs = []; //In memory cache for the user's entire doclist.
 var row = []; //In memory cache for each row of the sheet returned.
@@ -16,9 +11,6 @@ var requestFailureCount = 0;
 var requestLimit = 3;
 var docName; //For passing the document name to the export page.
 var docKey;
-
-
-var FULL_SCOPE = DOCLIST_SCOPE + ' ' + SPREAD_SCOPE + ' ' + DRIVE_SCOPE;
 
 // Array to hold callback functions
 var callbacks = [];

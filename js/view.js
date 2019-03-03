@@ -56,13 +56,7 @@
   });
   /////////////////////////////////////////////////////////////////////////////////////
   //Global variables.
-  //var pages = 0;
-
   var SPREAD_SCOPE = 'https://spreadsheets.google.com/feeds';
-  var DOCLIST_SCOPE = 'https://docs.google.com/feeds';
-  var DOCLIST_FEED = DOCLIST_SCOPE + '/default/private/full/';
-  var FULL_SCOPE = DOCLIST_SCOPE + ' ' + SPREAD_SCOPE;
-
   var docKey; //The doc key for the document to print.
   var title; //The doc title to print
   var rows = [];
