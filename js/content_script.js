@@ -131,14 +131,36 @@
         //author = author.slice(0,(r!=-1?r:author.length)); //Clear any lines after the first line.
         author = author.replace(r, ' ').replace(/\,{2,}/g, ',');
 
-        return author.toString();
+        return capitalizeWords(author.toString());
       }
       return '';
     };
 
+      var capitalizeWord = function(string) {
+          return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+      };
+
+      var capitalizeWords = function(string) {
+          return string.split("; ").map(word => isUpperCase(word) && hasPunctuation(word) ? word.split(" ").map(w => capitalizeWord(w)).join(" ") : word).join("; ");
+      };
+
+      var isUpperCase = function(string) {
+          return string == string.toUpperCase();
+      };
+
+      var hasPunctuation = function(string) {
+        return string == string.replace(/[.,\/#!$%\^&\*;:{}=\-_`"'~()]/g, "");
+      };
+
     function stringifyElements(elements) {
-      return stringifyAuthors(elements.map(element => element
-          .innerText) //map them to text and only take the text before the return character
+        var style = "";
+      return stringifyAuthors(elements.map(element => {
+          initStyle = element.style.textTransform;
+          element.style.cssText = "text-transform: initial !important;";
+          var text = element.innerText;
+          element.style.cssText = `text-transform: ${initStyle}`;
+          return text;
+        }) //map them to text and only take the text before the return character
         .filter(element => element)); //filter out blank text
     }
 
