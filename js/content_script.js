@@ -658,6 +658,7 @@
   videoTime = function() {
     var videos = document.getElementsByTagName('video');
     var time = 0;
+    var result = '';
     var getTime = function(videos) {
       // console.log("videos:", videos);
       for (var i = 0; i < videos.length; i++) {
@@ -666,7 +667,7 @@
         }
       }
       return 0;
-    }
+    };
     try {
       time = getTime(videos);
       // console.log("video time:", time);
@@ -674,7 +675,7 @@
       var hours = parseInt(totalSec / 3600) % 24;
       var minutes = parseInt(totalSec / 60) % 60;
       var seconds = totalSec % 60;
-      var result = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
+      result = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
     } catch (e) {
       console.log(e);
     }
@@ -703,7 +704,7 @@
     found = found.filter(element => element);
     console.log('Get Structured', found);
     return found;
-  }
+  };
 
   var pageInfo = {
     "Title": getTitle() || '',
