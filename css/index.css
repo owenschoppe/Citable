@@ -275,6 +275,7 @@ input[type=checkbox], input[type=radio] {
   font-size: var(--font-small);
   border-radius: 4px; 
   border-radius: var(--border-radius);
+  border: 1px solid #dddddd;
   border: 1px solid var(--color-border);
   padding-left: 8px;
   width: 100%;
