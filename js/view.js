@@ -1,4 +1,4 @@
-/*jshint esversion: 8 */
+/*jshint esversion: 6 */
 (function() {
   var bgPage;
   chrome.runtime.getBackgroundPage(function(ref) {
@@ -56,13 +56,7 @@
   });
   /////////////////////////////////////////////////////////////////////////////////////
   //Global variables.
-  //var pages = 0;
-
   var SPREAD_SCOPE = 'https://spreadsheets.google.com/feeds';
-  var DOCLIST_SCOPE = 'https://docs.google.com/feeds';
-  var DOCLIST_FEED = DOCLIST_SCOPE + '/default/private/full/';
-  var FULL_SCOPE = DOCLIST_SCOPE + ' ' + SPREAD_SCOPE;
-
   var docKey; //The doc key for the document to print.
   var title; //The doc title to print
   var rows = [];
@@ -75,7 +69,11 @@
 
     setTotal(pages);
     var output = document.getElementById('output');
-    output.hasChildNodes() ? output.replaceChild(container, output.firstChild) : output.appendChild(container);
+    if(output.hasChildNodes()) {
+      output.replaceChild(container, output.firstChild);
+    } else {
+      output.appendChild(container);
+    }
     document.querySelector('#loading').classList.add('hidden'); //Hide the loading gif.
     document.querySelector('#print-button').addEventListener('click', printHandler);
     document.querySelector('#print-button').disabled = false;
@@ -448,7 +446,7 @@
 
   //IMPORTANT TODO: Rewrite the whole process around a function queue, thus on changeAction will clear the queue and start over. BIG project. Is it possible to abort functions midway without explicitly checking for a flag?
   /*------------------------------------------------------------------------------------------*/
-  async function processRowsCallback(rows) {
+  function processRowsCallback(rows) {
     // rows = row; //From printexport.js
     console.log('processRowsCallback()', rows);
 
@@ -471,25 +469,25 @@
 
 
     //Initialize the select control values
-    async function initSelects() {
-      async function handleResponse(response) {
+    function initSelects() {
+      function handleResponse(response) {
         console.log('get local storage', response);
         var valuesArray = [];
         for (var i = 0; i < 5; i++) {
           valuesArray.push(initSelect(i, cols, defaultFields, defaultColumns, response));
         }
-        await chrome.storage.local.set({
+        chrome.storage.local.set({
           [docKey]: valuesArray
         }, function(r) {
           console.log(r);
         });
       }
-      await chrome.storage.local.get(docKey, function(response) {
+      chrome.storage.local.get(docKey, function(response) {
         handleResponse(response);
       });
     }
 
-    async function onSet() {
+    function onSet() {
 
       //console.log(localStor.get(''));
       //Init CSS
@@ -503,7 +501,7 @@
         //renderNotes(makeDraggable);
       };
 
-      await chrome.storage.local.get('orientation', onStorage);
+      chrome.storage.local.get('orientation', onStorage);
     }
 
     // chrome.storage.local.set({[docKey] : defaultColumns}, onSet);
@@ -714,3 +712,33 @@
     chrome.storage.local.get(null, onStorage);
   }
 })();
+
+//Polyfill
+if (window.NodeList && !NodeList.prototype.forEach) {
+    NodeList.prototype.forEach = Array.prototype.forEach;
+}
+
+// Source: https://github.com/jserz/js_piece/blob/master/DOM/ParentNode/append()/append().md
+(function (arr) {
+    arr.forEach(function (item) {
+        if (item.hasOwnProperty('append')) {
+            return;
+        }
+        Object.defineProperty(item, 'append', {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: function append() {
+                var argArr = Array.prototype.slice.call(arguments),
+                    docFrag = document.createDocumentFragment();
+
+                argArr.forEach(function (argItem) {
+                    var isNode = argItem instanceof Node;
+                    docFrag.appendChild(isNode ? argItem : document.createTextNode(String(argItem)));
+                });
+
+                this.appendChild(docFrag);
+            }
+        });
+    });
+})([Element.prototype, Document.prototype, DocumentFragment.prototype]);

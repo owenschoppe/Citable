@@ -117,7 +117,9 @@ var app = (function(app) {
     changeSelection = function(e) {
       chrome.storage.local.set({
         'exportFormat': e.target.value
-      }, function(response) {});
+      }, function(response) {
+          _gaq.push(['_trackEvent', 'Button', 'Change Export Format ' + app.extension.get()]);
+      });
     };
 
     select.value = app.extension.format; //Init format select menu.

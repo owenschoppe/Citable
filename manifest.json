@@ -2,8 +2,8 @@
   "manifest_version": 2,
   "name": "Citable",
   "short_name": "Citable",
-  "version": "2.2",
-  "minimum_chrome_version": "29",
+  "version": "2.3",
+  "minimum_chrome_version": "45",
   "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDAWST4CzoIlg0pwYOZ4tMGhZj8h+tAfyLmLrmAFNfdfGJz/CJ3LbJlOse8NoLtL+chV+DuhGiStLepn6tzXYe+L8JUHov/ztDeOArzUjmNeG2UpSX8kU8hcGhtnqvlWmto+0OgJytgVYMKnbo2zolI3s+UKfwP1S6D5T0KoyKWowIDAQAB",
   "description": "Save citable quotes and notes from the web into Google spreadsheets.",
   "offline_enabled": false,
@@ -15,8 +15,7 @@
     "client_id": "1034066493115-63ktpb72dijlg29fsr4d4q40uotkd1a1.apps.googleusercontent.com",
     "scopes": [
       "https://www.googleapis.com/auth/drive",
-      "https://spreadsheets.google.com/feeds",
-      "https://docs.google.com/feeds"
+      "https://spreadsheets.google.com/feeds"
     ]
   },
   "options_page": "options.html",
@@ -37,19 +36,13 @@
   },
   "content_security_policy": "script-src 'self' https://ssl.google-analytics.com https://apis.google.com/; object-src 'self'",
   "permissions": [
-    "tabs",
+    "activeTab",
     "storage",
     "identity",
-    "http://*/*",
-    "https://*/*",
-    "https://docs.google.com/feeds/*",
     "https://spreadsheets.google.com/feeds/lists/*",
-    "https://www.google.com/accounts/OAuthGetRequestToken",
-    "https://www.google.com/accounts/OAuthAuthorizeToken",
-    "https://www.google.com/accounts/OAuthGetAccessToken",
     "https://ssl.gstatic.com/",
     "https://www.googleapis.com/",
-    "https://accounts.google.com/"
+    "https://apis.google.com/"
   ],
   "web_accessible_resources": [
   ],
@@ -62,13 +55,5 @@
         "linux": "Ctrl+Shift+X"
       }
     }
-  },
-  "content_scripts": [
-    {
-      "matches": ["*://docs.google.com/spreadsheet/*"],
-      "css": ["css/spreadsheet.css"],
-      "js": ["js/jquery-3.3.1.min.js","js/spreadsheet.js"],
-      "run_at": "document_end"
-    }
-  ]
+  }
 }
