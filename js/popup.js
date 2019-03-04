@@ -778,12 +778,7 @@ Code may not be used without written and express permission.
         console.log('No docs in list.', $scope);
         msgService.queue('Welcome to Citable!', 'normal', 2000);
         //No docs in doc list, create new document.
-
-        $scope.data.defaultDoc = {
-          'id': '',
-          'title': '',
-          'alternateLink': ''
-        };
+        $scope.data.defaultDoc = null;
         $scope.clearDocs();
         //$scope.data.docs = [{'id':'','title':'Create New Document'}];
         //$scope.$apply(function($scope){});
@@ -794,7 +789,6 @@ Code may not be used without written and express permission.
         resp.items.forEach(function(entry, i) {
 
           var doc = buildDocEntry(entry);
-
           $scope.data.docs.push(doc);
           // Only want to sort and call $apply() when we have all entries.
           if (totalEntries - 1 == i) {
@@ -868,16 +862,16 @@ Code may not be used without written and express permission.
           }
         };
 
-        $http.get(gdocs.DOCLIST_FEED, config).
-        then(function onSuccess(response) {
+        $http.get(gdocs.DOCLIST_FEED, config)
+        .then(function onSuccess(response) {
           var data = response.data;
           var status = response.status;
           var statusText = response.statusText;
           var headers = response.headers;
           var config = response.config;
           successCallbackWithFsCaching(data, status, headers, config, statusText);
-        }).
-        catch(function onError(response) {
+        })
+        .catch(function onError(response) {
           var data = response.data;
           var status = response.status;
           var statusText = response.statusText;
