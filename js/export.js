@@ -118,7 +118,7 @@ var app = (function(app) {
       chrome.storage.local.set({
         'exportFormat': e.target.value
       }, function(response) {
-          _gaq.push(['_trackEvent', 'Button', 'Change Export Format ' + app.extension.get()]);
+        _gaq.push(['_trackEvent', 'Button', 'Change Export Format ' + app.extension.get()]);
       });
     };
 
