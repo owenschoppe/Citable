@@ -187,6 +187,19 @@ select {
   box-sizing: border-box;
 }
 
+/* Indicator off of div wrapping select. select required -webkit-appearance: none;
+  content: "";
+  width: 7px;
+  height: 4px;
+  position: absolute;
+  right: 11px;
+  top: 14px;
+  border-style: inset;
+  border-color: transparent;
+  border-top: 4px inset #666;
+  border-radius: 1px;
+*/
+
 select:HOVER {
   background-color: #F1F2F3;
 }
@@ -424,20 +437,8 @@ img.logo {
 }
 
 /* Utilities */
-.left {
-  float: left;
-}
-
-.middle {
-  float: left;
-}
-
 .right {
-  float: right;
-}
-
-.clear {
-  clear: both;
+  margin-left: auto;
 }
 
 .center {
