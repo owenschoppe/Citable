@@ -2,31 +2,31 @@
 (function() {
   console.log('Content Script');
 
-/////////////////
-//    Utils    //
-/////////////////
+  /////////////////
+  //    Utils    //
+  /////////////////
   function dedupe(array) {
-      return Array.from(new Set(array));
+    return Array.from(new Set(array));
   }
 
   function escapeObject(object) {
-      for (var element in object) {
-          // object[element] = escapeHTML(object[element]);
-          object[element] = encodeURIComponent(object[element]);
-      }
-      return object;
+    for (var element in object) {
+      // object[element] = escapeHTML(object[element]);
+      object[element] = encodeURIComponent(object[element]);
+    }
+    return object;
   }
 
   function escapeHTML(content) {
-      //Use browsers built-in functionality to quickly and safely escape strings.
-      var div = document.createElementNS('http://www.w3.org/199/xhtml', 'div');
-      div.appendChild(document.createTextNode(content));
-      return div.innerHTML;
+    //Use browsers built-in functionality to quickly and safely escape strings.
+    var div = document.createElementNS('http://www.w3.org/199/xhtml', 'div');
+    div.appendChild(document.createTextNode(content));
+    return div.innerHTML;
   }
 
-/////////////////////////
-//    Selected Text    //
-/////////////////////////
+  /////////////////////////
+  //    Selected Text    //
+  /////////////////////////
   var getSelectedText = function() {
     // Function: finds selected text on document d.
     // @return the selected text or null
@@ -73,9 +73,9 @@
         //Iterate through all the docs looking for selected text.
         for (var k = 0; k < docs.length; ++k) {
           try {
-              t = g(docs[k].contentDocument);
+            t = g(docs[k].contentDocument);
           } catch (e) {
-              console.log(e);
+            console.log(e);
           }
           if (t && t.toString() != '') break;
         }
@@ -84,21 +84,21 @@
     }
 
     //Initiate the search using the top document.
-    var t = '';  
+    var t = '';
     try {
-        t = g(document);
+      t = g(document);
     } catch (e) {
-        console.log(e);
+      console.log(e);
     }
-    
+
     //Return the results.
     if (!t || t == '') return ''; //Nothing found.
     else return t.toString().trim(); //Returns selected text.
   };
 
-//////////////////
-//    Author    //
-//////////////////
+  //////////////////
+  //    Author    //
+  //////////////////
   var getAuthor = function() {
 
     var parseAuthor = function(author) {
@@ -136,24 +136,24 @@
       return '';
     };
 
-      var capitalizeWord = function(string) {
-          return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-      };
+    var capitalizeWord = function(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+    };
 
-      var capitalizeWords = function(string) {
-          return string.split("; ").map(word => isUpperCase(word) && hasPunctuation(word) ? word.split(" ").map(w => capitalizeWord(w)).join(" ") : word).join("; ");
-      };
+    var capitalizeWords = function(string) {
+      return string.split("; ").map(word => isUpperCase(word) && hasPunctuation(word) ? word.split(" ").map(w => capitalizeWord(w)).join(" ") : word).join("; ");
+    };
 
-      var isUpperCase = function(string) {
-          return string == string.toUpperCase();
-      };
+    var isUpperCase = function(string) {
+      return string == string.toUpperCase();
+    };
 
-      var hasPunctuation = function(string) {
-        return string == string.replace(/[.,\/#!$%\^&\*;:{}=\-_`"'~()]/g, "");
-      };
+    var hasPunctuation = function(string) {
+      return string == string.replace(/[.,\/#!$%\^&\*;:{}=\-_`"'~()]/g, "");
+    };
 
     function stringifyElements(elements) {
-        var style = "";
+      var style = "";
       return stringifyAuthors(elements.map(element => {
           initStyle = element.style.textTransform;
           element.style.cssText = "text-transform: initial !important;";
@@ -241,14 +241,13 @@
       //For each found element, turn it into an array of it's visible sibling authors, filter out null arrays, return the first
       try {
         authors.push(
-          stringifyElements((()=>{
+          stringifyElements((() => {
             var array = [].slice.call(document.querySelectorAll(selector));
             array = array.map(element => getRelatedAuthors(element, selector, (element.getBoundingClientRect().height > 1)).siblings);
-            array = array.map(array => filterDescendants(array)); 
+            array = array.map(array => filterDescendants(array));
             array = array.filter(siblingArray => siblingArray.length > 0); //filter out empty arrays
             return array[0]; //Take the first non-empty array
-            })()
-          )
+          })())
         ); //filter out parents from arrays
       } catch (e) {
         authors.push("");
@@ -340,53 +339,53 @@
     ];
 
     function getStructuredAuthor(selectors) {
-        //TODO: This can be consolidated with the other structured searches, but the other functions need to be rewritten to expect an array of arrays. Everything should use thie array.push instead of concat.
-        var authors = [];
-        for (var selector of selectors) {
-            try {
-                //Build an array of arrays.
-                authors.push(
-                    dedupe(
-                        selector.parser(
-                            [].slice.call(
-                                document.querySelectorAll(selector.selector)
-                            )
-                        )
-                    )
-                );
-            } catch (e) {
-                console.log(selector.selector, e);
-            }
+      //TODO: This can be consolidated with the other structured searches, but the other functions need to be rewritten to expect an array of arrays. Everything should use thie array.push instead of concat.
+      var authors = [];
+      for (var selector of selectors) {
+        try {
+          //Build an array of arrays.
+          authors.push(
+            dedupe(
+              selector.parser(
+                [].slice.call(
+                  document.querySelectorAll(selector.selector)
+                )
+              )
+            )
+          );
+        } catch (e) {
+          console.log(selector.selector, e);
         }
-        console.log('Get Structured', authors);
-        return stringifyAuthors(authors.sort((a, b) => {
-            return b.length - a.length;
-        })[0]); //Schema.org
+      }
+      console.log('Get Structured', authors);
+      return stringifyAuthors(authors.sort((a, b) => {
+        return b.length - a.length;
+      })[0]); //Schema.org
     }
 
     //Get smarter about selecting which one.
     //Filter out empty entries in the array created by joining an empty array.
     var author = '';
     try {
-        try {
-            author = getStructuredAuthor(structuredSelectors);
-        } catch (e) {
-            console.log(e);
-        }
-        if (!author) {
-            author = findAuthors(selectors.join());
-        }
-        author = parseAuthor(author);
-    } catch (e) {
+      try {
+        author = getStructuredAuthor(structuredSelectors);
+      } catch (e) {
         console.log(e);
+      }
+      if (!author) {
+        author = findAuthors(selectors.join());
+      }
+      author = parseAuthor(author);
+    } catch (e) {
+      console.log(e);
     }
 
     return author; //Buggy but works 80% of the time.
   };
 
-//////////////////////////
-//    Date Published    //
-//////////////////////////
+  //////////////////////////
+  //    Date Published    //
+  //////////////////////////
   function getDatePublished() {
     var selectors = [{
         //ld+json
@@ -458,9 +457,9 @@
     return date == "Invalid Date" ? "" : date;
   }
 
-/////////////////////////
-//    Article Title    //
-/////////////////////////
+  /////////////////////////
+  //    Article Title    //
+  /////////////////////////
   function getTitle() {
     var selectors = [{
         //ld+JSON
@@ -546,9 +545,9 @@
     return final;
   }
 
-///////////////////////
-//    Publication    //
-///////////////////////
+  ///////////////////////
+  //    Publication    //
+  ///////////////////////
   function getPublication() {
     var selectors = [{
         //ld+JSON
@@ -652,57 +651,57 @@
     return final;
   }
 
-//////////////////////
-//    Video Time    //
-//////////////////////
+  //////////////////////
+  //    Video Time    //
+  //////////////////////
   //Works for Vimeo, YouTube, HTML5 video, video.js, mediaelement.js, sublime
   videoTime = function() {
     var videos = document.getElementsByTagName('video');
     var time = 0;
-    var getTime = function(videos){
-        // console.log("videos:", videos);
-        for (var i = 0; i < videos.length; i++) {
-            if (videos[i].currentTime > 0) {
-                return videos[i].currentTime; //Return the first non-zero time.
-            }
+    var getTime = function(videos) {
+      // console.log("videos:", videos);
+      for (var i = 0; i < videos.length; i++) {
+        if (videos[i].currentTime > 0) {
+          return videos[i].currentTime; //Return the first non-zero time.
         }
-        return 0;
+      }
+      return 0;
     }
     try {
-        time = getTime(videos);
-        // console.log("video time:", time);
-        var totalSec = Math.round(time);
-        var hours = parseInt(totalSec / 3600) % 24;
-        var minutes = parseInt(totalSec / 60) % 60;
-        var seconds = totalSec % 60;
-        var result = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
+      time = getTime(videos);
+      // console.log("video time:", time);
+      var totalSec = Math.round(time);
+      var hours = parseInt(totalSec / 3600) % 24;
+      var minutes = parseInt(totalSec / 60) % 60;
+      var seconds = totalSec % 60;
+      var result = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
     } catch (e) {
-        console.log(e);
+      console.log(e);
     }
 
     return time > 0 ? result : '';
   };
 
-/////////////////////
-//    Page Info    //
-/////////////////////
+  /////////////////////
+  //    Page Info    //
+  /////////////////////
   var getStructured = function(selectors) {
     var found = [];
     for (var selector of selectors) {
-        try {
-            found = found.concat(
-                selector.parser(
-                    [].slice.call(
-                        document.querySelectorAll(selector.selector)
-                    )
-                )
-            );
-        } catch (e) {
-            console.log(selector.selector, e);
-        }
+      try {
+        found = found.concat(
+          selector.parser(
+            [].slice.call(
+              document.querySelectorAll(selector.selector)
+            )
+          )
+        );
+      } catch (e) {
+        console.log(selector.selector, e);
+      }
     }
     found = found.filter(element => element);
-    console.log('Get Structured',found);
+    console.log('Get Structured', found);
     return found;
   }
 
