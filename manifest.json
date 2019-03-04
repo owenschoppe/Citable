@@ -55,13 +55,5 @@
         "linux": "Ctrl+Shift+X"
       }
     }
-  },
-  "content_scripts": [
-    {
-      "matches": ["*://docs.google.com/spreadsheet/*"],
-      "css": ["css/spreadsheet.css"],
-      "js": ["js/jquery-3.3.1.min.js","js/spreadsheet.js"],
-      "run_at": "document_end"
-    }
-  ]
+  }
 }
