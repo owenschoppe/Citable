@@ -14,7 +14,7 @@
   "oauth2": {
     "client_id": "1034066493115-63ktpb72dijlg29fsr4d4q40uotkd1a1.apps.googleusercontent.com",
     "scopes": [
-      "https://www.googleapis.com/auth/drive.file",
+      "https://www.googleapis.com/auth/drive",
       "https://spreadsheets.google.com/feeds"
     ]
   },
