@@ -12,6 +12,7 @@ var _AnalyticsCode = 'UA-30552255-1';
  */
 var _gaq = _gaq || [];
 _gaq.push(['_setAccount', _AnalyticsCode]);
+_gaq.push(['_gat.forceSSL']);
 _gaq.push(['_trackPageview']);
 
 (function() {
@@ -22,3 +23,8 @@ _gaq.push(['_trackPageview']);
   var s = document.getElementsByTagName('script')[0];
   s.parentNode.insertBefore(ga, s);
 })();
+
+window.onerror = function (message, source, lineno, colno, error) {
+    console.log('Caught Error', message, source, lineno, colno, error);
+    _gaq.push(['_trackEvent', 'Error', source, `${message}, ${lineno}, ${colno}`]);
+};
