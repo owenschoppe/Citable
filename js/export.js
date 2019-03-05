@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 var app = (function(app) {
-
   app.bgPage = '';
   app.rows = [];
   app.citations = '';
@@ -83,7 +82,7 @@ var app = (function(app) {
   app.printHandler = function(e) {
     chrome.storage.local.get('exportFormat', function(response) {
       // console.log("chrome.storage.local.get('exportFormat')", response);
-      _gaq.push(['_trackEvent', 'Button', 'Download ' + app.extension.get()]);
+      _gaq.push(['_trackEvent', 'Button', 'Download ', app.extension.format]);
       app.saveFile();
     });
     return false;
@@ -118,7 +117,7 @@ var app = (function(app) {
       chrome.storage.local.set({
         'exportFormat': e.target.value
       }, function(response) {
-        _gaq.push(['_trackEvent', 'Button', 'Change Export Format ' + app.extension.get()]);
+        _gaq.push(['_trackEvent', 'Button', 'Change Export Format ', app.extension.format]);
       });
     };
 
