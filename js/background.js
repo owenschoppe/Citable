@@ -394,8 +394,13 @@ var createDocument = function(data, fileName, parentFolder, callback) {
       'parents': [parent]
     };
 
+    function Base64Encode(str, encoding = 'utf-8') {
+        var bytes = new TextEncoder(encoding).encode(str);
+        return base64js.fromByteArray(bytes);
+    }
+
     //Base64 encode the JSON object array
-    var base64Data = btoa(Util.JSONToCSV([data]));
+    var base64Data = Base64Encode(Util.JSONToCSV([data]));
 
     var multipartRequestBody =
       delimiter +
