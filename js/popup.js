@@ -705,6 +705,7 @@ Code may not be used without written and express permission.
             $scope.data.citationMeta.callback = $scope.clearFields;
             //TODO: Since we're refreshing the note, we can't clear the field. Maybe do it on fresh?
             //$scope.clearFields();
+            $scope.data.requesting = false; // User may need to click the button again.
           });
           _gaq.push(['_trackEvent', 'Shortcut', 'CTRL RETURN']);
         } else {
@@ -1035,7 +1036,7 @@ Code may not be used without written and express permission.
 
       var handleSuccess = function(resp, status, headers, config, statusText) {
         console.log('gdocs.amendDoc handleSuccess');
-        if (status != 201) {
+        if (status != 201 && status != 200) {
           console.log('AMEND ERROR', resp);
           msgService.queue('Oops ' + status + ' Please Try Again', 'error');
         } else {
@@ -1112,27 +1113,29 @@ Code may not be used without written and express permission.
         var checkResponse = function(response) {
           var citation = $scope.data.citation;
           var doc = parseXml(response.data);
-          var editLink = doc.querySelector('link[rel="edit"]').getAttribute('href');
+          var editLink = doc.querySelector('link[rel="edit"]').getAttribute('href') || '';
           // var nonEmptyKeys = Object.keys(citation).filter((key) => citation[key]).map((key) => key.toLowerCase());
-          var missingColumn = false;
+          var missingColumnNames = [];
           for (var key in citation) {
             var foundColumn = doc.querySelector(key.toLowerCase());
             if (foundColumn === null) {
-              missingColumn = true;
+              missingColumnNames.push(key);
               var col = document.createElement('gsx:' + key.toLowerCase());
               col.innerHTML = Util.escapeHTML(citation[key]).replace(/&nbsp;/gi, ' ');
               doc.querySelector('entry').appendChild(col);
             }
           }
-          if (missingColumn == true) {
+          if (missingColumnNames.length > 0 && editLink != '') {
             //Update the column headers in the document to match the current citation and then update the row using id.
-            // msgService.queue('Missing Columns in Sheet', 'error');
             bgPage.updateDocument((response) => {
               $http.put(editLink, doc.querySelector('entry').outerHTML, config)
                 .then(onSuccess)
                 .catch(onError);
             }, $scope.data.defaultDoc, Object.keys(citation));
+          } else if (missingColumnNames > 0 && editLink == '') {
+            msgService.queue('Missing Column: '+missingColumnNames, 'error', 3000);
           }
+          return missingColumnNames.length == 0 ? true : false;
         };
 
         var updateDocumentCallback = function(error) {
@@ -1140,7 +1143,7 @@ Code may not be used without written and express permission.
           if (!error) { //Only complete the callback if updateDocument didn't encounter an error.
             $scope.updateHeaderSuccess(callback, editLink);
           } else {
-            $scope.data.requesting = false; //Reset the variable.
+            // $scope.data.requesting = false; //Reset the variable.
             //Don't close the window.
             //TODO: should we really queue the error?
             msgService.queue(error + ' Check Your Document Columns', 'error');
@@ -1199,9 +1202,7 @@ Code may not be used without written and express permission.
     };
 
     $scope.closeWindow = function() {
-      $timeout(function() {
-        window.close();
-      }, 1500);
+      msgService.queueFn(window.close);
     };
 
     $scope.clearFields = function() {
@@ -1218,10 +1219,11 @@ Code may not be used without written and express permission.
     $scope.saveNote = function(event, callback) {
       console.log('Save Note: ', $scope.data);
       _gaq.push(['_trackEvent', 'Auto', 'Save Note']);
+      
       var saveNoteSuccess = function() {
         console.log('SaveNote success', $scope.data, callback);
         msgService.queue('Note Saved', 'success', 2000);
-        $scope.data.requesting = false; //Reset the variable.
+        // $scope.data.requesting = false; //Reset the variable. //Don't reset unless this is a ctrl-click...
 
         //Remove citation from queue/log.
 
