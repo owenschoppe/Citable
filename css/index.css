@@ -116,6 +116,11 @@ a.disabled:hover {
 
 a.inverse {
   text-decoration: underline;
+  padding: 2px;
+}
+
+a.inverse:focus {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
 }
 
 /* Button */
@@ -153,6 +158,7 @@ a.inverse {
 .button:focus {
   text-decoration: none;
   outline: none;
+  cursor: pointer;
 }
 
 .primary-button:hover,
@@ -337,7 +343,7 @@ input[type=checkbox], input[type=radio] {
   background-color: #4571D9;
   color: #ffffff;
   color: var(--color-text--inverse);
-  cursor: hand;
+  cursor: pointer;
   outline: none;
   margin-top: -2px;
   margin-bottom: 2px;
