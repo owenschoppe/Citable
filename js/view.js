@@ -9,26 +9,16 @@
   });
 
   function fontHandler(e) {
-    // _gaq.push(['_trackEvent', 'Button', 'Change Font']);
     ga('send', 'event', 'Button', 'Change Font');
     changeFont(this.form, this.value);
   }
 
   function orientHandler(e) {
-    // _gaq.push(['_trackEvent', 'Button', 'Change Orientation']);
     ga('send', 'event', 'Button', 'Change Orientation');
     changeOrient(this.form, this.value);
   }
 
-  function mHandler(e) {
-    // _gaq.push(['_trackEvent', 'Button', 'Change Template']);
-    ga('send', 'event', 'Button', 'Change Template');
-    //console.log('mHandler',e);
-    changeTemplate(this.form, this.checked);
-  }
-
   function printHandler(e) {
-    // _gaq.push(['_trackEvent', 'Button', 'Print Stickies']);
     ga('send', 'event', 'Button', 'Print Stickies');
     printDocumentPage();
     return false;
@@ -36,7 +26,6 @@
 
   function cancelHandler(e) {
     console.log('close window');
-    // _gaq.push(['_trackEvent', 'Button', 'Cancel Print']);
     ga('send', 'event', 'Button', 'Cancel Print');
     window.open('', '_self', ''); //bug fix. This is a hack and may not be future proof. Works by crashing window.open?
     window.close();
@@ -44,7 +33,6 @@
   }
 
   function templateHandler(e) {
-    // _gaq.push(['_trackEvent', 'Button', 'Print Template']);
     ga('send', 'event', 'Button', 'Print Template');
     openTemplate();
     return false;
@@ -56,7 +44,6 @@
     document.querySelector('#hand').addEventListener('change', fontHandler);
     document.querySelector('#landscape').addEventListener('change', orientHandler);
     document.querySelector('#portrait').addEventListener('change', orientHandler);
-    //document.querySelector('#mInput').addEventListener('change', mHandler);
     document.querySelector('#cancel-button').addEventListener('click', cancelHandler);
     document.querySelector('#template-button').addEventListener('click', templateHandler);
   });

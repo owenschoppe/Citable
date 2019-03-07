@@ -77,31 +77,18 @@ chrome.extension.onConnect.addListener(function(port) {
     console.log('onMessage Listener ', info);
     console.log('tab.url ', tab.url);
     console.log('callbacks', callbacks);
-    //var max_length = 1024;
-    //if (info.selection.length > max_length)
-    //info.selection = info.selection.substring(0, max_length);
     var docKey;
     if (info.values == 0 && info.message == "myCustomEvent") {
       //Need to update functions to grab the doc id from the tab url and put it in the bgpage variables.
       docKey = tab.url.split("=")[1].split('#')[0].split('&')[0];
       console.log('Try printing', docKey);
-    //   _gaq.push(['_trackEvent', 'Button', 'Print From Sheet']);
       ga('send', 'event', 'Button', 'Print From Sheet');
-      //gdocs.printDocument();
-      //gdocs.printDocumentPage();
-
       getDocument('print', docKey, true, function(response) {});
-      //callPrintable('print');
     } else if (info.values == 1 && info.message == "myCustomEvent") {
       docKey = tab.url.split("=")[1].split('#')[0].split('&')[0];
       console.log('Try exporting', docKey);
-    //   _gaq.push(['_trackEvent', 'Button', 'Export From Sheet']);
       ga('send', 'event', 'Button', 'Export From Sheet');
-      //gdocs.exportDocument();
-      //gdocs.exportDocumentPage();
-
       getDocument('export', docKey, true, function(response) {});
-      //callPrintable('export');
     }
 
     //Add correct URL
@@ -112,7 +99,6 @@ chrome.extension.onConnect.addListener(function(port) {
     if (callback) {
       callback(info);
     }
-    //executeMailto(tab.id, info.title, tab.url, info.selection);
   });
 });
 
@@ -125,7 +111,6 @@ function callPrintable(action, callback) {
   // var printableId = "jihmnnkhocjgfhnffpigaachefmnelfg"; //Live. //Intentionally broken since Printable is broken
   // Make a simple request:
   if (action == "print") {
-    // _gaq.push(['_trackEvent', 'Button', 'Print Document']);
     ga('send', 'event', 'Button', 'Print Document');
 
     chrome.storage.sync.get(null, function(response) {
@@ -138,7 +123,6 @@ function callPrintable(action, callback) {
     });
 
   } else if (action == "export") {
-    // _gaq.push(['_trackEvent', 'Button', 'Export Document']);
     ga('send', 'event', 'Button', 'Export Document');
 
     chrome.storage.sync.get(null, function(response) {
@@ -288,10 +272,7 @@ getDocument = function(param, docId, retry, callback) {
 var createDocument = function(data, fileName, parentFolder, callback) {
   return new Promise(function(resolve, reject) {
     console.log('createDocument', data, fileName, callback);
-    // _gaq.push(['_trackEvent', 'Auto', 'Create Document']);
     ga('send', 'event', 'Auto', 'Create Document');
-    // JSON to CSV Converter
-
     //TODO: use "for(var i in o){console.log(i,o[i]);}" to traverse a single object instead of an array of objects. i=key o[1]=value
 
 
@@ -300,7 +281,6 @@ var createDocument = function(data, fileName, parentFolder, callback) {
 
       if (xhr.status != 201 && xhr.status != 200) {
         console.log('ERROR', xhr);
-        // _gaq.push(['_trackEvent', 'Auto', 'Create Document Error']);
         ga('send', 'event', 'Error', 'Create Document Error');
         requestFailureCount++;
         if (requestFailureCount < requestLimit) {
@@ -418,7 +398,6 @@ var createDocument = function(data, fileName, parentFolder, callback) {
 /////////////////////////////////////////////////////////
 var createFolder = function(title, properties, callback) {
   console.log('createFolder ', title);
-//   _gaq.push(['_trackEvent', 'Auto', 'Create Folder']);
   ga('send', 'event', 'Auto', 'Create Folder');
 
   var handleSuccess = function(response, xhr) {
@@ -459,39 +438,10 @@ var createFolder = function(title, properties, callback) {
   console.log('FOLDER:', url, headers);
 };
 
-/////////////////////////////////////////////////////////
-/* function setIcon(opt_badgeObj) {
-	if (opt_badgeObj) {
-	  var badgeOpts = {};
-	  if (opt_badgeObj && opt_badgeObj.text != undefined) {
-		badgeOpts['text'] = opt_badgeObj.text;
-	  }
-	  if (opt_badgeObj && opt_badgeObj.tabId) {
-		badgeOpts['tabId'] = opt_badgeObj.tabId;
-	  }
-	  chrome.browserAction.setBadgeText(badgeOpts);
-	}
-};
-
-function clearPendingRequests() {
-	for (var i = 0, req; req = requests[i]; ++i) {
-	  window.clearTimeout(req);
-	}
-	requests = [];
-};
-
-function logout(access_token, callback) {
-	//oauth.clearTokens(); //Old Auth Flow
-	clearPendingRequests();
-	docs = [];
-	setIcon({'text': ''});
-};*/
-
 //Function that takes a doc object or an array of doc objects with id property and inserts the specified array of properties.
 // updateProperties($scope.data.docs, 'Citable', 'True', 'Public');
 var insertProperties = function(docs, properties, callback) {
   console.log('insertProperties ', docs, properties);
-//   _gaq.push(['_trackEvent', 'Auto', 'Update Properties']); //When this goes to 0 in analytics, stop doing this on install.
   ga('send', 'event', 'Auto', 'Update Properties');
 
   var handleSuccess = function(response, xhr) {
@@ -509,12 +459,6 @@ var insertProperties = function(docs, properties, callback) {
     'GData-Version': '3.0',
     'Content-Type': 'application/json'
   };
-
-  /*var properties = [{
-        'key': key,
-	    'value': value,
-	    'visibility': visibility
-    }];*/
 
   var loopProperties = function(id) {
     for (var i in properties) {
@@ -547,7 +491,6 @@ var insertProperties = function(docs, properties, callback) {
 
 var renameFolder = function(folder, title, callback) {
   console.log('renameFolder ', folder, title);
-//   _gaq.push(['_trackEvent', 'Auto', 'Rename Folder']); //When this goes to 0 in analytics, stop doing this on install.
   ga('send', 'event', 'Auto', 'Rename Folder');
 
   var id = folder.id;
@@ -597,11 +540,9 @@ var updateDocument = function(callback, docToUpdate, columnOrder) {
 
   var privateDocs;
   if (docToUpdate != null) {
-    // _gaq.push(['_trackEvent', 'Auto', 'Update Document', 'Single']);
     ga('send', 'event', 'Auto', 'Update Document', 'Single');
     privateDocs = [docToUpdate];
   } else {
-    // _gaq.push(['_trackEvent', 'Auto', 'Update Document', 'Multi', privateDocs.length]);
     ga('send', 'event', 'Auto', 'Update Document', 'Multi', privateDocs.length);
     //Docs is currently null since it is outside of the scope of angular. Consider revising. Today we have to pass in the complete doc list if we want to update everyting.
     privateDocs = docs; //Copy the doclist into a private variable so that we can run in the background while the user can send notes to the doc of choice.

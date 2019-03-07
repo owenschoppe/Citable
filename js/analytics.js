@@ -1,24 +1,5 @@
 var _AnalyticsCode = 'UA-30552255-1';
 
-
-
-// var _gaq = _gaq || [];
-// _gaq.push(['_setAccount', _AnalyticsCode]);
-// _gaq.push(['_gat.forceSSL']);
-// _gaq.push(['_trackPageview']);
-// _gaq.push(['dimension1', chrome.runtime.getManifest().version]);
-
-// (function() {
-//   var ga = document.createElement('script');
-//   ga.type = 'text/javascript';
-//   ga.async = true;
-//   ga.src = 'https://ssl.google-analytics.com/ga.js';
-//   var s = document.getElementsByTagName('script')[0];
-//   s.parentNode.insertBefore(ga, s);
-// })();
-
-
-
 (function (i, s, o, g, r, a, m) {
     i['GoogleAnalyticsObject'] = r;
     i[r] = i[r] || function () {
@@ -41,6 +22,5 @@ ga('send', 'pageview');
 
 window.onerror = function (message, source, lineno, colno, error) {
     console.log('Caught Error', message, source, lineno, colno, error);
-    // _gaq.push(['_trackEvent', 'Error', source, `${message}, ${lineno}, ${colno}`]);
     ga('send', 'event', 'Error', source, `${message}, ${lineno}, ${colno}`);
 };
