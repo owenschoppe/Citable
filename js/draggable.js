@@ -55,12 +55,13 @@ var makeDraggable = function(setTotal) {
     // this / e.target is the source node.
     e.dataTransfer.effectAllowed = 'move';
     //Create a temporary clone of the element to use as a drag image.
-    var shadow = getDraggableParent(e.target).cloneNode(true);
+    dragSrcEl = getDraggableParent(e.target)
+    var shadow = dragSrcEl.cloneNode(true);
     shadow.style.cssText = "flex: 0 0 auto; position: absolute; top -300px; left: -300px";
     shadow.id = "temporary_drag_image_element";
     document.body.appendChild(shadow);
     e.dataTransfer.setDragImage(shadow.childNodes[0], 145, 145); //Sets the drag image to the note element and centers it on the cursor.
-    dragSrcEl = this.cloneNode(true); //try cloning
+    // dragSrcEl = this.cloneNode(true); //try cloning
     first = true;
   }
 
@@ -113,15 +114,17 @@ var makeDraggable = function(setTotal) {
   function handleDragEnd(e) {
     console.log('end', e);
     // this/e.target is the source node.
-    [].forEach.call(dragHandles, function(dragHandle) {
-      dragHandle.removeClassName('over');
-      dragHandle.removeClassName('moving');
-    });
+    //What does this do?
+    // [].forEach.call(dragHandles, function(dragHandle) {
+    //   dragHandle.removeClassName('over');
+    //   dragHandle.removeClassName('moving');
+    // });
+    //show the src el again
+    dragSrcEl.removeClassName('moving');
 
     //Handle the drop action here instead of in drop.
     placeholder.parentElement.replaceChild(dragSrcEl, placeholder);
     initHandle(dragSrcEl);
-    this.parentElement.removeChild(this); //Works. Removes the original element which is now hidden.
     sortNotes();
     //Remove the temporary element we used as the drag image.
     [].slice.call(document.querySelectorAll("#temporary_drag_image_element")).forEach(i => i.remove());
