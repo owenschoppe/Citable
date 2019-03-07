@@ -681,7 +681,8 @@
           title = defaultDoc.title;
         }
 
-        $('#selection').html('<div><span class="Droid regular">Document: </span><span id="title" class="Droid bold" name="title">' + title + '</span></div>');
+        // $('#selection').html('<div><span class="Droid regular">Document: </span><span id="title" class="Droid bold" name="title">' + title + '</span></div>');
+        document.getElementById('selection').innerHTML = '<div><span class="Droid regular">Document: </span><span id="title" class="Droid bold" name="title">' + title + '</span></div>';
         var printexport = new printExportClass(bgPage, docKey);
         printexport.gdocs.printDocument(null, (data) => {
           rows = data;
