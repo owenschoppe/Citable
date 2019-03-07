@@ -578,12 +578,12 @@
   //If the spreadsheet does not have a record in the cache,
   //this function will find either the default Citable columns or the next unique column.
   function defaultLayout(cols, column, defaultColumns) {
-    console.log('defaultLayout()', column, cols, defaultColumns, jQuery.inArray(column, cols));
+    // console.log('defaultLayout()', column, cols, defaultColumns);
 
     var findUnique = function() {
       console.log('Default column not found. Searching for next unique column.', cols.length);
       for (var i = nextCol; i < cols.length; i++) {
-        if (jQuery.inArray(cols[i], defaultColumns) == -1) {
+        if (defaultColumns.indexOf(cols[i]) == -1) {
           nextCol = i + 1; //Start from the next position in the spreadsheet cols.
           return cols[i];
         }
@@ -591,7 +591,7 @@
       return 'none'; //If we run out of columns return 'none'.
     };
 
-    return jQuery.inArray(column, cols) > -1 ? column : findUnique();
+    return cols.indexOf(column) > -1 ? column : findUnique();
   }
 
 
