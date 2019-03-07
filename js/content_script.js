@@ -126,7 +126,7 @@
         //console.log(author,author.indexOf(m));
         //author = author.slice(0,(m?author.indexOf(m):author.length));
         //console.log(author);
-        author = (author != '' ? $.trim(author) : '');
+        author = (author != '' ? author.trim() : '');
         //var r = author.search("\\n");
         //author = author.slice(0,(r!=-1?r:author.length)); //Clear any lines after the first line.
         author = author.replace(r, ' ').replace(/\,{2,}/g, ',');

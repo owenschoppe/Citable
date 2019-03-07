@@ -41,15 +41,7 @@ function getPageInfo(callback) {
       callbacks = [];
       callbacks.push(callback);
       // Inject the content script into the current page
-      //chrome.tabs.executeScript(null, { file: "content_script.js" });
 
-      chrome.tabs.executeScript(null, {
-        file: "js/jquery-3.3.1.min.js"
-      }, function() {
-        if (chrome.runtime.lastError) {
-          console.log('Scripting error:', chrome.runtime.lastError.message);
-          error(tab);
-        }
         chrome.tabs.executeScript(null, {
           file: "js/content_script.js"
         }, function() {
@@ -58,9 +50,7 @@ function getPageInfo(callback) {
             error(tab);
           }
         });
-      });
 
-      //console.log('callbacks',callbacks);
     } else {
       console.log('getPageInfo error');
       error(tab);
