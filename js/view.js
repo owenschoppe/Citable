@@ -578,7 +578,7 @@
   //If the spreadsheet does not have a record in the cache,
   //this function will find either the default Citable columns or the next unique column.
   function defaultLayout(cols, column, defaultColumns) {
-    // console.log('defaultLayout()', column, cols, defaultColumns);
+    console.log('defaultLayout()', column, cols, defaultColumns);
 
     var findUnique = function() {
       console.log('Default column not found. Searching for next unique column.', cols.length);
