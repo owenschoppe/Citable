@@ -529,7 +529,7 @@
       var j = (i == 2 || i == 3) ? 'split' : 'full';
       var name = "field" + i;
       var div = document.createElement('div');
-      div.innerHTML = ('<label for="' + name + '" class="visuallyhidden">Area ' + (parseInt(i) + 1) + '</label><select id="' + name + '" class="Droid select ' + j + '" name="' + name + '" ><option value="none">None</option>' + html.join('') + '</select>');
+      div.innerHTML = ('<label for="' + name + '" class="visuallyhidden" id="' + name + '_label">Area ' + (parseInt(i) + 1) + '</label><select id="' + name + '" aria-labelledby="' + name + '_label" class="Droid select ' + j + '" name="' + name + '" ><option value="none">None</option>' + html.join('') + '</select>');
       div.classList.add('option', name);
       document.querySelector('#elements').append(div);
       name = "#" + name;
