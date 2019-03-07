@@ -22,31 +22,10 @@ var gdocs = new GDocs();
 
 toggleAuth = function(interactive, callback) {
   console.log('gdocs accessToken', gdocs.accessToken);
-  //if (!gdocs.accessToken) {
   gdocs.auth(interactive, function(token) { //was failing to get the refreshed accessToken. Now we just call chrome.auth every time.
-    //$scope.fetchFolder(false);
-    //$scope.fetchDocs(false);
     callback(token);
   });
-  /*} else {
-    //gdocs.revokeAuthToken(function() {});
-    //this.clearDocs();
-    callback();
-  }*/
 };
-
-
-/////////////////////////////////////////////////////////
-/*chrome.runtime.sendMessage("ID of extension", "message", function(response) {
-    var lastError = chrome.runtime.lastError;
-    if (lastError) {
-        console.log('Caught Runtime Error Msg',lastError.message);
-        // 'Could not establish connection. Receiving end does not exist.'
-        return;
-    }
-    // Success, do something with response...
-});*/
-
 
 /////////////////////////////////////////////////////////
 // This function is called onload in the popup code
@@ -116,7 +95,8 @@ chrome.extension.onConnect.addListener(function(port) {
       //Need to update functions to grab the doc id from the tab url and put it in the bgpage variables.
       docKey = tab.url.split("=")[1].split('#')[0].split('&')[0];
       console.log('Try printing', docKey);
-      _gaq.push(['_trackEvent', 'Button', 'Print From Sheet']);
+    //   _gaq.push(['_trackEvent', 'Button', 'Print From Sheet']);
+      ga('send', 'event', 'Button', 'Print From Sheet');
       //gdocs.printDocument();
       //gdocs.printDocumentPage();
 
@@ -125,7 +105,8 @@ chrome.extension.onConnect.addListener(function(port) {
     } else if (info.values == 1 && info.message == "myCustomEvent") {
       docKey = tab.url.split("=")[1].split('#')[0].split('&')[0];
       console.log('Try exporting', docKey);
-      _gaq.push(['_trackEvent', 'Button', 'Export From Sheet']);
+    //   _gaq.push(['_trackEvent', 'Button', 'Export From Sheet']);
+      ga('send', 'event', 'Button', 'Export From Sheet');
       //gdocs.exportDocument();
       //gdocs.exportDocumentPage();
 
@@ -154,7 +135,8 @@ function callPrintable(action, callback) {
   // var printableId = "jihmnnkhocjgfhnffpigaachefmnelfg"; //Live. //Intentionally broken since Printable is broken
   // Make a simple request:
   if (action == "print") {
-    _gaq.push(['_trackEvent', 'Button', 'Print Document']);
+    // _gaq.push(['_trackEvent', 'Button', 'Print Document']);
+    ga('send', 'event', 'Button', 'Print Document');
 
     chrome.storage.sync.get(null, function(response) {
       chrome.tabs.create({
@@ -166,7 +148,8 @@ function callPrintable(action, callback) {
     });
 
   } else if (action == "export") {
-    _gaq.push(['_trackEvent', 'Button', 'Export Document']);
+    // _gaq.push(['_trackEvent', 'Button', 'Export Document']);
+    ga('send', 'event', 'Button', 'Export Document');
 
     chrome.storage.sync.get(null, function(response) {
       chrome.tabs.create({
@@ -315,7 +298,8 @@ getDocument = function(param, docId, retry, callback) {
 var createDocument = function(data, fileName, parentFolder, callback) {
   return new Promise(function(resolve, reject) {
     console.log('createDocument', data, fileName, callback);
-    _gaq.push(['_trackEvent', 'Auto', 'Create Document']);
+    // _gaq.push(['_trackEvent', 'Auto', 'Create Document']);
+    ga('send', 'event', 'Auto', 'Create Document');
     // JSON to CSV Converter
 
     //TODO: use "for(var i in o){console.log(i,o[i]);}" to traverse a single object instead of an array of objects. i=key o[1]=value
@@ -326,7 +310,8 @@ var createDocument = function(data, fileName, parentFolder, callback) {
 
       if (xhr.status != 201 && xhr.status != 200) {
         console.log('ERROR', xhr);
-        _gaq.push(['_trackEvent', 'Auto', 'Create Document Error']);
+        // _gaq.push(['_trackEvent', 'Auto', 'Create Document Error']);
+        ga('send', 'event', 'Error', 'Create Document Error');
         requestFailureCount++;
         if (requestFailureCount < requestLimit) {
           gdocs.makeRequest('POST', url, handleSuccess, multipartRequestBody, headers);
@@ -443,7 +428,8 @@ var createDocument = function(data, fileName, parentFolder, callback) {
 /////////////////////////////////////////////////////////
 var createFolder = function(title, properties, callback) {
   console.log('createFolder ', title);
-  _gaq.push(['_trackEvent', 'Auto', 'Create Folder']);
+//   _gaq.push(['_trackEvent', 'Auto', 'Create Folder']);
+  ga('send', 'event', 'Auto', 'Create Folder');
 
   var handleSuccess = function(response, xhr) {
     console.log('Folder created: ', response, xhr);
@@ -515,7 +501,8 @@ function logout(access_token, callback) {
 // updateProperties($scope.data.docs, 'Citable', 'True', 'Public');
 var insertProperties = function(docs, properties, callback) {
   console.log('insertProperties ', docs, properties);
-  _gaq.push(['_trackEvent', 'Auto', 'Update Properties']); //When this goes to 0 in analytics, stop doing this on install.
+//   _gaq.push(['_trackEvent', 'Auto', 'Update Properties']); //When this goes to 0 in analytics, stop doing this on install.
+  ga('send', 'event', 'Auto', 'Update Properties');
 
   var handleSuccess = function(response, xhr) {
     console.log('Property added: ', response, xhr);
@@ -570,7 +557,8 @@ var insertProperties = function(docs, properties, callback) {
 
 var renameFolder = function(folder, title, callback) {
   console.log('renameFolder ', folder, title);
-  _gaq.push(['_trackEvent', 'Auto', 'Rename Folder']); //When this goes to 0 in analytics, stop doing this on install.
+//   _gaq.push(['_trackEvent', 'Auto', 'Rename Folder']); //When this goes to 0 in analytics, stop doing this on install.
+  ga('send', 'event', 'Auto', 'Rename Folder');
 
   var id = folder.id;
 
@@ -619,10 +607,12 @@ var updateDocument = function(callback, docToUpdate, columnOrder) {
 
   var privateDocs;
   if (docToUpdate != null) {
-    _gaq.push(['_trackEvent', 'Auto', 'Update Document', 'Single']);
+    // _gaq.push(['_trackEvent', 'Auto', 'Update Document', 'Single']);
+    ga('send', 'event', 'Auto', 'Update Document', 'Single');
     privateDocs = [docToUpdate];
   } else {
-    _gaq.push(['_trackEvent', 'Auto', 'Update Document', 'Multi', privateDocs.length]);
+    // _gaq.push(['_trackEvent', 'Auto', 'Update Document', 'Multi', privateDocs.length]);
+    ga('send', 'event', 'Auto', 'Update Document', 'Multi', privateDocs.length);
     //Docs is currently null since it is outside of the scope of angular. Consider revising. Today we have to pass in the complete doc list if we want to update everyting.
     privateDocs = docs; //Copy the doclist into a private variable so that we can run in the background while the user can send notes to the doc of choice.
   }

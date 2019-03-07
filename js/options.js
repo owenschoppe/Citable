@@ -1,11 +1,19 @@
 var bgPage = chrome.extension.getBackgroundPage();
 
 document.addEventListener('DOMContentLoaded', function() {
-  _gaq.push(['_trackEvent', 'Button', 'Revoke Token']);
   document.querySelector('#revoke').addEventListener('click', revokeToken);
+  document.querySelector('#donate').addEventListener('click', donate);
+  document.getElementById('configure').addEventListener('click', (e) => {
+      chrome.tabs.create({
+          url: "chrome://extensions/configureCommands"
+      });
+  });
+  initUI();
+  initCommands();
 });
 
 function revokeToken() {
+    ga('send', 'event', 'Button', 'Revoke Token');
   //user_info_div.innerHTML="";
   chrome.identity.getAuthToken({
       'interactive': true
@@ -50,9 +58,12 @@ function revokeToken() {
     });
 }
 
+function donate(e) {
+    ga('send', 'event', 'Button', 'Donate', 'Options');
+}
+
 function initCommands() {
     chrome.commands.getAll((all) => { 
-        console.log(all);
         document.getElementById('browser_action').innerText = browserAction(all);
     });
 }
@@ -75,7 +86,7 @@ function initUI() {
       //if (!bgPage.oauth.hasToken()) {
       document.getElementById('revoke').disabled = true;
     } else {
-      console.log('Success!', token);
+      console.log('Success!');
       access_token = token;
       document.getElementById('revoke').disabled = false;
     }
@@ -85,12 +96,3 @@ function initUI() {
 
   });
 }
-
-//Inital function fired on page load.
-window.onload = function() {
-  initUI();
-  initCommands();
-  document.getElementById('configure').addEventListener('click',(e)=>{
-      chrome.tabs.create({ url: "chrome://extensions/configureCommands" });
-  });
-};

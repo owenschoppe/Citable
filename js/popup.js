@@ -570,7 +570,8 @@ Code may not be used without written and express permission.
     $scope.data = sharedProps.data;
 
     $scope.toggleMenu = function(event) {
-      _gaq.push(['_trackEvent', 'Button', 'Toggle Menu']);
+    //   _gaq.push(['_trackEvent', 'Button', 'Toggle Menu']);
+      ga('send', 'event', 'Button', 'Toggle Menu');
       event.preventDefault();
       if ($scope.data.defaultDoc.title) {
         $scope.data.menu = !$scope.data.menu;
@@ -612,6 +613,7 @@ Code may not be used without written and express permission.
 
     $scope.donate = function(param) {
       console.log('donate', param);
+      ga('send', 'event', 'Button', 'Donate', 'Popup');
       chrome.tabs.create({
         url: param
       });
@@ -707,7 +709,8 @@ Code may not be used without written and express permission.
             //$scope.clearFields();
             $scope.data.requesting = false; // User may need to click the button again.
           });
-          _gaq.push(['_trackEvent', 'Shortcut', 'CTRL RETURN']);
+        //   _gaq.push(['_trackEvent', 'Shortcut', 'CTRL RETURN']);
+          ga('send', 'event', 'Shortcut', 'CTRL RETURN');
         } else {
           msgService.queue('Please Add a Title', 'error', 5000);
         }
@@ -720,7 +723,8 @@ Code may not be used without written and express permission.
       if ($scope.data.online) {
         if ($scope.controls.$valid) {
           $scope.saveNote(e, $scope.closeWindow);
-          _gaq.push(['_trackEvent', 'Shortcut', 'ALT RETURN']);
+        //   _gaq.push(['_trackEvent', 'Shortcut', 'ALT RETURN']);
+          ga('send', 'event', 'Shortcut', 'ALT RETURN');
         } else {
           msgService.queue('Please Add a Title', 'error', 5000);
         }
@@ -1212,13 +1216,15 @@ Code may not be used without written and express permission.
     };
 
     $scope.saveNoteButton = function(event, callback) {
-      _gaq.push(['_trackEvent', 'Button', 'Save']);
+    //   _gaq.push(['_trackEvent', 'Button', 'Save']);
+      ga('send', 'event', 'Button', 'Save');
       $scope.saveNote(event, callback);
     };
 
     $scope.saveNote = function(event, callback) {
       console.log('Save Note: ', $scope.data);
-      _gaq.push(['_trackEvent', 'Auto', 'Save Note']);
+    //   _gaq.push(['_trackEvent', 'Auto', 'Save Note']);
+      ga('send', 'event', 'Auto', 'Save Note');
       
       var saveNoteSuccess = function() {
         console.log('SaveNote success', $scope.data, callback);
@@ -1251,7 +1257,8 @@ Code may not be used without written and express permission.
 
     $scope.viewDoc = function(destination, url) {
       console.log('viewDoc', destination, url);
-      _gaq.push(['_trackEvent', 'Button', 'View Document']);
+    //   _gaq.push(['_trackEvent', 'Button', 'View Document']);
+      ga('send', 'event', 'Button', 'View Document');
       //First looks for the url passed in from the DocList API since that address should be correct.
       var tabUrl = url != null ? url : constructURL(destination);
       chrome.tabs.create({

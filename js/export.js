@@ -82,14 +82,16 @@ var app = (function(app) {
   app.printHandler = function(e) {
     chrome.storage.local.get('exportFormat', function(response) {
       // console.log("chrome.storage.local.get('exportFormat')", response);
-      _gaq.push(['_trackEvent', 'Button', 'Download ', app.extension.format]);
+    //   _gaq.push(['_trackEvent', 'Button', 'Download ', app.extension.format]);
+      ga('send', 'event', 'Button', 'Download', app.extension.format);
       app.saveFile();
     });
     return false;
   };
 
   app.cancelHandler = function(e) {
-    _gaq.push(['_trackEvent', 'Button', 'Cancel Export']);
+    // _gaq.push(['_trackEvent', 'Button', 'Cancel Export']);
+    ga('send', 'event', 'Button', 'Cancel Export');
     window.close();
     return false;
   };
@@ -117,7 +119,8 @@ var app = (function(app) {
       chrome.storage.local.set({
         'exportFormat': e.target.value
       }, function(response) {
-        _gaq.push(['_trackEvent', 'Button', 'Change Export Format ', app.extension.format]);
+        // _gaq.push(['_trackEvent', 'Button', 'Change Export Format ', app.extension.format]);
+        ga('send', 'event', 'Button', 'Change Export Format', app.extension.format);
       });
     };
 
