@@ -3,6 +3,7 @@ var bgPage = chrome.extension.getBackgroundPage();
 document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#revoke').addEventListener('click', revokeToken);
   document.querySelector('#donate').addEventListener('click', donate);
+  document.querySelector('#view_policy').addEventListener('click', policy);
   document.getElementById('configure').addEventListener('click', (e) => {
       chrome.tabs.create({
           url: "chrome://extensions/configureCommands"
@@ -20,15 +21,11 @@ function revokeToken() {
     },
     function(current_token) {
       if (!chrome.runtime.lastError) {
-
-        // @corecode_begin removeAndRevokeAuthToken
-        // @corecode_begin removeCachedAuthToken
         // Remove the local cached token
         chrome.identity.removeCachedAuthToken({
             token: current_token
           },
           function() {});
-        // @corecode_end removeCachedAuthToken
 
         // Make a request to revoke token in the server
         var xhr = new XMLHttpRequest();
@@ -46,10 +43,7 @@ function revokeToken() {
         };
 
         xhr.send();
-        // @corecode_end removeAndRevokeAuthToken
 
-        // Update the user interface accordingly
-        //changeState(STATE_START);
         document.getElementById('revoke').disabled = true;
         console.log('Token revoked and removed from cache. ' +
           'Check chrome://identity-internals to confirm.');
@@ -60,6 +54,10 @@ function revokeToken() {
 
 function donate(e) {
     ga('send', 'event', 'Button', 'Donate', 'Options');
+}
+
+function policy(e) {
+    ga('send', 'event', 'Button', 'View Policy');
 }
 
 function initCommands() {
