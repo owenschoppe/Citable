@@ -168,7 +168,7 @@ var makeDraggable = function(setTotal) {
           var page = document.createElement('div');
           page.className = 'page ' + items.orientation;
           var content = document.createElement('ul');
-          content.className = "sortable content"; //For jquery UI sortable.
+          content.className = "sortable content";
           page.appendChild(content);
           var container = document.getElementById('container');
           container.appendChild(page);
