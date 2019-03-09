@@ -94,7 +94,7 @@ function render(rows, docKey, callback, passed) {
         page.id = "page_" + i;
         page.className = 'page ' + orientation + ' ' + m;
         content.id = "content_"+i;
-        content.className = "sortable content"; //For jquery UI sortable.
+        content.className = "sortable content";
       }
 
       content.appendChild(div);
