@@ -1223,7 +1223,7 @@ Code may not be used without written and express permission.
       
       var saveNoteSuccess = function() {
         console.log('SaveNote success', $scope.data, callback);
-        msgService.queue('Note Saved', 'success', 2000);
+        msgService.queue('Note Saved', 'success', 100);
         // $scope.data.requesting = false; //Reset the variable. //Don't reset unless this is a ctrl-click...
 
         //Remove citation from queue/log.

@@ -13,6 +13,9 @@ var _AnalyticsCode = 'UA-30552255-1';
 })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
 
 ga('create', _AnalyticsCode, 'auto');
+
+// window['ga-disable-UA-30552255-1'] = true;
+
 ga('set', 'checkProtocolTask', null); // Removes failing protocol check. @see: http://stackoverflow.com/a/22152353/1958200
 // Sets the page value on the tracker.
 ga('set', 'page', location.pathname);

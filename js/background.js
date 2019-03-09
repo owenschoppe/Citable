@@ -32,24 +32,24 @@ toggleAuth = function(interactive, callback) {
 function getPageInfo(callback) {
   chrome.tabs.getSelected(function(tab) {
     console.log('getPageInfo', tab);
-    if ((tab.url.indexOf("chrome-devtools://") == -1) &&
+    if (tab.url && (tab.url.indexOf("chrome-devtools://") == -1) &&
       (tab.url.indexOf("chrome://") == -1) &&
       (tab.url.indexOf("chrome-extension://") == -1) &&
       (tab.url.indexOf("file://") == -1)) {
-      console.log('execute content scripts');
-      // Add the callback to the queue
-      callbacks = [];
-      callbacks.push(callback);
-      // Inject the content script into the current page
+        console.log('execute content scripts');
+        // Add the callback to the queue
+        callbacks = [];
+        callbacks.push(callback);
+        // Inject the content script into the current page
 
-        chrome.tabs.executeScript(null, {
-          file: "js/content_script.js"
-        }, function() {
-          if (chrome.runtime.lastError) {
-            console.log('Scripting error:', chrome.runtime.lastError.message);
-            error(tab);
-          }
-        });
+            chrome.tabs.executeScript(null, {
+            file: "js/content_script.js"
+            }, function() {
+                if (chrome.runtime.lastError) {
+                    console.log('Scripting error:', chrome.runtime.lastError.message);
+                    error(tab);
+                }
+            });
 
     } else {
       console.log('getPageInfo error');
@@ -62,9 +62,13 @@ function getPageInfo(callback) {
     var pageInfo = {
       'Title': tab.title.trim(),
       //'Summary': getClipboard(),
-      'Url': tab.url
+      'Url': tab.url ? tab.url : ''
     };
-    callback(pageInfo);
+    try{
+        callback(pageInfo);
+    } catch(e) {
+        //user probably changed tabs mid-citation
+    }
   };
 }
 
