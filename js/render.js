@@ -29,8 +29,8 @@ function render(rows, docKey, callback, passed) {
     var uj = (u == 'none') ? 'hidden' : "";
     var gj = (g == 'none') ? 'hidden' : "";
 
-    var aw = (u == 'none') ? 'full' : '';
-    var uw = (a == 'none') ? 'full' : '';
+    var aw = (u == 'none') ? 'author_full' : '';
+    var uw = (a == 'none') ? 'url_full' : '';
 
     var index = 0;
 
@@ -42,7 +42,7 @@ function render(rows, docKey, callback, passed) {
       var shadow = document.createElement('div');
 
       form.id = "form_"+i;
-			form.className = "form";
+			form.className = "form" + " " + aw + " " + uw;
       form.setAttribute('data-index', i);
       div.className = "note_wrapper shadow ui-state-default move"; //+arrangeClass(orientation, index);
       //div.setAttribute('draggable',true); //done later in draggable.js
@@ -64,13 +64,13 @@ function render(rows, docKey, callback, passed) {
 
       var Author = document.createElement('div');
       Author.innerText = (a != 'none') ? r[a] : "";
-      Author.className = "author " + font + " " + i + " " + aj + " " + aw;
+      Author.className = "author " + font + " " + i + " " + aj;
       Author.readOnly = true;
       form.appendChild(Author);
 
       var URL = document.createElement('div');
       URL.innerText = (u != 'none') ? r[u] : "";
-      URL.className = "url " + font + " " + i + " " + uj + " " + uw;
+      URL.className = "url " + font + " " + i + " " + uj;
       URL.readOnly = true;
       form.appendChild(URL);
 

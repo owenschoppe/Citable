@@ -32,10 +32,26 @@
             "author url"
             "tags tags"; 
     } 
+
+    .form.author_full {
+        grid-template-areas:
+            "summary summary"
+            "title title"
+            "author author"
+            "tags tags";
+    }
+
+    .form.url_full {
+        grid-template-areas:
+            "summary summary"
+            "title title"
+            "url url"
+            "tags tags";
+    }
     
     .form > div, .form > input, .form > textarea {
         margin: 0;
-        padding: auto;
+        padding: 0;
     }
 
 }
