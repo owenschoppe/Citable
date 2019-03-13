@@ -274,8 +274,8 @@ input[type=checkbox], input[type=radio] {
 .form input, .form textarea {
   background-color: transparent !important;
   border: none;
-  padding: .125rem;
-  padding: var(--space-xxxsmall);
+  /* padding: .125rem;
+  padding: var(--space-xxxsmall); */
   display: block;
 }
 
@@ -493,12 +493,13 @@ img.logo {
 }
 
 .note {
-  height: 3in;
+  /* height: 3in; */
+  min-height: 3in;
   padding: 0px;
   margin: 0px;
   background-color: #fffca8;
   background-color: var(--color-background--note);
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 .move {

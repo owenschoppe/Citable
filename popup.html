@@ -11,11 +11,13 @@
 	<meta name="Description" content="Save citations to Google Spreadsheets">
 	<link rel="stylesheet" type="text/css" href="/css/index.css">
 	<link rel="stylesheet" type="text/css" href="/css/pop.css">
-	<link rel="stylesheet" type="text/css" href="/css/notes.css">
+    <link rel="stylesheet" type="text/css" href="/css/notes.css">
+    <link rel="stylesheet" type="text/css" href="/css/combobox.css" media="all">
 	<link rel="stylesheet" type="text/css" href="/css/angular-csp.css">
 
 	<script type="text/javascript" src="js/angular-1.7.5.min.js"></script>
-	<script type="text/javascript" src="js/util.js"></script>
+    <script type="text/javascript" src="js/util.js"></script>
+    <script type="text/javascript" src="js/combobox.js"></script>
 	<script type="text/javascript" src="js/queue.js"></script>
 	<script type="text/javascript" src="js/popup.js"></script>
 	<script type="text/javascript" src="js/analytics.js"></script>
@@ -44,9 +46,10 @@
 								<!--Url Field-->
 									<label for="url" class="visuallyhidden">Url</label>
 									<input type="text" id="url" class="Droid input url" name="url" value="" placeholder="URL" ng-model="data.citation.Url" ng-disabled="data.menu || !data.auth" />
-								<!--Tags Field-->
-									<label for="tags" class="visuallyhidden">Tags</label>
-									<input type="text" id="tags" class="Droid input tags" name="tags" value="" placeholder="Enter some tags" ng-model="data.citation.Tags" ng-disabled="data.menu || !data.auth" />
+                                <!--Tags Field-->
+                                    <div id="tagInput" class="tag-input" tags-directive></div>
+									<!-- <label for="tags" class="visuallyhidden">Tags</label>
+									<input type="text" id="tags" class="Droid input tags" name="tags" value="" placeholder="Enter some tags" ng-model="data.citation.Tags" ng-disabled="data.menu || !data.auth" /> -->
 							</div>
 						</fieldset>
 						<!--Hack the citation validation by having a hidden required input with the date value. This would cause the form to be invalid if missing. Or we could require the url, or some other field... -->
