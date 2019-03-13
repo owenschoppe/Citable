@@ -163,10 +163,10 @@ class PillList extends List {
         if(string) {
             var pill = new Pill(string, this.pillContainer, this.removePill.bind(this), this.nextPill.bind(this));
             this.items.push(pill);
-            input.value = '';
             this.updatePillIndex();
             this.updateCallback();
         }
+        input.value = '';
     }
 
     updatePillIndex(index, focus) {
