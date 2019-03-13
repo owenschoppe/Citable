@@ -9,7 +9,7 @@ class TagInput {
     input = null;
     div = null;
 
-    constructor(label, placeholder, scope) {
+    constructor(label, placeholder, callback) {
         console.log('init');
         var tagInputTemplate = `<div class="slds-form-element">
                                     <label class="slds-form-element__label visuallyhidden" for="combobox-id-24"></label>
@@ -39,7 +39,7 @@ class TagInput {
         this.combobox = this.div.querySelector('.slds-combobox');
         this.input = this.div.querySelector('.slds-combobox_container .slds-combobox__input');
         this.input.setAttribute('placeholder',placeholder);
-        this.pillList = new PillList(this.div.querySelector('.slds-listbox_selection-group'), scope);
+        this.pillList = new PillList(this.div.querySelector('.slds-listbox_selection-group'), callback);
         this.dropdown = new DropdownList(this.div.querySelector('.slds-dropdown'), this.input, this.combobox, this.addPill.bind(this));
         this.input.addEventListener('keydown', this.handlePress.bind(this), true);
         this.input.addEventListener('input', this.searchOptions.bind(this, true));
@@ -147,7 +147,7 @@ class PillList extends List {
 
     pillContainer = '';
 
-    constructor(rootNode, scope) {
+    constructor(rootNode, callback) {
         super();
         this.pillContainer = document.createElement('ul');
         this.pillContainer.classList = "slds-listbox slds-listbox_horizontal";
@@ -155,15 +155,18 @@ class PillList extends List {
         this.pillContainer.setAttribute("aria-label", "Selected Options:");
         this.pillContainer.setAttribute("aria-orientation", "horizontal");
         rootNode.appendChild(this.pillContainer);
-        this.scope = scope;
+        this.callback = callback;
     }
 
     addPill(string, input) {
-        var pill = new Pill(string, this.pillContainer, this.removePill.bind(this), this.nextPill.bind(this));
-        this.items.push(pill);
-        input.value = '';
-        this.updatePillIndex();
-        this.updateScope();
+        string = string.trim();
+        if(string) {
+            var pill = new Pill(string, this.pillContainer, this.removePill.bind(this), this.nextPill.bind(this));
+            this.items.push(pill);
+            input.value = '';
+            this.updatePillIndex();
+            this.updateCallback();
+        }
     }
 
     updatePillIndex(index, focus) {
@@ -186,7 +189,7 @@ class PillList extends List {
         var next = this.nextIndex(index, -1, false);
         this.items.splice(index, 1);
         this.updatePillIndex(next, true);
-        this.updateScope();
+        this.updateCallback();
     }
 
     nextPill(e, dir, pill) {
@@ -195,10 +198,11 @@ class PillList extends List {
         this.updatePillIndex(next, true);
     }
 
-    updateScope() {
-        if(this.scope) {
-            this.scope.tags = this.items.map(e => e.value);
-            this.scope.$apply();
+    updateCallback() {
+        if(this.callback) {
+            // this.scope.tags = this.items.map(e => e.value);
+            // this.scope.$apply();
+            this.callback(this.items.map(e => e.value));
         }
     }
 }

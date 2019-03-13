@@ -29,16 +29,21 @@ Code may not be used without written and express permission.
     citable.directive('tagsDirective', ['$compile', function ($compile) {
         return {
             link: function ($scope, $element, $attrs) {
-                $scope.tags = new TagInput('Tags', 'Enter a tag', $scope);
-                $scope.$watch('tags', function(value){
-                    console.log('watch tags',value);
-                    $scope.data.citation.tags = value.join(', ');
+                $scope.tagsInput = new TagInput('Tags', 'Enter a tag', (items)=>{
+                    console.log('tags callback',items);
+                    // $scope.tags = items;
+                    $scope.data.citation.tags = items ? items.join(', ') : null;
+                    $scope.$apply();
                 });
-                var el = $compile($scope.tags.div)($scope);
+                // $scope.$watch('tags', function(value){
+                //     console.log('watch tags',value);
+                //     $scope.data.citation.tags = value ? value.join(', ') : null;
+                // });
+                var el = $compile($scope.tagsInput.div)($scope);
                 $element.append(el);
                 //Test adding items to the tag dropdown
                 // window.setTimeout(() => {
-                //     $scope.tags.setTagOptions(['foo', 'bar', 'baz']);
+                //     $scope.tagsInput.setTagOptions(['foo', 'bar', 'baz']);
                 // }, 100);
             }
         };
