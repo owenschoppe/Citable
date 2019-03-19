@@ -98,7 +98,11 @@ class TagInput {
             this.searchOptions(false, e);
             this.dropdown.nextItem(e, 1);
         } else if (e.key == 'Escape') {
-            this.dropdown.hideDropdown();
+            if(this.combobox.getAttribute('aria-expanded') == 'true'){
+                e.stopPropagation();
+                e.preventDefault();
+                this.dropdown.hideDropdown();
+            }
         } else {
 
         }
