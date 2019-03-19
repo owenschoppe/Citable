@@ -711,7 +711,8 @@
     "Url": '',
     "Summary": getSelectedText() || '',
     "Author": getAuthor() || '',
-    "Tags": videoTime() || '',
+    "Tags": '',
+    "VideoTime": videoTime() || '',
     "DatePublished": getDatePublished() || '',
     "Publication": getPublication() || ''
   };

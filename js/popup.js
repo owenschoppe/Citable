@@ -28,7 +28,71 @@ Code may not be used without written and express permission.
 
     citable.directive('tagsDirective', ['$compile', function ($compile) {
         return {
+            restrict: 'A',
             link: function ($scope, $element, $attrs) {
+                var self = this;
+                var defaultLocal;
+                var defaultSync;
+                
+                var localSuccess = function(response){ 
+                    defaultLocal = response.defaultDoc.id;
+                    console.log('local storage', response);
+                    chrome.storage.sync.get('defaultDoc', syncSuccess.bind(this));
+                 };
+
+                var syncSuccess = function (response) {
+                    defaultSync = response.defaultDoc.id;
+                    console.log('sync storage', response);
+                    var bgPage = chrome.extension.getBackgroundPage();
+                    bgPage.getDocument(null, defaultSync, true, getDocumentSuccess.bind(this));
+                 };
+
+                var getDocumentSuccess = function (response) {
+                    //  sdebugger;
+                    //  if (response != null) {
+                         //success
+                         //get tags
+                         chrome.storage.local.get('tags', gotTags.bind(this));
+                    //  } else {
+                    //      //failure
+                    //  }
+                 }
+
+                 var gotTags = function (response) {
+                     console.log(response.tags);
+                     this.tagsInput.setTagOptions(response.tags);
+                 }
+
+                // chrome.storage.local.get('defaultDoc', localSuccess.bind($scope));
+
+                // var getSyncStorage = (function () {
+                //     return new Promise(function (resolve) {
+                //         chrome.storage.sync.get('defaultDoc', function (result) {
+                //             resolve(result);
+                //         });
+                //     });
+                // })();
+
+                // getSyncStorage.then(
+                //     (response) => {
+                //         console.log('sync storage',response);
+                //         defaultSync = response.defaultDoc.id;
+                //         var bgPage = chrome.extension.getBackgroundPage();
+                //         bgPage.getDocument(null, defaultSync, true, function (response) {
+                //             debugger;
+                //             if (response != null) {
+                //                 //success
+                //                 //get tags
+                //                 chrome.storage.local.get('tags', function (response) {
+                //                     debugger;
+                //                 });
+                //             } else {
+                //                 //failure
+                //             }
+                //         });
+                //     }
+                // );
+
                 $scope.tagsInput = new TagInput('Tags', 'Enter a tag', (items)=>{
                     console.log('tags callback',items);
                     // $scope.tags = items;
@@ -39,6 +103,17 @@ Code may not be used without written and express permission.
                 //     console.log('watch tags',value);
                 //     $scope.data.citation.tags = value ? value.join(', ') : null;
                 // });
+                $scope.$watch('data.defaultDoc', function (value) {
+                    //When the default doc is set, get the tags
+                    console.log('watch default doc and refresh tags', value);
+                    //clear tags
+                    $scope.tagsInput.setTagOptions([]);
+                    if ($scope.data.defaultDoc.id) {
+                        //if there is a new doc, then update the tags
+                        var bgPage = chrome.extension.getBackgroundPage();
+                        bgPage.getDocument(null, $scope.data.defaultDoc.id, true, getDocumentSuccess.bind($scope));
+                    }
+                });
                 var el = $compile($scope.tagsInput.div)($scope);
                 $element.append(el);
                 //Test adding items to the tag dropdown

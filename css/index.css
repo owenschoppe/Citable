@@ -485,6 +485,8 @@ img.logo {
 
     .note_wrapper {
     margin: 0;
+    display: flex;
+    flex-direction: column;
     }
 
     .landscape .note_wrapper:nth-child(3n), .portrait .note_wrapper:nth-child(even) {

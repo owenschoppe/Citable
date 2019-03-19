@@ -137,15 +137,29 @@ function callPrintable(action, callback) {
         callback();
       }
     });
+  } else {
+      if (callback) {
+          callback();
+      }
   }
 }
 
+function dedupe(array) {
+    return Array.from(new Set(array));
+}
+
+function parseTags(tags) {
+    var array = tags.split(',');
+    array = array.map(e => e.trim());
+    return array;
+}
 
 processDocContent = function(response, xhr, callback) {
   console.log('rows returned: ', xhr);
 
   //Clear row cache in bgPage. //TODO: clean this up so as to not leave a copy lying around. Maybe use localStorage?
   var row = [];
+  var tags = [];
 
   var data = JSON.parse(response);
   console.log('row data: ', data, Boolean(data.feed.entry));
@@ -153,14 +167,19 @@ processDocContent = function(response, xhr, callback) {
 
     for (var i = 0; i < data.feed.entry.length; ++i) {
       var entry = data.feed.entry[i];
-      console.log(i);
+    //   console.log(i);
       row.push(new Row(entry));
+      tags = tags.concat(parseTags(row[i]['Tags']));
     }
+    tags = dedupe(tags);
+    tags = tags.filter(tag => tag);
     console.log('row: ', row);
+    console.log('tags: ', tags);
 
     //Uses local storage to pass data to export and print as a default if no URL param.
     chrome.storage.local.set({
-      'row': row
+      'row': row,
+      'tags': tags
     }, function(response) {
       chrome.storage.local.get('row', function(response) {
         console.log("chrome.storage.local.get('row')", response);
@@ -251,7 +270,7 @@ getDocument = function(param, docId, retry, callback) {
         processDocContent(response, xhr, function(success) {
           if (success) {
             callPrintable(param, function(response) {
-              console.log(response);
+              console.log('CallPrintableCallback',response);
               if (callback) {
                 callback(response);
               }
