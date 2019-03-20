@@ -371,6 +371,7 @@ class DropdownList extends List {
             item.id = 'option'+i;
             if (i == index) {
                 item.setAttribute('aria-selected',true);
+                item.scrollIntoView({ block: "nearest", inline: "nearest" });
                 this.selectedItem = item.parentNode;
                 this.input.setAttribute('aria-activedescentant',item.id);
             } else {
