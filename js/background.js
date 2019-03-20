@@ -60,7 +60,7 @@ function getPageInfo(callback) {
   error = function(tab) {
     //If the content script injection fails (ie. we're in devtools or another protected Chrome page) do a generic callback.
     var pageInfo = {
-      'Title': tab.title.trim(),
+      'Title': tab.title ? tab.title.trim() : '',
       //'Summary': getClipboard(),
       'Url': tab.url ? tab.url : ''
     };

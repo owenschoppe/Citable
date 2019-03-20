@@ -1152,11 +1152,13 @@ Code may not be used without written and express permission.
         var parseXml = function(xmlStr) {
           return new window.DOMParser().parseFromString(xmlStr, "text/xml");
         };
+        
+        var editLink = '';
 
         var checkResponse = function(response) {
           var citation = $scope.data.citation;
           var doc = parseXml(response.data);
-          var editLink = doc.querySelector('link[rel="edit"]').getAttribute('href') || '';
+          editLink = doc.querySelector('link[rel="edit"]').getAttribute('href') || '';
           // var nonEmptyKeys = Object.keys(citation).filter((key) => citation[key]).map((key) => key.toLowerCase());
           var missingColumnNames = [];
           for (var key in citation) {
