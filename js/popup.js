@@ -55,7 +55,7 @@ Code may not be used without written and express permission.
                     // console.log('watch default doc and refresh tags', value);
                     //Clear tags
                     $scope.tagsInput.setTagOptions([]);
-                    if ($scope.data.defaultDoc.id) {
+                    if ($scope.data.defaultDoc) {
                         //If there is a new doc, then update the tags
                         var bgPage = chrome.extension.getBackgroundPage();
                         bgPage.getDocument(null, $scope.data.defaultDoc.id, true, getDocumentSuccess.bind($scope));

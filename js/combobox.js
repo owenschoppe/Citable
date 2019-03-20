@@ -10,7 +10,7 @@ class TagInput {
     div = null;
 
     constructor(label, placeholder, callback) {
-        console.log('init');
+        // console.log('init');
         var tagInputTemplate = `<div class="slds-form-element">
                                     <label class="slds-form-element__label visuallyhidden" for="combobox-id-24"></label>
                                     <div class="slds-form-element__control">
@@ -19,7 +19,7 @@ class TagInput {
                                                 aria-haspopup="listbox" role="combobox">
                                                 <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
                                                     <input type="text" class="slds-input slds-combobox__input" id="combobox-id-24" aria-autocomplete="list"
-                                                        aria-controls="listbox-id-13" autoComplete="off" role="textbox" ng-disabled="data.menu || !data.auth"/>
+                                                        aria-controls="listbox-id-13" autocomplete="off" role="textbox" ng-disabled="data.menu || !data.auth"/>
                                                 </div>
                                                 <div id="listbox-id-13" class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox">
                                                 <!-- Autocomplete Items -->
@@ -280,7 +280,8 @@ class DropdownList extends List {
         this.addPill = addPill;
         this.combobox = combobox;
         this.dropdown = document.createElement('ul');
-        this.dropdown.classList = "slds-listbox slds-listbox_vertical hidden";
+        this.dropdown.setAttribute('role', 'presentation');
+        this.dropdown.classList = "slds-listbox slds-listbox_vertical"; //hidden
         rootNode.appendChild(this.dropdown);
     }
 
@@ -335,9 +336,10 @@ class DropdownList extends List {
                 this.updateIndex(index);
             }
             //make sure dropdown is visible
-            this.dropdown.classList.remove('hidden');
-            this.dropdown.setAttribute("role", "listbox");
+            // this.dropdown.classList.remove('hidden');
+            // this.dropdown.setAttribute("role", "listbox");
             this.combobox.setAttribute('aria-expanded', true);
+            this.combobox.classList.add('slds-is-open');
         } else {
             //no results
             //clear everything and hide dropdown
@@ -348,10 +350,11 @@ class DropdownList extends List {
     }
 
     hideDropdown() {
-        this.dropdown.classList.add('hidden');
-        this.dropdown.setAttribute("role", "presentation");
+        // this.dropdown.classList.add('hidden');
+        // this.dropdown.setAttribute("role", "presentation");
         this.combobox.setAttribute('aria-expanded', false);
-        this.input.removeAttribute('aria-activedescentant');
+        this.combobox.classList.remove('slds-is-open');
+        this.input.removeAttribute('aria-activedescendant');
         this.selectedItem = null;
     }
 
@@ -375,7 +378,7 @@ class DropdownList extends List {
                 item.setAttribute('aria-selected',true);
                 item.scrollIntoView({ block: "nearest", inline: "nearest" });
                 this.selectedItem = item.parentNode;
-                this.input.setAttribute('aria-activedescentant',item.id);
+                this.input.setAttribute('aria-activedescendant',item.id);
             } else {
                 item.setAttribute('aria-selected', false);
             }

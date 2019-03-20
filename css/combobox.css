@@ -18,6 +18,13 @@
 /* Dropdown */
 .slds-dropdown {
     position: relative;
+    display: none;
+}
+
+.slds-is-open .slds-dropdown {
+    display: block;
+    visibility: visible;
+    opacity: 1;
 }
 
 .slds-listbox_vertical {
