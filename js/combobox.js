@@ -112,7 +112,7 @@ class TagInput {
         //Should we only search if e.target.value.length > 2?
         var matching = [];
         for (var option of this.tagOptions) {
-            if (option.includes(e.target.value)) {
+            if (option.toLowerCase().includes(e.target.value.toLowerCase())) {
                 matching.push(option)
             }
         }
