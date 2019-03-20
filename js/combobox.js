@@ -179,11 +179,13 @@ class PillList extends List {
         this.pillContainer.querySelectorAll('.slds-pill').forEach((pill, i) => {
             if (i == index) {
                 pill.tabIndex = 0;
+                pill.setAttribute('aria-selected', true);
                 if (focus) {
                     pill.focus();
                 }
             } else {
                 pill.tabIndex = -1;
+                pill.setAttribute('aria-selected', false);
             }
         });
     }
