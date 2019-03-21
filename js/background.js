@@ -20,7 +20,7 @@ var firstRun = true; //Variable that is only true in the first start after an up
 //defines a common and persistant object for handling the accessToken and other functions. avoids having to invoke angular in the background.
 var gdocs = new GDocs();
 
-toggleAuth = function(interactive, callback) {
+var toggleAuth = function(interactive, callback) {
   console.log('gdocs accessToken', gdocs.accessToken);
   gdocs.auth(interactive, function(token) { //was failing to get the refreshed accessToken. Now we just call chrome.auth every time.
     callback(token);
@@ -154,7 +154,7 @@ function parseTags(tags) {
     return array;
 }
 
-processDocContent = function(response, xhr, callback) {
+var processDocContent = function(response, xhr, callback) {
   console.log('rows returned: ', xhr);
 
   //Clear row cache in bgPage. //TODO: clean this up so as to not leave a copy lying around. Maybe use localStorage?
@@ -208,7 +208,7 @@ processDocContent = function(response, xhr, callback) {
   }
 };
 
-Row = function(entry) {
+var Row = function(entry) {
   this.Title = (entry.gsx$title ? entry.gsx$title.$t : '');
   this.Url = (entry.gsx$url ? entry.gsx$url.$t : '');
   this.Summary = (entry.gsx$summary ? entry.gsx$summary.$t : '');
@@ -223,7 +223,7 @@ String.prototype.toProperCase = function() {
   });
 };
 
-getDocument = function(param, docId, retry, callback) {
+var getDocument = function(param, docId, retry, callback) {
 
   /*chrome.storage.sync.get('defaultDoc', function(response){
     	console.log("chrome.storage.sync.get('defaultDoc')",response);
