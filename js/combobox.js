@@ -1,14 +1,4 @@
-/*jshint esversion: 6 */
-'use strict';
-
 class TagInput {
-    combobox = '';
-    dropdown = '';
-    tagOptions = [];
-    tags = [];
-    pillList = '';
-    input = null;
-    div = null;
 
     constructor(label, placeholder, callback) {
         // console.log('init');
@@ -31,7 +21,7 @@ class TagInput {
                                             <!-- Pills -->
                                         </div>
                                     </div>
-                                </div>`
+                                </div>`;
         this.div = document.createElement('div');
         this.div.innerHTML = tagInputTemplate;
         // $compile(div)($scope);
@@ -39,18 +29,20 @@ class TagInput {
         this.div.querySelector('.form-element__label').textContent = label;
         this.combobox = this.div.querySelector('.combobox');
         this.input = this.div.querySelector('.combobox_container .combobox__input');
-        this.input.setAttribute('placeholder',placeholder);
+        this.input.setAttribute('placeholder', placeholder);
         this.pillList = new PillList(this.div.querySelector('.listbox_selection-group'), callback);
         this.dropdown = new DropdownList(this.div.querySelector('.dropdown'), this.input, this.combobox, this.addPill.bind(this));
         this.input.addEventListener('keydown', this.handlePress.bind(this), true);
         this.input.addEventListener('input', this.searchOptions.bind(this, true));
         this.input.addEventListener('click', this.searchOptions.bind(this, true));
-        this.input.addEventListener('blur', this.handleBlur.bind(this),false);
+        this.input.addEventListener('blur', this.handleBlur.bind(this), false);
+        this.tagOptions = [];
+        this.tags = [];
         return this;
     }
 
     addPill(value) {
-        this.pillList.addPill(value,this.input);
+        this.pillList.addPill(value, this.input);
     }
 
     getTags() {
@@ -62,7 +54,7 @@ class TagInput {
     }
 
     handleBlur(e) {
-        if(e.target.value.trim().length > 0){
+        if (e.target.value.trim().length > 0) {
             //To increase discoverability of the feature, if someone leaves the field with data in it, treat it like a tag.
             this.pillList.addPill(e.target.value, e.target);
         }
@@ -74,9 +66,9 @@ class TagInput {
         if (e.key == 'Enter') {
             this.dropdown.selectItem();
         }
-        if (e.key == 'Enter' && e.target.value.length){
+        if (e.key == 'Enter' && e.target.value.length) {
             e.stopPropagation();
-            e.preventDefault(); 
+            e.preventDefault();
             // Add the value to the pill container
             this.pillList.addPill(e.target.value, e.target);
             //Hide the dropdown
@@ -85,7 +77,7 @@ class TagInput {
             e.stopPropagation();
             e.preventDefault();
             this.searchOptions(true, e);
-        } else if (e.key == 'ArrowUp'){
+        } else if (e.key == 'ArrowUp') {
             // Arrow through the list box
             // Show the dropdown and move
             e.stopPropagation();
@@ -99,7 +91,7 @@ class TagInput {
             this.searchOptions(false, e);
             this.dropdown.nextItem(e, 1);
         } else if (e.key == 'Escape') {
-            if(this.combobox.getAttribute('aria-expanded') == 'true'){
+            if (this.combobox.getAttribute('aria-expanded') == 'true') {
                 e.stopPropagation();
                 e.preventDefault();
                 this.dropdown.hideDropdown();
@@ -114,23 +106,23 @@ class TagInput {
         var matching = [];
         for (var option of this.tagOptions) {
             if (option.toLowerCase().includes(e.target.value.toLowerCase())) {
-                matching.push(option)
+                matching.push(option);
             }
         }
         this.dropdown.showDropdown(matching, select);
     }
 
-};
+}
 
 ////////////////////
 // Utils          //
 ////////////////////
 
 class List extends Array {
-    items = [];
 
     constructor() {
         super();
+        this.items = [];
     }
 
     nextIndex(index, dir, loop) {
@@ -150,8 +142,6 @@ class List extends Array {
 
 class PillList extends List {
 
-    pillContainer = '';
-
     constructor(rootNode, callback) {
         super();
         this.pillContainer = document.createElement('ul');
@@ -165,7 +155,7 @@ class PillList extends List {
 
     addPill(string, input) {
         string = string.trim();
-        if(string) {
+        if (string) {
             var pill = new Pill(string, this.pillContainer, this.removePill.bind(this), this.nextPill.bind(this));
             this.items.push(pill);
             this.updatePillIndex();
@@ -206,7 +196,7 @@ class PillList extends List {
     }
 
     updateCallback() {
-        if(this.callback) {
+        if (this.callback) {
             // this.scope.tags = this.items.map(e => e.value);
             // this.scope.$apply();
             this.callback(this.items.map(e => e.value));
@@ -216,27 +206,23 @@ class PillList extends List {
 
 class Pill {
 
-    pill = null;
-    value = '';
-
     constructor(string, pillContainer, removePill, nextPill) {
         // console.log('addPill', string);
         var pillTemplate = `<span class="pill" role="option" aria-selected="true">
                     <span class="pill__label"></span> <span class="icon_container pill__remove" title="Remove">
                         <span class="assistive-text visuallyhidden">Press delete or backspace to remove</span> </span>
                 </span> </li>`;
-        var pill = document.createElement('li');
-        pill.classList = "listbox-item";
-        pill.setAttribute("role", "presentation");
-        pill.innerHTML = pillTemplate;
-        pillContainer.appendChild(pill);
+        this.pill = document.createElement('li');
+        this.pill.classList = "listbox-item";
+        this.pill.setAttribute("role", "presentation");
+        this.pill.innerHTML = pillTemplate;
+        pillContainer.appendChild(this.pill);
         var pillLabel = pill.querySelector('.pill__label');
         pillLabel.title = string;
         pillLabel.textContent = string;
-        pill.querySelector('.pill__remove').addEventListener('click', this.remove.bind(this));
-        pill.addEventListener('keydown', this.pillPress.bind(this));
+        this.pill.querySelector('.pill__remove').addEventListener('click', this.remove.bind(this));
+        this.pill.addEventListener('keydown', this.pillPress.bind(this));
         this.value = string;
-        this.pill = pill;
         this.removePill = removePill;
         this.nextPill = nextPill;
     }
@@ -268,11 +254,6 @@ class Pill {
 ////////////////////
 
 class DropdownList extends List {
-    combobox = null;
-    dropdown = null;
-    input = null;
-    results = [];
-    selectedItem = null;
 
     constructor(rootNode, input, combobox, addPill) {
         super();
@@ -284,6 +265,9 @@ class DropdownList extends List {
         this.dropdown.setAttribute('role', 'presentation');
         this.dropdown.classList = "listbox listbox_vertical"; //hidden
         rootNode.appendChild(this.dropdown);
+
+        this.results = [];
+        this.selectedItem = null;
     }
 
     addItem(string) {
@@ -293,12 +277,14 @@ class DropdownList extends List {
     }
 
     selectItem(item) {
-        if (this.combobox.getAttribute('aria-expanded') == 'true'){
-            if(item) {
+        if (this.combobox.getAttribute('aria-expanded') == 'true') {
+            if (item) {
                 //clicked item
                 this.input.value = item;
                 this.addPill(this.input.value, this.input);
-                window.setTimeout(()=>{this.input.focus();},0);
+                window.setTimeout(() => {
+                    this.input.focus();
+                }, 0);
             } else {
                 //enter in input
                 this.input.value = this.selectedItem.querySelector('.listbox__option-text').textContent;
@@ -323,12 +309,12 @@ class DropdownList extends List {
                 this.results = results;
                 this.dropdown.innerHTML = '';
                 this.items = [];
-                results.forEach((item,index)=>{
-                    if(index > 1000) {
+                results.forEach((item, index) => {
+                    if (index > 1000) {
                         return; //What should the limit be?
                     }
                     this.addItem(item);
-                })
+                });
                 this.updateIndex(0);
             } else if (equals && select) {
                 //same results with prior selection
@@ -374,12 +360,15 @@ class DropdownList extends List {
     updateIndex(index) {
         index = index || 0;
         this.dropdown.querySelectorAll('.listbox__option').forEach((item, i) => {
-            item.id = 'option'+i;
+            item.id = 'option' + i;
             if (i == index) {
-                item.setAttribute('aria-selected',true);
-                item.scrollIntoView({ block: "nearest", inline: "nearest" });
+                item.setAttribute('aria-selected', true);
+                item.scrollIntoView({
+                    block: "nearest",
+                    inline: "nearest"
+                });
                 this.selectedItem = item.parentNode;
-                this.input.setAttribute('aria-activedescendant',item.id);
+                this.input.setAttribute('aria-activedescendant', item.id);
             } else {
                 item.setAttribute('aria-selected', false);
             }
@@ -388,9 +377,6 @@ class DropdownList extends List {
 }
 
 class ListItem {
-
-    item = null;
-    value = '';
 
     constructor(string, dropdown, selectItem, hoverItem) {
         this.selectItem = selectItem;
@@ -401,9 +387,9 @@ class ListItem {
         this.item = document.createElement('li');
         this.item.innerHTML = optionTemplate;
         this.item.classList = 'listbox__item';
-        this.item.setAttribute('role','presentation');
+        this.item.setAttribute('role', 'presentation');
         this.item.querySelector('.listbox__option-text').textContent = string;
-        this.item.addEventListener('mousedown',this.handleClick.bind(this),true);
+        this.item.addEventListener('mousedown', this.handleClick.bind(this), true);
         this.item.addEventListener('mouseover', this.handleHover.bind(this), true);
         return this.item;
     }
@@ -413,6 +399,6 @@ class ListItem {
     }
 
     handleHover(e) {
-        this.hoverItem(e,this.item);
+        this.hoverItem(e, this.item);
     }
 }

@@ -1,0 +1,7 @@
+{    
+    "passfail": false,
+    "maxerr": 100,
+    "browser": true,
+    "devel": true,
+    "esversion": 6
+}
