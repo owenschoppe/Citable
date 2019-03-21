@@ -160,7 +160,7 @@ function menu(bgPage) {
 
             }
             console.log('Render selection', html);
-            $('#selection').html('<select id="destination" class="Droid" name="destination">' + html.join('') + '</select>'); //<option value="new">Create New Document</option> //!!!This is the one major change from citable/popup.js gdocs.renderDocSelect must remain split.
+            $('#selection').html('<label for="destination" class="visuallyhidden">Destination</label><select id="destination" class="Droid" name="destination">' + html.join('') + '</select>'); //<option value="new">Create New Document</option> //!!!This is the one major change from citable/popup.js gdocs.renderDocSelect must remain split.
             //gdocs.changeAction(this.form, null); //!!!
             //setTabOrder(order); //Resets the tab order to include this selection menu and the addNote button. //!!!
 
