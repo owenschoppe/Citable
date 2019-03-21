@@ -217,7 +217,7 @@ class Pill {
         this.pill.setAttribute("role", "presentation");
         this.pill.innerHTML = pillTemplate;
         pillContainer.appendChild(this.pill);
-        var pillLabel = pill.querySelector('.pill__label');
+        var pillLabel = this.pill.querySelector('.pill__label');
         pillLabel.title = string;
         pillLabel.textContent = string;
         this.pill.querySelector('.pill__remove').addEventListener('click', this.remove.bind(this));
