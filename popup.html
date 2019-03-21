@@ -111,7 +111,8 @@
 								aria-labelledby="destination docTitle_label"
 								placeholder="Enter a document title"
 								ng-model="data.newDoc"
-								ng-show="!data.defaultDoc.id"
+                                ng-show="!data.defaultDoc.id"
+                                autocomplete="off"
 								shown-validation sel-focus="data.defaultDoc.id"
 								required>
 							</div>
