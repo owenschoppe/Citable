@@ -11,22 +11,22 @@ class TagInput {
 
     constructor(label, placeholder, callback) {
         // console.log('init');
-        var tagInputTemplate = `<div class="slds-form-element">
-                                    <label class="slds-form-element__label visuallyhidden" for="combobox-id-24"></label>
-                                    <div class="slds-form-element__control">
-                                        <div class="slds-combobox_container slds-has-selection">
-                                            <div class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click" aria-expanded="false"
+        var tagInputTemplate = `<div class="form-element">
+                                    <label class="form-element__label visuallyhidden" for="combobox-id-24"></label>
+                                    <div class="form-element__control">
+                                        <div class="combobox_container has-selection">
+                                            <div class="combobox dropdown-trigger dropdown-trigger_click" aria-expanded="false"
                                                 aria-haspopup="listbox" role="combobox">
-                                                <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
-                                                    <input type="text" class="slds-input slds-combobox__input" id="combobox-id-24" aria-autocomplete="list"
+                                                <div class="combobox__form-element input-has-icon input-has-icon_right" role="none">
+                                                    <input type="text" class="input combobox__input" id="combobox-id-24" aria-autocomplete="list"
                                                         aria-controls="listbox-id-13" autocomplete="off" role="textbox" ng-disabled="data.menu || !data.auth"/>
                                                 </div>
-                                                <div id="listbox-id-13" class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox">
+                                                <div id="listbox-id-13" class="dropdown dropdown_length-with-icon-7 dropdown_fluid" role="listbox">
                                                 <!-- Autocomplete Items -->
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="slds-listbox_selection-group">
+                                        <div class="listbox_selection-group">
                                             <!-- Pills -->
                                         </div>
                                     </div>
@@ -35,12 +35,12 @@ class TagInput {
         this.div.innerHTML = tagInputTemplate;
         // $compile(div)($scope);
         // rootNode.appendChild(div);
-        this.div.querySelector('.slds-form-element__label').textContent = label;
-        this.combobox = this.div.querySelector('.slds-combobox');
-        this.input = this.div.querySelector('.slds-combobox_container .slds-combobox__input');
+        this.div.querySelector('.form-element__label').textContent = label;
+        this.combobox = this.div.querySelector('.combobox');
+        this.input = this.div.querySelector('.combobox_container .combobox__input');
         this.input.setAttribute('placeholder',placeholder);
-        this.pillList = new PillList(this.div.querySelector('.slds-listbox_selection-group'), callback);
-        this.dropdown = new DropdownList(this.div.querySelector('.slds-dropdown'), this.input, this.combobox, this.addPill.bind(this));
+        this.pillList = new PillList(this.div.querySelector('.listbox_selection-group'), callback);
+        this.dropdown = new DropdownList(this.div.querySelector('.dropdown'), this.input, this.combobox, this.addPill.bind(this));
         this.input.addEventListener('keydown', this.handlePress.bind(this), true);
         this.input.addEventListener('input', this.searchOptions.bind(this, true));
         this.input.addEventListener('click', this.searchOptions.bind(this, true));
@@ -154,7 +154,7 @@ class PillList extends List {
     constructor(rootNode, callback) {
         super();
         this.pillContainer = document.createElement('ul');
-        this.pillContainer.classList = "slds-listbox slds-listbox_horizontal";
+        this.pillContainer.classList = "listbox listbox_horizontal";
         this.pillContainer.setAttribute("role", "listbox");
         this.pillContainer.setAttribute("aria-label", "Selected Options:");
         this.pillContainer.setAttribute("aria-orientation", "horizontal");
@@ -176,7 +176,7 @@ class PillList extends List {
     updatePillIndex(index, focus) {
         index = index || 0;
         focus = focus || false;
-        this.pillContainer.querySelectorAll('.slds-pill').forEach((pill, i) => {
+        this.pillContainer.querySelectorAll('.pill').forEach((pill, i) => {
             if (i == index) {
                 pill.tabIndex = 0;
                 pill.setAttribute('aria-selected', true);
@@ -220,19 +220,19 @@ class Pill {
 
     constructor(string, pillContainer, removePill, nextPill) {
         // console.log('addPill', string);
-        var pillTemplate = `<span class="slds-pill" role="option" aria-selected="true">
-                    <span class="slds-pill__label"></span> <span class="slds-icon_container slds-pill__remove" title="Remove">
-                        <span class="slds-assistive-text visuallyhidden">Press delete or backspace to remove</span> </span>
+        var pillTemplate = `<span class="pill" role="option" aria-selected="true">
+                    <span class="pill__label"></span> <span class="icon_container pill__remove" title="Remove">
+                        <span class="assistive-text visuallyhidden">Press delete or backspace to remove</span> </span>
                 </span> </li>`;
         var pill = document.createElement('li');
-        pill.classList = "slds-listbox-item";
+        pill.classList = "listbox-item";
         pill.setAttribute("role", "presentation");
         pill.innerHTML = pillTemplate;
         pillContainer.appendChild(pill);
-        var pillLabel = pill.querySelector('.slds-pill__label');
+        var pillLabel = pill.querySelector('.pill__label');
         pillLabel.title = string;
         pillLabel.textContent = string;
-        pill.querySelector('.slds-pill__remove').addEventListener('click', this.remove.bind(this));
+        pill.querySelector('.pill__remove').addEventListener('click', this.remove.bind(this));
         pill.addEventListener('keydown', this.pillPress.bind(this));
         this.value = string;
         this.pill = pill;
@@ -275,13 +275,13 @@ class DropdownList extends List {
 
     constructor(rootNode, input, combobox, addPill) {
         super();
-        // <ul class="slds-listbox slds-listbox_vertical" role="presentation"></ul>
+        // <ul class="listbox listbox_vertical" role="presentation"></ul>
         this.input = input;
         this.addPill = addPill;
         this.combobox = combobox;
         this.dropdown = document.createElement('ul');
         this.dropdown.setAttribute('role', 'presentation');
-        this.dropdown.classList = "slds-listbox slds-listbox_vertical"; //hidden
+        this.dropdown.classList = "listbox listbox_vertical"; //hidden
         rootNode.appendChild(this.dropdown);
     }
 
@@ -300,7 +300,7 @@ class DropdownList extends List {
                 window.setTimeout(()=>{this.input.focus();},0);
             } else {
                 //enter in input
-                this.input.value = this.selectedItem.querySelector('.slds-listbox__option-text').textContent;
+                this.input.value = this.selectedItem.querySelector('.listbox__option-text').textContent;
             }
             this.hideDropdown();
         }
@@ -339,7 +339,7 @@ class DropdownList extends List {
             // this.dropdown.classList.remove('hidden');
             // this.dropdown.setAttribute("role", "listbox");
             this.combobox.setAttribute('aria-expanded', true);
-            this.combobox.classList.add('slds-is-open');
+            this.combobox.classList.add('is-open');
         } else {
             //no results
             //clear everything and hide dropdown
@@ -353,7 +353,7 @@ class DropdownList extends List {
         // this.dropdown.classList.add('hidden');
         // this.dropdown.setAttribute("role", "presentation");
         this.combobox.setAttribute('aria-expanded', false);
-        this.combobox.classList.remove('slds-is-open');
+        this.combobox.classList.remove('is-open');
         this.input.removeAttribute('aria-activedescendant');
         this.selectedItem = null;
     }
@@ -372,7 +372,7 @@ class DropdownList extends List {
 
     updateIndex(index) {
         index = index || 0;
-        this.dropdown.querySelectorAll('.slds-listbox__option').forEach((item, i) => {
+        this.dropdown.querySelectorAll('.listbox__option').forEach((item, i) => {
             item.id = 'option'+i;
             if (i == index) {
                 item.setAttribute('aria-selected',true);
@@ -395,13 +395,13 @@ class ListItem {
         this.selectItem = selectItem;
         this.hoverItem = hoverItem;
         this.value = string;
-        var optionTemplate = `<div class="slds-media slds-listbox__option slds-listbox__option_entity slds-media_center"
-                                role="option"> <span class="slds-listbox__option-text slds-listbox__option-text_entity"></span> </div>`;
+        var optionTemplate = `<div class="media listbox__option listbox__option_entity media_center"
+                                role="option"> <span class="listbox__option-text listbox__option-text_entity"></span> </div>`;
         this.item = document.createElement('li');
         this.item.innerHTML = optionTemplate;
-        this.item.classList = 'slds-listbox__item';
+        this.item.classList = 'listbox__item';
         this.item.setAttribute('role','presentation');
-        this.item.querySelector('.slds-listbox__option-text').textContent = string;
+        this.item.querySelector('.listbox__option-text').textContent = string;
         this.item.addEventListener('mousedown',this.handleClick.bind(this),true);
         this.item.addEventListener('mouseover', this.handleHover.bind(this), true);
         return this.item;

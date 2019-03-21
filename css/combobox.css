@@ -10,24 +10,24 @@
 }
 
 /* Input */
-.slds-combobox input {
+.combobox input {
     width: 100%;
     line-height: 19px;
 }
 
 /* Dropdown */
-.slds-dropdown {
+.dropdown {
     position: relative;
     display: none;
 }
 
-.slds-is-open .slds-dropdown {
+.is-open .dropdown {
     display: block;
     visibility: visible;
     opacity: 1;
 }
 
-.slds-listbox_vertical {
+.listbox_vertical {
     padding: 0;
     display: flex;
     flex-direction: column;
@@ -48,17 +48,17 @@
     display: none;
 }
 
-.slds-listbox__option[aria-selected=true] {
+.listbox__option[aria-selected=true] {
     background: #f1f2f3;
 }
 
-.slds-dropdown .slds-listbox__option {
-    padding: 4px;
+.dropdown .listbox__option {
+    padding: 8px;
 }
 
 /* Pills */
 
-.slds-listbox.slds-listbox_horizontal {
+.listbox.listbox_horizontal {
     width: 100%;
     padding: 0;
     display: flex;
@@ -66,12 +66,12 @@
     margin: 2px -2px;
 }
 
-.slds-listbox-item {
+.listbox-item {
     list-style: none;
     margin: 2px;
 }
 
-.slds-pill {
+.pill {
     display: flex;
     padding: 4px;
     border-radius: 4px;
@@ -79,21 +79,21 @@
     background: #fff;
 }
 
-.slds-pill:hover {
+.pill:hover {
     background: #f1f2f3;
 }
 
-.slds-pill:focus {
+.pill:focus {
     outline: 0;
     box-shadow: 0 0 0 2px var(--color-primary--tint-alt)
 }
 
-.slds-pill__label {
+.pill__label {
     flex: 1 1 auto;
     margin-right: 4px;
 }
 
-.slds-pill__remove {
+.pill__remove {
     width: 12px;
     height: 12px;
     content: "";
@@ -105,7 +105,7 @@
     cursor: pointer;
 }
 
-.slds-pill__remove:before {
+.pill__remove:before {
     height: 2px;
     width: 12px;
     content: "";
@@ -118,7 +118,7 @@
     border-radius: 1px;
 }
 
-.slds-pill__remove:after {
+.pill__remove:after {
     height: 2px;
     width: 12px;
     content: "";
@@ -131,8 +131,8 @@
     border-radius: 1px;
 }
 
-.slds-pill:hover .slds-pill__remove:before,
-.slds-pill:focus .slds-pill__remove:before {
+.pill:hover .pill__remove:before,
+.pill:focus .pill__remove:before {
     height: 2px;
     width: 12px;
     content: "";
@@ -145,8 +145,8 @@
     border-radius: 1px;
 }
 
-.slds-pill:hover .slds-pill__remove:after,
-.slds-pill:focus .slds-pill__remove:after {
+.pill:hover .pill__remove:after,
+.pill:focus .pill__remove:after {
     height: 2px;
     width: 12px;
     content: "";
