@@ -19,6 +19,8 @@ ga('create', _AnalyticsCode, 'auto');
 ga('set', 'checkProtocolTask', null); // Removes failing protocol check. @see: http://stackoverflow.com/a/22152353/1958200
 // Sets the page value on the tracker.
 ga('set', 'page', location.pathname);
+var manifestData = chrome.runtime.getManifest();
+ga('set', 'dimension1', manifestData.version);
 // Sending the pageview no longer requires passing the page
 // value since it's now stored on the tracker object.
 ga('send', 'pageview');
