@@ -34,14 +34,14 @@ Code may not be used without written and express permission.
                 var getDocumentSuccess = function (response) {
                     //the background page pushes the tags into local storage
                     chrome.storage.local.get('tags', gotTags.bind(this));
-                }
+                };
 
                 var gotTags = function (response) {
                     if (response) {
                         // console.log(response.tags);
                         this.tagsInput.setTagOptions(response.tags);
                     }
-                }
+                };
 
                 $scope.tagsInput = new TagInput('Tags', 'Enter a tag', (items)=>{
                     // console.log('tags callback',items);
