@@ -2,14 +2,14 @@
   "manifest_version": 2,
   "name": "Citable",
   "short_name": "Citable",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "minimum_chrome_version": "45",
   "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDAWST4CzoIlg0pwYOZ4tMGhZj8h+tAfyLmLrmAFNfdfGJz/CJ3LbJlOse8NoLtL+chV+DuhGiStLepn6tzXYe+L8JUHov/ztDeOArzUjmNeG2UpSX8kU8hcGhtnqvlWmto+0OgJytgVYMKnbo2zolI3s+UKfwP1S6D5T0KoyKWowIDAQAB",
   "description": "Save citable quotes and notes from the web into Google spreadsheets.",
   "offline_enabled": false,
   "background": {
-  	"page": "background.html",
-  	"script": "background.js"
+    "page": "background.html",
+    "script": "background.js"
   },
   "oauth2": {
     "client_id": "1034066493115-63ktpb72dijlg29fsr4d4q40uotkd1a1.apps.googleusercontent.com",
@@ -20,7 +20,7 @@
   },
   "options_page": "options.html",
   "icons": {
-  	"16": "icon16.png",
+    "16": "icon16.png",
     "48": "icon48.png",
     "96": "icon96.png",
     "128": "icon128.png",
@@ -44,8 +44,7 @@
     "https://www.googleapis.com/",
     "https://apis.google.com/"
   ],
-  "web_accessible_resources": [
-  ],
+  "web_accessible_resources": [],
   "commands": {
     "_execute_browser_action": {
       "suggested_key": {
