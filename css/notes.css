@@ -1,23 +1,25 @@
 @font-face {
-  font-family: 'hand-font';
-  src: url('../fonts/Dekko/Dekko-Regular.ttf') format('truetype');
+    font-family: 'hand-font';
+    src: url('../fonts/Dekko/Dekko-Regular.ttf') format('truetype');
 }
 
 .form {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 12px;
-  margin: -4px;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 12px;
+    margin: -4px;
 }
 
-.form div, .form > input, .form > textarea {
+.form div,
+.form>input,
+.form>textarea {
     margin: 3px;
     padding: 0;
 }
 
 /* Grid Implementation */
 @supports (display: grid) {
-    
+
     .form {
         display: grid;
         padding: 0;
@@ -25,13 +27,13 @@
         grid-column-gap: 4px;
         grid-row-gap: 6px;
         grid-template-columns: 0.5fr 0.5fr;
-        grid-template-rows: 190px 19px 19px 19px;
+        grid-template-rows: 190px 19px 19px auto;
         grid-template-areas:
             "summary summary"
             "title title"
             "author url"
-            "tags tags"; 
-    } 
+            "tags tags";
+    }
 
     .form.author_full {
         grid-template-areas:
@@ -48,8 +50,10 @@
             "url url"
             "tags tags";
     }
-    
-    .form > div, .form > input, .form > textarea {
+
+    .form div,
+    .form>input,
+    .form>textarea {
         margin: 0;
         padding: 0;
     }
@@ -57,83 +61,83 @@
 }
 
 .summary {
-  grid-area: summary;
-  flex: 1 1 100%;
-  font-size: 16px;
-  line-height: 19px;
-  height: 190px;
-  resize: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 10;
-  -webkit-box-orient: vertical;
+    grid-area: summary;
+    flex: 1 1 100%;
+    font-size: 16px;
+    line-height: 19px;
+    height: 190px;
+    resize: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 10;
+    -webkit-box-orient: vertical;
 }
 
 .title {
-  grid-area: title;
-  flex: 1 1 100%;
-  font-size: 16px;
-  line-height: 19px;
-  font-weight: bold;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+    grid-area: title;
+    flex: 1 1 100%;
+    font-size: 16px;
+    line-height: 19px;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .url {
-  grid-area: url;
-  flex: 1 1 0%;
-  min-width: 0;
+    grid-area: url;
+    flex: 1 1 0%;
+    min-width: 0;
 }
 
 .author {
-  grid-area: author;
-  flex: 1 1 0%;
-  min-width: 0;
+    grid-area: author;
+    flex: 1 1 0%;
+    min-width: 0;
 }
 
-.url , .author {
-  font-size: 12px;
-  line-height: 19px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  word-break: break-all;
+.url,
+.author {
+    font-size: 12px;
+    line-height: 19px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: break-all;
 }
 
 .tags {
-  grid-area: tags;
-  flex: 1 1 100%;
-  font-size: 12px;
-  line-height: 19px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+    grid-area: tags;
+    flex: 1 1 100%;
+    font-size: 12px;
+    line-height: 19px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .handwritten {
-  font-family: 'hand-font', Arial, Sans-Serif;
-  line-height: 1.4;
+    font-family: 'hand-font', Arial, Sans-Serif;
+    line-height: 1.4;
 }
 
 .summary.handwritten {
-  font-size: 18px;
-  /* text-transform:uppercase; */
-  line-height: 21px;
+    font-size: 18px;
+    line-height: 21px;
 }
 
 .title.handwritten {
-  font-size: 12px;
-  text-transform: uppercase;
-  line-height: 16px;
-  font-weight: bold;
+    font-size: 12px;
+    text-transform: uppercase;
+    line-height: 16px;
+    font-weight: bold;
 }
 
 .url.handwritten {
-  font-size: 9px;
+    font-size: 9px;
 }
 
 .tags.handwritten {
-  font-size: 10px;
+    font-size: 10px;
 }

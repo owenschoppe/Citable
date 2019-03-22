@@ -16,104 +16,109 @@ limitations under the License.
 Author: Eric Bidelman (ericbidelman@chromium.org)
 */
 
-"use strict";
-
-
 function GDocs(selector) {
 
-  var SCOPE_ = 'https://www.googleapis.com/drive/v2/';
+    var SCOPE_ = 'https://www.googleapis.com/drive/v2/';
 
-  this.lastResponse = null;
+    this.lastResponse = null;
 
-  this.__defineGetter__('SCOPE', function() {
-    return SCOPE_;
-  });
-
-  this.__defineGetter__('DOCLIST_FEED', function() {
-    return SCOPE_ + 'files';
-  });
-
-  this.__defineGetter__('CREATE_SESSION_URI', function() {
-    return 'https://www.googleapis.com/upload/drive/v2/files?uploadType=resumable';
-  });
-
-  this.__defineGetter__('DEFAULT_CHUNK_SIZE', function() {
-    return 1024 * 1024 * 5; // 5MB;
-  });
-};
-
-GDocs.prototype.auth = function(interactive, opt_callback) {
-  try {
-    chrome.identity.getAuthToken({
-      interactive: interactive
-    }, function(token) {
-      if (token) {
-        this.accessToken = token;
-        console.log(token);
-      }
-      opt_callback && opt_callback(token);
-    }.bind(this));
-  } catch (e) {
-    console.log('Authorization Error', e);
-    opt_callback && opt_callback();
-  }
-};
-
-GDocs.prototype.removeCachedAuthToken = function(opt_callback) {
-  if (this.accessToken) {
-    var accessToken = this.accessToken;
-    this.accessToken = null;
-    // Remove token from the token cache.
-    chrome.identity.removeCachedAuthToken({
-      token: accessToken
-    }, function() {
-      opt_callback && opt_callback();
+    this.__defineGetter__('SCOPE', function () {
+        return SCOPE_;
     });
-  } else {
-    opt_callback && opt_callback();
-  }
+
+    this.__defineGetter__('DOCLIST_FEED', function () {
+        return SCOPE_ + 'files';
+    });
+
+    this.__defineGetter__('CREATE_SESSION_URI', function () {
+        return 'https://www.googleapis.com/upload/drive/v2/files?uploadType=resumable';
+    });
+
+    this.__defineGetter__('DEFAULT_CHUNK_SIZE', function () {
+        return 1024 * 1024 * 5; // 5MB;
+    });
+}
+
+GDocs.prototype.auth = function (interactive, opt_callback) {
+    try {
+        chrome.identity.getAuthToken({
+            interactive: interactive
+        }, function (token) {
+            if (token) {
+                this.accessToken = token;
+                console.log(token);
+            }
+            if (opt_callback) {
+                opt_callback(token);
+            }
+        }.bind(this));
+    } catch (e) {
+        console.log('Authorization Error', e);
+        if (opt_callback) {
+            opt_callback();
+        }
+    }
 };
 
-GDocs.prototype.revokeAuthToken = function(opt_callback) {
-  if (this.accessToken) {
-    // Make a request to revoke token
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'https://accounts.google.com/o/oauth2/revoke?token=' +
-      this.accessToken);
-    xhr.send();
-    this.removeCachedAuthToken(opt_callback);
-  }
+GDocs.prototype.removeCachedAuthToken = function (opt_callback) {
+    if (this.accessToken) {
+        var accessToken = this.accessToken;
+        this.accessToken = null;
+        // Remove token from the token cache.
+        chrome.identity.removeCachedAuthToken({
+            token: accessToken
+        }, function () {
+            if (opt_callback) {
+                opt_callback();
+            }
+        });
+    } else {
+        if (opt_callback) {
+            opt_callback();
+        }
+    }
+};
+
+GDocs.prototype.revokeAuthToken = function (opt_callback) {
+    if (this.accessToken) {
+        // Make a request to revoke token
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://accounts.google.com/o/oauth2/revoke?token=' +
+            this.accessToken);
+        xhr.send();
+        this.removeCachedAuthToken(opt_callback);
+    }
 };
 
 /*
  * Generic HTTP AJAX request handler.
  */
-GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_headers) {
-  var data = opt_data || null;
-  var headers = opt_headers || {};
+GDocs.prototype.makeRequest = function (method, url, callback, opt_data, opt_headers) {
+    var data = opt_data || null;
+    var headers = opt_headers || {};
 
-  var xhr = new XMLHttpRequest();
-  xhr.open(method, url, true);
+    var xhr = new XMLHttpRequest();
+    xhr.open(method, url, true);
 
 
 
-  // Include common headers (auth and version) and add rest.
-  xhr.setRequestHeader('Authorization', 'Bearer ' + this.accessToken);
-  for (var key in headers) {
-    xhr.setRequestHeader(key, headers[key]);
-  }
+    // Include common headers (auth and version) and add rest.
+    xhr.setRequestHeader('Authorization', 'Bearer ' + this.accessToken);
+    for (var key in headers) {
+        xhr.setRequestHeader(key, headers[key]);
+    }
 
-  xhr.onload = function(e) {
-    console.log('onload', this, e.target);
-    this.lastResponse = this.response;
-    callback(e.target.response, e.target);
-  }.bind(this);
-  xhr.onerror = function(e) {
-    console.log(this, this.status, this.response,
-      this.getAllResponseHeaders());
-  };
-  console.log('send data', xhr);
-  xhr.send(data);
+    xhr.onload = function (e) {
+        console.log('onload', this, e.target);
+        this.lastResponse = this.response;
+        callback(e.target.response, e.target);
+    }.bind(this);
+    xhr.onerror = function (e) {
+        console.log(this, this.status, this.response,
+            this.getAllResponseHeaders());
+    };
+    console.log('send data', xhr);
+    xhr.send(data);
 };
 
 
@@ -157,12 +162,12 @@ GDocs.prototype.makeRequest = function(method, url, callback, opt_data, opt_head
  * @param {XMLHttpRequest} xhr The xhr request that failed.
  * @param {string} textStatus The server's returned status.
  */
-GDocs.handleError = function(xhr, textStatus) {
-  //util.hideMsg();
-  if (xhr.status != 0) {
-    Util.displayError(xhr.status, ' ', xhr.statusText);
-  } else {
-    Util.displayError("No internet connection.");
-  }
-  ++requestFailureCount;
+GDocs.handleError = function (xhr, textStatus) {
+    //util.hideMsg();
+    if (xhr.status != 0) {
+        Util.displayError(xhr.status, ' ', xhr.statusText);
+    } else {
+        Util.displayError("No internet connection.");
+    }
+    ++requestFailureCount;
 };
