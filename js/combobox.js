@@ -73,7 +73,7 @@ class TagInput {
             this.pillList.addPill(e.target.value, e.target);
             //Hide the dropdown
             this.dropdown.hideDropdown();
-        } else if (e.key == 'Enter' && !e.target.value.length) {
+        } else if (e.key == 'Enter' && !e.target.value.length && !e.ctrlKey && !e.altKey) {
             e.stopPropagation();
             e.preventDefault();
             this.searchOptions(true, e);
