@@ -1,12 +1,9 @@
 /* Combobox Container */
-.test {
-    width: 288px;
-}
-
 .tag-input {
     grid-area: tags;
     flex: 1 1 100%;
     font-size: 12px;
+    font-size: var(--font-xsmall);
 }
 
 /* Input */
@@ -34,14 +31,18 @@
     width: 100%;
     position: absolute;
     border: 1px solid #ddd;
+    border: 1px solid var(--color-border);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 2px 8px var(--color-shadow);
     border-radius: 4px;
     overflow: hidden;
     overflow-y: auto;
     max-height: 216px;
     margin: 4px 0;
+    margin: var(--space-xxsmall) 0;
     z-index: 999;
     background: #fff;
+    background: var(--color-background);
 }
 
 .hidden {
@@ -49,11 +50,13 @@
 }
 
 .listbox__option[aria-selected=true] {
-    background: #f1f2f3;
+    background: #f2f2f2;
+    background: var(--color-background--select-hover);
 }
 
 .dropdown .listbox__option {
     padding: 8px;
+    padding: var(--space-xsmall);
 }
 
 /* Pills */
@@ -64,33 +67,42 @@
     display: flex;
     flex-wrap: wrap;
     margin: 2px -2px;
+    margin: var(--space-xxxsmall) calc(-1 * var(--space-xxxsmall));
 }
 
 .listbox-item {
     list-style: none;
     margin: 2px;
+    margin: var(--space-xxxsmall);
 }
 
 .pill {
     display: flex;
     padding: 4px;
+    padding: var(--space-xxsmall);
     border-radius: 4px;
+    border-radius: var(--border-radius);
     border: 1px solid #ddd;
+    border: 1px solid var(--color-border);
     background: #fff;
+    background: var(--color-background);
 }
 
 .pill:hover {
-    background: #f1f2f3;
+    background: #f2f2f2;
+    background: var(--color-background--select-hover);
 }
 
 .pill:focus {
     outline: 0;
-    box-shadow: 0 0 0 2px var(--color-primary--tint-alt)
+    box-shadow: 0 0 0 2px #BFE1DE;
+    box-shadow: 0 0 0 2px var(--color-primary--tint-alt);
 }
 
 .pill__label {
     flex: 1 1 auto;
     margin-right: 4px;
+    margin-right: var(--space-xxsmall);
 }
 
 .pill__remove {
@@ -111,6 +123,7 @@
     content: "";
     display: block;
     background: #666;
+    background: var(--g8);
     transform: rotate(45deg);
     position: absolute;
     right: 0;
@@ -124,6 +137,7 @@
     content: "";
     display: block;
     background: #666;
+    background: var(--g8);
     transform: rotate(-45deg);
     position: absolute;
     right: 0;
@@ -133,28 +147,12 @@
 
 .pill:hover .pill__remove:before,
 .pill:focus .pill__remove:before {
-    height: 2px;
-    width: 12px;
-    content: "";
-    display: block;
     background: #333;
-    transform: rotate(45deg);
-    position: absolute;
-    right: 0;
-    top: 50%;
-    border-radius: 1px;
+    background: var(--g9);
 }
 
 .pill:hover .pill__remove:after,
 .pill:focus .pill__remove:after {
-    height: 2px;
-    width: 12px;
-    content: "";
-    display: block;
     background: #333;
-    transform: rotate(-45deg);
-    position: absolute;
-    right: 0;
-    top: 50%;
-    border-radius: 1px;
+    background: var(--g9);
 }

@@ -371,7 +371,8 @@ var createDocument = function (data, fileName, parentFolder, callback) {
             'parents': [parent]
         };
 
-        function Base64Encode(str, encoding = 'utf-8') {
+        function Base64Encode(str, encoding) {
+            encoding = encoding || 'utf-8';
             var bytes = new TextEncoder(encoding).encode(str);
             return base64js.fromByteArray(bytes);
         }

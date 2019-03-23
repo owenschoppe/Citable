@@ -377,9 +377,9 @@
             var i = parseInt(formName.substr(5, 1));
 
             valuesArray[i] = formValue;
-            chrome.storage.local.set({
-                [docKey]: valuesArray
-            });
+            var obj = {};
+            obj[docKey] = valuesArray;
+            chrome.storage.local.set(obj);
 
             setTimeout(function () {
                 console.time('renderNotes timer');
@@ -468,9 +468,9 @@
                 for (var i = 0; i < 5; i++) {
                     valuesArray.push(initSelect(i, cols, defaultFields, defaultColumns, response));
                 }
-                chrome.storage.local.set({
-                    [docKey]: valuesArray
-                }, function (r) {
+                var obj = {};
+                obj[docKey] = valuesArray;
+                chrome.storage.local.set(obj, function (r) {
                     console.log(r);
                 });
             }
