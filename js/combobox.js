@@ -66,34 +66,42 @@ var Tags = (function () {
 
         handlePress(e) {
             // console.log('handlePress',e);
-            if (e.key == 'Enter') {
+            //Minimal Polyfill for e.key in Chrome <51
+            var key = '';
+            if (!e.hasOwnProperty('key')) {
+                key = keyboardEventKeyPolyfill(e);
+            } else {
+                key = e.key;
+            }
+            //process key press
+            if (key == 'Enter') {
                 this.dropdown.selectItem();
             }
-            if (e.key == 'Enter' && e.target.value.length) {
+            if (key == 'Enter' && e.target.value.length) {
                 e.stopPropagation();
                 e.preventDefault();
                 // Add the value to the pill container
                 this.pillList.addPill(e.target.value, e.target);
                 //Hide the dropdown
                 this.dropdown.hideDropdown();
-            } else if (e.key == 'Enter' && !e.target.value.length && !e.ctrlKey && !e.altKey) {
+            } else if (key == 'Enter' && !e.target.value.length && !e.ctrlKey && !e.altKey) {
                 e.stopPropagation();
                 e.preventDefault();
                 this.searchOptions(true, e);
-            } else if (e.key == 'ArrowUp') {
+            } else if (key == 'ArrowUp') {
                 // Arrow through the list box
                 // Show the dropdown and move
                 e.stopPropagation();
                 e.preventDefault();
                 this.dropdown.nextItem(e, -1);
-            } else if (e.key == 'ArrowDown') {
+            } else if (key == 'ArrowDown') {
                 // Arrow through the list box
                 // Show the dropdown and move
                 e.stopPropagation();
                 e.preventDefault();
                 this.searchOptions(false, e);
                 this.dropdown.nextItem(e, 1);
-            } else if (e.key == 'Escape') {
+            } else if (key == 'Escape') {
                 if (this.combobox.getAttribute('aria-expanded') == 'true') {
                     e.stopPropagation();
                     e.preventDefault();
@@ -231,15 +239,22 @@ var Tags = (function () {
         }
 
         pillPress(e) {
-            if (e.key == 'Backspace') {
+            var key = '';
+            if (!e.hasOwnProperty('key')) {
+                key = keyboardEventKeyPolyfill(e);
+            } else {
+                key = e.key;
+            }
+
+            if (key == 'Backspace') {
                 this.remove(e);
                 e.stopPropagation();
                 e.preventDefault();
-            } else if (e.key == 'ArrowDown' || e.key == 'ArrowRight') {
+            } else if (key == 'ArrowDown' || key == 'ArrowRight') {
                 this.nextPill(e, 1, this);
                 e.stopPropagation();
                 e.preventDefault();
-            } else if (e.key == 'ArrowUp' || e.key == 'ArrowLeft') {
+            } else if (key == 'ArrowUp' || key == 'ArrowLeft') {
                 this.nextPill(e, -1, this);
                 e.stopPropagation();
                 e.preventDefault();
@@ -404,6 +419,88 @@ var Tags = (function () {
         handleHover(e) {
             this.hoverItem(e, this.item);
         }
+    }
+
+    function keyboardEventKeyPolyfill(e) {
+        var keys = {
+            3: 'Cancel',
+            6: 'Help',
+            8: 'Backspace',
+            9: 'Tab',
+            12: 'Clear',
+            13: 'Enter',
+            16: 'Shift',
+            17: 'Control',
+            18: 'Alt',
+            19: 'Pause',
+            20: 'CapsLock',
+            27: 'Escape',
+            28: 'Convert',
+            29: 'NonConvert',
+            30: 'Accept',
+            31: 'ModeChange',
+            32: ' ',
+            33: 'PageUp',
+            34: 'PageDown',
+            35: 'End',
+            36: 'Home',
+            37: 'ArrowLeft',
+            38: 'ArrowUp',
+            39: 'ArrowRight',
+            40: 'ArrowDown',
+            41: 'Select',
+            42: 'Print',
+            43: 'Execute',
+            44: 'PrintScreen',
+            45: 'Insert',
+            46: 'Delete',
+            48: ['0', ')'],
+            49: ['1', '!'],
+            50: ['2', '@'],
+            51: ['3', '#'],
+            52: ['4', '$'],
+            53: ['5', '%'],
+            54: ['6', '^'],
+            55: ['7', '&'],
+            56: ['8', '*'],
+            57: ['9', '('],
+            91: 'OS',
+            93: 'ContextMenu',
+            106: '*',
+            107: '+',
+            109: '-',
+            110: '.',
+            111: '/',
+            144: 'NumLock',
+            145: 'ScrollLock',
+            181: 'VolumeMute',
+            182: 'VolumeDown',
+            183: 'VolumeUp',
+            186: [';', ':'],
+            187: ['=', '+'],
+            188: [',', '<'],
+            189: ['-', '_'],
+            190: ['.', '>'],
+            191: ['/', '?'],
+            192: ['`', '~'],
+            219: ['[', '{'],
+            220: ['\\', '|'],
+            221: [']', '}'],
+            222: ["'", '"'],
+            224: 'Meta',
+            225: 'AltGraph',
+            246: 'Attn',
+            247: 'CrSel',
+            248: 'ExSel',
+            249: 'EraseEof',
+            250: 'Play',
+            251: 'ZoomOut'
+        };
+        var key = keys[e.which || e.keyCode];
+        if (Array.isArray(key)) {
+            key = key[+this.shiftKey];
+        }
+        return key;
     }
 
     return {
