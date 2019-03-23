@@ -148,7 +148,7 @@ var Tags = (function () {
         constructor(rootNode, callback) {
             super();
             this.pillContainer = document.createElement('ul');
-            this.pillContainer.classList = "listbox listbox_horizontal";
+            this.pillContainer.classList.add("listbox", "listbox_horizontal");
             this.pillContainer.setAttribute("role", "listbox");
             this.pillContainer.setAttribute("aria-label", "Selected Options:");
             this.pillContainer.setAttribute("aria-orientation", "horizontal");
@@ -216,7 +216,7 @@ var Tags = (function () {
                         <span class="assistive-text visuallyhidden">Press delete or backspace to remove</span> </span>
                 </span> </li>`;
             this.pill = document.createElement('li');
-            this.pill.classList = "listbox-item";
+            this.pill.classList.add("listbox-item");
             this.pill.setAttribute("role", "presentation");
             this.pill.innerHTML = pillTemplate;
             pillContainer.appendChild(this.pill);
@@ -266,7 +266,7 @@ var Tags = (function () {
             this.combobox = combobox;
             this.dropdown = document.createElement('ul');
             this.dropdown.setAttribute('role', 'presentation');
-            this.dropdown.classList = "listbox listbox_vertical"; //hidden
+            this.dropdown.classList.add("listbox", "listbox_vertical"); //hidden
             rootNode.appendChild(this.dropdown);
 
             this.results = [];
@@ -389,7 +389,7 @@ var Tags = (function () {
                                 role="option"> <span class="listbox__option-text listbox__option-text_entity"></span> </div>`;
             this.item = document.createElement('li');
             this.item.innerHTML = optionTemplate;
-            this.item.classList = 'listbox__item';
+            this.item.classList.add('listbox__item');
             this.item.setAttribute('role', 'presentation');
             this.item.querySelector('.listbox__option-text').textContent = string;
             this.item.addEventListener('mousedown', this.handleClick.bind(this), true);
