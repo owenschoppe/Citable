@@ -503,7 +503,7 @@ var Tags = (function () {
         };
         var key = keys[e.which || e.keyCode];
         if (Array.isArray(key)) {
-            key = key[+this.shiftKey];
+            key = key[0 + e.shiftKey];
         }
         return key;
     }
