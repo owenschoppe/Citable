@@ -116,7 +116,7 @@ var Tags = (function () {
             //Should we only search if e.target.value.length > 2?
             var matching = [];
             for (var option of this.tagOptions) {
-                if (option.toLowerCase().includes(e.target.value.toLowerCase()) && !this.pillList.items.map(i => i.value).includes(option)) {
+                if (option.toLowerCase().includes(e.target.value.toLowerCase()) && (this.pillList.items.map(i => i.value).indexOf(option) == -1)) {
                     matching.push(option);
                 }
             }
