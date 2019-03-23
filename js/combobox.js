@@ -33,7 +33,7 @@ var Tags = (function () {
             this.combobox = this.div.querySelector('.combobox');
             this.input = this.div.querySelector('.combobox_container .combobox__input');
             this.input.setAttribute('placeholder', placeholder);
-            this.pillList = new PillList(this.div.querySelector('.listbox_selection-group'), callback);
+            this.pillList = new PillList(this.div.querySelector('.listbox_selection-group'), this.input, callback);
             this.dropdown = new DropdownList(this.div.querySelector('.dropdown'), this.input, this.combobox, this.addPill.bind(this));
             this.input.addEventListener('keydown', this.handlePress.bind(this), true);
             this.input.addEventListener('input', this.searchOptions.bind(this, true));
@@ -153,13 +153,14 @@ var Tags = (function () {
 
     class PillList extends List {
 
-        constructor(rootNode, callback) {
+        constructor(rootNode, input, callback) {
             super();
             this.pillContainer = document.createElement('ul');
             this.pillContainer.classList.add("listbox", "listbox_horizontal");
             this.pillContainer.setAttribute("role", "listbox");
             this.pillContainer.setAttribute("aria-label", "Selected Options:");
             this.pillContainer.setAttribute("aria-orientation", "horizontal");
+            this.input = input;
             rootNode.appendChild(this.pillContainer);
             this.callback = callback;
         }
@@ -196,7 +197,11 @@ var Tags = (function () {
             var index = this.items.indexOf(pill);
             var next = this.nextIndex(index, -1, false);
             this.items.splice(index, 1);
-            this.updatePillIndex(next, true);
+            if (this.items.length) {
+                this.updatePillIndex(next, true);
+            } else {
+                this.input.focus();
+            }
             this.updateCallback();
         }
 
