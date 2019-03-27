@@ -107,7 +107,7 @@ chrome.extension.onConnect.addListener(function (port) {
 
 /////////////////////////////////////////////////////////
 //Try to connect with printable.
-function callPrintable(action, callback) {
+function callPrintable(action, data, callback) {
     console.log('callPrintable');
     // The ID of the extension we want to talk to.
     //var printableId = "bdhofmoocbkmplcojaemnjogcmefeido"; //Local, for testing.
@@ -121,7 +121,7 @@ function callPrintable(action, callback) {
                 'url': 'view.html?key=' + response.defaultDoc.id + '&title=' + response.defaultDoc.title
             });
             if (callback) {
-                callback();
+                callback(data);
             }
         });
 
@@ -133,12 +133,12 @@ function callPrintable(action, callback) {
                 'url': 'export.html?key=' + encodeURIComponent(response.defaultDoc.id) + '&title=' + encodeURIComponent(response.defaultDoc.title)
             });
             if (callback) {
-                callback();
+                callback(data);
             }
         });
     } else {
         if (callback) {
-            callback();
+            callback(data);
         }
     }
 }
@@ -196,7 +196,10 @@ var processDocContent = function (response, xhr, callback) {
             //docName = response.defaultDoc.title;
         });
         if (callback) {
-            callback(true);
+            callback(true, {
+                row: row,
+                tags: tags
+            });
         }
 
     } else {
@@ -266,9 +269,9 @@ var getDocument = function (param, docId, retry, callback) {
                     return;
                 }
             } else {
-                processDocContent(response, xhr, function (success) {
+                processDocContent(response, xhr, function (success, data) {
                     if (success) {
-                        callPrintable(param, function (response) {
+                        callPrintable(param, data, function (response) {
                             console.log('CallPrintableCallback', response);
                             if (callback) {
                                 callback(response);

@@ -32,7 +32,8 @@ Code may not be used without written and express permission.
 
                 var getDocumentSuccess = function (response) {
                     //the background page pushes the tags into local storage
-                    chrome.storage.local.get('tags', gotTags.bind(this));
+                    // chrome.storage.local.get('tags', gotTags.bind(this));
+                    gotTags.call(this, response);
                 };
 
                 var gotTags = function (response) {
