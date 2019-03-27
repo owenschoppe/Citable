@@ -1,7 +1,7 @@
-{    
+{
     "passfail": false,
     "maxerr": 100,
     "browser": true,
     "devel": true,
-    "esversion": 6
+    "esversion": 5
 }

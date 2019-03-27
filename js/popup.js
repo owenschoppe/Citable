@@ -45,7 +45,7 @@ Code may not be used without written and express permission.
                 $scope.tagsInput = new Tags.TagInput('Tags', 'Enter a tag', (items) => {
                     // console.log('tags callback',items);
                     // $scope.tags = items;
-                    $scope.data.citation.tags = items ? items.join(', ') : null;
+                    $scope.data.citation.Tags = items ? items.join(', ') : null;
                     $scope.$apply();
                 });
 
