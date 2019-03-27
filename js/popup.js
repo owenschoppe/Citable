@@ -32,7 +32,8 @@ Code may not be used without written and express permission.
 
                 var getDocumentSuccess = function (response) {
                     //the background page pushes the tags into local storage
-                    chrome.storage.local.get('tags', gotTags.bind(this));
+                    // chrome.storage.local.get('tags', gotTags.bind(this));
+                    gotTags.call(this, response);
                 };
 
                 var gotTags = function (response) {
@@ -45,7 +46,7 @@ Code may not be used without written and express permission.
                 $scope.tagsInput = new Tags.TagInput('Tags', 'Enter a tag', (items) => {
                     // console.log('tags callback',items);
                     // $scope.tags = items;
-                    $scope.data.citation.tags = items ? items.join(', ') : null;
+                    $scope.data.citation.Tags = items ? items.join(', ') : null;
                     $scope.$apply();
                 });
 
@@ -1331,7 +1332,7 @@ Code may not be used without written and express permission.
 })();
 
 //Polyfill
-if (!Object.entries)
+if (!Object.entries) {
     Object.entries = function (obj) {
         var ownProps = Object.keys(obj),
             i = ownProps.length,
@@ -1341,3 +1342,12 @@ if (!Object.entries)
             resArray[i] = [ownProps[i], obj[ownProps[i]]];
         return resArray;
     };
+}
+
+if (!String.toProperCase) {
+    String.prototype.toProperCase = function () {
+        return this.replace(/\w\S*/g, function (txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        });
+    };
+}

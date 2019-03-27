@@ -107,7 +107,7 @@ chrome.extension.onConnect.addListener(function (port) {
 
 /////////////////////////////////////////////////////////
 //Try to connect with printable.
-function callPrintable(action, callback) {
+function callPrintable(action, data, callback) {
     console.log('callPrintable');
     // The ID of the extension we want to talk to.
     //var printableId = "bdhofmoocbkmplcojaemnjogcmefeido"; //Local, for testing.
@@ -121,7 +121,7 @@ function callPrintable(action, callback) {
                 'url': 'view.html?key=' + response.defaultDoc.id + '&title=' + response.defaultDoc.title
             });
             if (callback) {
-                callback();
+                callback(data);
             }
         });
 
@@ -133,12 +133,12 @@ function callPrintable(action, callback) {
                 'url': 'export.html?key=' + encodeURIComponent(response.defaultDoc.id) + '&title=' + encodeURIComponent(response.defaultDoc.title)
             });
             if (callback) {
-                callback();
+                callback(data);
             }
         });
     } else {
         if (callback) {
-            callback();
+            callback(data);
         }
     }
 }
@@ -160,10 +160,14 @@ var processDocContent = function (response, xhr, callback) {
     var row = [];
     var tags = [];
 
-    var data = JSON.parse(response);
-    console.log('row data: ', data, Boolean(data.feed.entry));
-    if (data.feed.entry) {
-
+    var data = {};
+    try {
+        data = JSON.parse(response);
+    } catch (e) {
+        //Problem with the JSON input.
+    }
+    if (data.feed && data.feed.entry) {
+        console.log('row data: ', data, Boolean(data.feed.entry));
         for (var i = 0; i < data.feed.entry.length; ++i) {
             var entry = data.feed.entry[i];
             //   console.log(i);
@@ -196,7 +200,10 @@ var processDocContent = function (response, xhr, callback) {
             //docName = response.defaultDoc.title;
         });
         if (callback) {
-            callback(true);
+            callback(true, {
+                row: row,
+                tags: tags
+            });
         }
 
     } else {
@@ -214,12 +221,6 @@ var Row = function (entry) {
     this.Tags = (entry.gsx$tags ? entry.gsx$tags.$t : '');
     this.Author = (entry.gsx$author ? entry.gsx$author.$t : '');
     this.Date = (entry.gsx$date ? entry.gsx$date.$t : '');
-};
-
-String.prototype.toProperCase = function () {
-    return this.replace(/\w\S*/g, function (txt) {
-        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    });
 };
 
 var getDocument = function (param, docId, retry, callback) {
@@ -266,9 +267,9 @@ var getDocument = function (param, docId, retry, callback) {
                     return;
                 }
             } else {
-                processDocContent(response, xhr, function (success) {
+                processDocContent(response, xhr, function (success, data) {
                     if (success) {
-                        callPrintable(param, function (response) {
+                        callPrintable(param, data, function (response) {
                             console.log('CallPrintableCallback', response);
                             if (callback) {
                                 callback(response);
@@ -828,3 +829,12 @@ var updateDocumentCallback = function () {
     console.log('Successfully completed spreadsheets header update.');
     firstRun = false;
 };
+
+//Polyfill
+if (!String.toProperCase) {
+    String.prototype.toProperCase = function () {
+        return this.replace(/\w\S*/g, function (txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        });
+    };
+}
