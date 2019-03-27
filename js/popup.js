@@ -1332,7 +1332,7 @@ Code may not be used without written and express permission.
 })();
 
 //Polyfill
-if (!Object.entries)
+if (!Object.entries) {
     Object.entries = function (obj) {
         var ownProps = Object.keys(obj),
             i = ownProps.length,
@@ -1342,3 +1342,12 @@ if (!Object.entries)
             resArray[i] = [ownProps[i], obj[ownProps[i]]];
         return resArray;
     };
+}
+
+if (!String.toProperCase) {
+    String.prototype.toProperCase = function () {
+        return this.replace(/\w\S*/g, function (txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        });
+    };
+}

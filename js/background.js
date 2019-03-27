@@ -223,12 +223,6 @@ var Row = function (entry) {
     this.Date = (entry.gsx$date ? entry.gsx$date.$t : '');
 };
 
-String.prototype.toProperCase = function () {
-    return this.replace(/\w\S*/g, function (txt) {
-        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    });
-};
-
 var getDocument = function (param, docId, retry, callback) {
 
     /*chrome.storage.sync.get('defaultDoc', function(response){
@@ -835,3 +829,12 @@ var updateDocumentCallback = function () {
     console.log('Successfully completed spreadsheets header update.');
     firstRun = false;
 };
+
+//Polyfill
+if (!String.toProperCase) {
+    String.prototype.toProperCase = function () {
+        return this.replace(/\w\S*/g, function (txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        });
+    };
+}
