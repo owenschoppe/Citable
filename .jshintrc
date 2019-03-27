@@ -3,5 +3,5 @@
     "maxerr": 100,
     "browser": true,
     "devel": true,
-    "esversion": 5
+    "esversion": 6
 }
