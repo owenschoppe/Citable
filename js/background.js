@@ -160,10 +160,14 @@ var processDocContent = function (response, xhr, callback) {
     var row = [];
     var tags = [];
 
-    var data = JSON.parse(response);
-    console.log('row data: ', data, Boolean(data.feed.entry));
-    if (data.feed.entry) {
-
+    var data = {};
+    try {
+        data = JSON.parse(response);
+    } catch (e) {
+        //Problem with the JSON input.
+    }
+    if (data.feed && data.feed.entry) {
+        console.log('row data: ', data, Boolean(data.feed.entry));
         for (var i = 0; i < data.feed.entry.length; ++i) {
             var entry = data.feed.entry[i];
             //   console.log(i);
