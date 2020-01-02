@@ -99,24 +99,6 @@
     document.getElementById('total').innerHTML = total;
   }
 
-  //TODO: Create a new function to update the spreadsheet contents based on the changes
-  // Persistent click handler for changing the title of a document.
-  /*
-  $('[contenteditable="true"]').live('blur', function(index) {
-    var index = $(this).parent().attr('data-index');
-    // Only make the XHR if the user chose a new title.
-    //if ($(this).text() != bgPage.docs[index].title) {
-    var r = rows[index];
-    if ($(this).text() != rows[index]['title']) {
-    	console.log('old title: ',rows[index]['title'],' new title: ',$(this).text(),' original title: ',rows[index].title);
-
-
-  	//bgPage.r[index].title = $(this).text(); //ok
-
-  	//gdocs.updateDoc(bgPage.docs[index]);
-    }
-  }); */
-
   //Prints this page. Doesn't work if it is clicked too often in a period of time. Use Command+P instead.
   function printDocumentPage(callback) {
     console.log('open print dialog');
@@ -272,7 +254,6 @@
     } else {
       console.log('Initialize');
       document.forms[formName].elements[elementName].checked = key;
-      //$('#'+elementName).prop("checked", key);
       if (callback) {
         callback(key);
       }
@@ -423,24 +404,6 @@
     }
     return params;
   }
-
-  //Callback after creating the document menu.
-  // function getDocId() {
-  //   console.log('getDocId()');
-  //   if (document.querySelectorAll('#destination').length) {
-  //     //Menu exists-> load document.
-  //     console.log('Document menu exists');
-  //     //TODO: fix this
-  //     // docKey = $('#destination').val();
-  //     console.log('docKey: ', docKey);
-  //     printexport.gdocs.printDocument(null, processRowsCallback); //In printexport.js
-  //   } else {
-  //     //Menu does not exist-> redirect to Drive.
-  //     console.log('No document menu.');
-  //     //$('#loading').addClass('hidden'); //Hide the loading gif.
-  //     document.querySelector('#loading').innerHTML = ('Try printing directly from a spreadsheet in <a href="https://drive.google.com">Google Drive</a>.');
-  //   }
-  // }
 
   //TODO: Can we remove the redundant variable 'row' and improve efficiency with explicit passing?
 
@@ -688,7 +651,7 @@
           title = defaultDoc.title;
         }
 
-        $('#selection').html('<div><span class="Droid regular">Document: </span><span id="title" class="Droid bold" name="title">' + title + '</span></div>');
+        document.getElementById('selection').innerHTML = '<div><span class="Droid regular">Document: </span><span id="title" class="Droid bold" name="title">' + title + '</span></div>';
         var printexport = new printExportClass(bgPage, docKey);
         printexport.gdocs.printDocument(null, (data) => {
           rows = data;
