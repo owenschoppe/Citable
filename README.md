@@ -43,7 +43,7 @@ Compose several generic notes.
 
 ## Privacy
 Your data is never shared with Citable or any third parties. Notes are only transmitted between your computer and the specified Google Drive account using HTTPS.</div>
-<a href="https://docs.google.com/document/d/1MAcmx7dVydaxejDyi_WEzHaYzimghYtxOVy7JBEucks/edit?usp=sharing" rel="noreferrer">View Policy</a>
+<a href="https://github.com/owenschoppe/Citable/blob/master/Privacy-Policy.md" rel="noreferrer">View Policy</a>
 <div class="divider m-vertical--large"></div>
 
 ## Donate
