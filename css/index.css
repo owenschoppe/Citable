@@ -137,11 +137,15 @@ a.inverse:focus {
   margin: 0;
   border: none;
   overflow: hidden;
-  padding: 2px 16px 2px 16px;
+  padding: 0 16px 0 16px;
   white-space: nowrap;
   text-decoration: none;
   height: 32px;
   height: var(--button-height);
+  line-height: 32px;
+  line-height: var(--button-height);
+  display: inline-block;
+  text-align: center;
 }
 
 .primary-button {
@@ -149,6 +153,12 @@ a.inverse:focus {
   background-color: var(--color-primary--light);
   color: #ffffff;
   color: var(--color-text--inverse);
+}
+
+.donate-button {
+  background-color: #F8BF39;
+  color: #000000;
+  color: var(--color-text);
 }
 
 .secondary-button {
